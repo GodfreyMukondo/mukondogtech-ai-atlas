@@ -67,7 +67,10 @@ spring:
     enabled: true
     baseline-on-migrate: true
     validate-on-migrate: true
-    out-of-order: false
+    # Leave false normally. Only needed as a one-time catch-up when a
+    # lower-numbered migration is added/fixed after a higher-numbered one
+    # has already been applied (see db/migration/README.md).
+    out-of-order: ${FLYWAY_OUT_OF_ORDER:false}
     clean-disabled: true
     locations: classpath:db/migration
 
