@@ -75,26 +75,8 @@ export default function DashboardLayout({
 
         {/* Content */}
 
-        <main
-          className="
-            flex-1
-            py-8
-            px-4
-            sm:px-6
-            lg:px-8
-            transition-all
-            duration-300
-          "
-        >
-          <div
-            className="
-              mx-auto
-              w-full
-              max-w-7xl
-            "
-          >
-            {children ?? <Outlet />}
-          </div>
+        <main className="flex-1">
+          {children ?? <Outlet />}
         </main>
 
         {/* Footer */}
