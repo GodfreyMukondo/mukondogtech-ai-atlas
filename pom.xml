@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="
+            http://maven.apache.org/POM/4.0.0
+            https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- =========================================================
+         SPRING BOOT PARENT
+         ========================================================= -->
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.3.5</version>
+		<relativePath/>
+	</parent>
+
+
+	<!-- =========================================================
+         PROJECT METADATA
+         ========================================================= -->
+
+	<groupId>com.godfrey</groupId>
+
+	<artifactId>ai-immigration-document-analyzer</artifactId>
+
+	<version>0.0.1-SNAPSHOT</version>
+
+	<name>AI Immigration Document Analyzer</name>
+
+	<description>
+		AI-powered immigration document analysis platform
+		with Oracle database, secure AWS S3 document storage,
+		OCR, AI summarisation, fraud analysis and JWT security.
+	</description>
+
+
+	<!-- =========================================================
+         PROJECT PROPERTIES
+         ========================================================= -->
+
+	<properties>
+
+		<!-- Java -->
+		<java.version>21</java.version>
+
+		<!-- Spring AI -->
+		<spring-ai.version>1.0.0</spring-ai.version>
+
+		<!-- JWT -->
+		<jjwt.version>0.12.7</jjwt.version>
+
+		<!-- Lombok -->
+		<lombok.version>1.18.36</lombok.version>
+
+		<!-- MapStruct -->
+		<mapstruct.version>1.6.3</mapstruct.version>
+
+		<!-- SpringDoc -->
+		<springdoc.version>2.6.0</springdoc.version>
+
+		<!-- Oracle JDBC -->
+		<ojdbc.version>23.3.0.23.09</ojdbc.version>
+
+		<!-- AWS SDK -->
+		<aws.sdk.version>2.29.52</aws.sdk.version>
+
+		<!-- Tess4J -->
+		<tess4j.version>5.8.0</tess4j.version>
+
+		<!-- Apache PDFBox -->
+		<pdfbox.version>2.0.30</pdfbox.version>
+
+		<!-- Apache Tika -->
+		<tika.version>2.9.2</tika.version>
+
+		<!-- Maven Compiler -->
+		<maven.compiler.version>3.13.0</maven.compiler.version>
+
+	</properties>
+
+
+	<!-- =========================================================
+         DEPENDENCY MANAGEMENT
+         ========================================================= -->
+
+	<dependencyManagement>
+
+		<dependencies>
+
+			<!-- =================================================
+                 SPRING AI BOM
+                 ================================================= -->
+
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+
+			<!-- =================================================
+                 AWS SDK BOM
+
+                 All AWS SDK modules are kept on the same version.
+                 ================================================= -->
+
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>${aws.sdk.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+		</dependencies>
+
+	</dependencyManagement>
+
+
+	<!-- =========================================================
+         DEPENDENCIES
+         ========================================================= -->
+
+	<dependencies>
+
+
+		<!-- =====================================================
+             SPRING BOOT WEB
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             SPRING DATA JPA
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             SPRING SECURITY
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             BEAN VALIDATION
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             SPRING ACTUATOR
+
+             Required by application.yml:
+                 management.endpoints.web.exposure.include
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             SPRING KAFKA
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             ORACLE DATABASE
+             ===================================================== -->
+
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc11</artifactId>
+			<version>${ojdbc.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             SPRING AI / OPENAI
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-openai</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             AWS S3
+
+             Version is supplied by the AWS SDK BOM.
+             ===================================================== -->
+
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             AWS STS
+
+             Supports IAM role / assumed-role authentication.
+             ===================================================== -->
+
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sts</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             TESS4J OCR
+             ===================================================== -->
+
+		<dependency>
+			<groupId>net.sourceforge.tess4j</groupId>
+			<artifactId>tess4j</artifactId>
+			<version>${tess4j.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             APACHE PDFBOX
+
+             Used for native PDF text extraction.
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>${pdfbox.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             APACHE TIKA CORE
+
+             Used for MIME/content detection.
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             APACHE TIKA PARSERS
+
+             Supports robust document parsing.
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers-standard-package</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             JWT API
+             ===================================================== -->
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             JWT IMPLEMENTATION
+             ===================================================== -->
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+
+		<!-- =====================================================
+             JWT JACKSON
+             ===================================================== -->
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+
+		<!-- =====================================================
+             EMAIL
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             SPRINGDOC / OPENAPI
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             MAPSTRUCT
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
+
+
+		<!-- =====================================================
+             LOMBOK
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+		<!-- =====================================================
+             FLYWAY CORE
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             FLYWAY ORACLE DATABASE SUPPORT
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-oracle</artifactId>
+		</dependency>
+
+
+		<!-- =====================================================
+             DEVELOPMENT TOOLS
+
+             Optional and runtime-only.
+             Not required by production runtime.
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+
+		<!-- =====================================================
+             TESTING
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+		<!-- =====================================================
+             SPRING SECURITY TESTING
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+		<!-- =====================================================
+             TESTCONTAINERS JUNIT
+
+             Keep only if integration tests use Testcontainers.
+             ===================================================== -->
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+	</dependencies>
+
+
+	<!-- =========================================================
+         BUILD CONFIGURATION
+         ========================================================= -->
+
+	<build>
+
+		<plugins>
+
+
+			<!-- =================================================
+                 SPRING BOOT MAVEN PLUGIN
+                 ================================================= -->
+
+			<plugin>
+
+				<groupId>org.springframework.boot</groupId>
+
+				<artifactId>spring-boot-maven-plugin</artifactId>
+
+				<configuration>
+
+					<layers>
+						<enabled>true</enabled>
+					</layers>
+
+				</configuration>
+
+			</plugin>
+
+
+			<!-- =================================================
+                 MAVEN COMPILER
+
+                 Java 21 + Lombok + MapStruct.
+                 ================================================= -->
+
+			<plugin>
+
+				<groupId>org.apache.maven.plugins</groupId>
+
+				<artifactId>maven-compiler-plugin</artifactId>
+
+				<version>${maven.compiler.version}</version>
+
+				<configuration>
+
+					<release>${java.version}</release>
+
+					<parameters>true</parameters>
+
+					<annotationProcessorPaths>
+
+
+						<!-- =====================================
+                             LOMBOK ANNOTATION PROCESSOR
+                             ===================================== -->
+
+						<path>
+
+							<groupId>org.projectlombok</groupId>
+
+							<artifactId>lombok</artifactId>
+
+							<version>${lombok.version}</version>
+
+						</path>
+
+
+						<!-- =====================================
+                             MAPSTRUCT ANNOTATION PROCESSOR
+                             ===================================== -->
+
+						<path>
+
+							<groupId>org.mapstruct</groupId>
+
+							<artifactId>mapstruct-processor</artifactId>
+
+							<version>${mapstruct.version}</version>
+
+						</path>
+
+
+					</annotationProcessorPaths>
+
+				</configuration>
+
+			</plugin>
+
+
+			<!-- =================================================
+                 MAVEN SUREFIRE
+                 ================================================= -->
+
+			<plugin>
+
+				<groupId>org.apache.maven.plugins</groupId>
+
+				<artifactId>maven-surefire-plugin</artifactId>
+
+				<configuration>
+
+					<useSystemClassLoader>true</useSystemClassLoader>
+
+				</configuration>
+
+			</plugin>
+
+
+		</plugins>
+
+	</build>
+
+
+</project>
+

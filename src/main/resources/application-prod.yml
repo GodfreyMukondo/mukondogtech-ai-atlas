@@ -1,0 +1,66 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    show-sql: false
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
+    clean-disabled: true
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+
+# ============================================================================
+# AWS PRODUCTION
+# ============================================================================
+
+aws:
+  region: ${AWS_REGION:eu-north-1}
+
+  s3:
+    bucket-name: ${AWS_S3_BUCKET}
+
+
+# ============================================================================
+# DOCUMENT
+# ============================================================================
+
+file:
+  max-size: ${DOCUMENT_MAX_FILE_SIZE:10485760}
+
+
+# ============================================================================
+# OCR
+# ============================================================================
+
+ocr:
+  tessdata-path: ${TESSDATA_PATH:}
+
+  language: ${OCR_LANGUAGE:eng}
+
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+
+logging:
+  level:
+    root: INFO
+
+    org.springframework: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: OFF
+
+    com.godfrey.ai_immigration_document_analyzer: INFO
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

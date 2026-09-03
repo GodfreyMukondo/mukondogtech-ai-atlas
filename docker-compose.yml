@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+
+  oracle-db:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: oracle-db
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: ${DB_PASSWORD}
+      APP_USER: ${DB_USERNAME}
+      APP_USER_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+
+  app:
+    build: .
+    container_name: ai-immigration-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - oracle-db
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+      # Datasource - Spring Boot reads ORACLE_*, not DB_*.
+      # "oracle-db" resolves via the compose network, not localhost.
+      ORACLE_DATABASE_URL: jdbc:oracle:thin:@oracle-db:1521/XEPDB1
+      ORACLE_USERNAME: ${DB_USERNAME}
+      ORACLE_PASSWORD: ${DB_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+      APP_ADMIN_EMAIL: ${APP_ADMIN_EMAIL}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD}
+
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+    volumes:
+      - ./uploads:/app/uploads
+
+volumes:
+  oracle-data:

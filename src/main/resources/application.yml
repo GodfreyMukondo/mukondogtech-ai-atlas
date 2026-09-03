@@ -1,0 +1,215 @@
+spring:
+  application:
+    name: ai-immigration-document-analyzer
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:prod}
+
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+      file-size-threshold: 2KB
+
+  datasource:
+    url: ${ORACLE_DATABASE_URL}
+    username: ${ORACLE_USERNAME}
+    password: ${ORACLE_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+    hikari:
+      pool-name: ImmigrationHikariPool
+
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: ${DB_MIN_IDLE:5}
+
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:20000}
+      validation-timeout: ${DB_VALIDATION_TIMEOUT:5000}
+
+      idle-timeout: ${DB_IDLE_TIMEOUT:30000}
+      max-lifetime: ${DB_MAX_LIFETIME:1800000}
+
+      connection-test-query: SELECT 1 FROM DUAL
+
+      auto-commit: false
+      register-mbeans: true
+
+      data-source-properties:
+        oracle.net.CONNECT_TIMEOUT: ${ORACLE_CONNECT_TIMEOUT:10000}
+        oracle.jdbc.ReadTimeout: ${ORACLE_READ_TIMEOUT:30000}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    show-sql: false
+    open-in-view: false
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+        format_sql: false
+
+        jdbc:
+          time_zone: UTC
+          batch_size: 50
+
+        order_inserts: true
+        order_updates: true
+
+        jdbc.batch_versioned_data: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
+    clean-disabled: true
+    locations: classpath:db/migration
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+
+      chat:
+        options:
+          model: gpt-4.1-mini
+
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+
+          starttls:
+            enable: true
+            required: true
+
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+
+        debug: false
+
+
+# ============================================================================
+# APPLICATION
+# ============================================================================
+
+app:
+  admin:
+    email: ${APP_ADMIN_EMAIL:}
+    password: ${APP_ADMIN_PASSWORD:}
+
+
+# ============================================================================
+# SERVER
+# ============================================================================
+
+server:
+  port: ${SERVER_PORT:8080}
+
+  shutdown: graceful
+
+  compression:
+    enabled: true
+
+    mime-types:
+      - application/json
+      - application/xml
+      - text/html
+      - text/plain
+      - text/css
+      - application/javascript
+
+
+# ============================================================================
+# ACTUATOR
+# ============================================================================
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      show-details: when_authorized
+
+
+# ============================================================================
+# DOCUMENT CONFIGURATION
+# ============================================================================
+
+file:
+  # Enforced only for the raw multipart size limit (S3FileStorageService).
+  # Allowed file types/extensions are enforced in DocumentService, which
+  # additionally cross-checks the extension against the declared MIME type.
+  max-size: ${DOCUMENT_MAX_FILE_SIZE:10485760}
+
+
+# ============================================================================
+# OCR
+# ============================================================================
+
+ocr:
+  tessdata-path: ${TESSDATA_PATH:}
+
+  language: ${OCR_LANGUAGE:eng}
+
+
+# ============================================================================
+# AWS
+# ============================================================================
+
+aws:
+  region: ${AWS_REGION:eu-north-1}
+
+  s3:
+    bucket-name: ${AWS_S3_BUCKET}
+
+
+# ============================================================================
+# JWT
+# ============================================================================
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+
+    expiration: ${JWT_EXPIRATION:3600000}
+
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+
+logging:
+  level:
+    root: INFO
+
+    org.springframework: WARN
+    org.springframework.security: INFO
+
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: OFF
+
+    com.godfrey.ai_immigration_document_analyzer: INFO
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,0 +1,94 @@
+spring:
+  datasource:
+    hikari:
+      pool-name: ImmigrationHikariPoolDev
+
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+      connection-timeout: 20000
+      validation-timeout: 5000
+
+      idle-timeout: 30000
+      max-lifetime: 1800000
+
+      leak-detection-threshold: 20000
+
+      connection-test-query: SELECT 1 FROM DUAL
+
+  jpa:
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+        jdbc:
+          batch_size: 25
+
+        order_inserts: true
+        order_updates: true
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
+
+# ============================================================================
+# AWS DEVELOPMENT
+# ============================================================================
+
+aws:
+  region: ${AWS_REGION:eu-north-1}
+
+  s3:
+    bucket-name: ${AWS_S3_BUCKET:mukondogtech-immigration-documents}
+
+
+# ============================================================================
+# APPLICATION
+# ============================================================================
+
+application:
+  name: ai-immigration-document-analyzer
+
+
+# ============================================================================
+# DOCUMENT
+# ============================================================================
+
+file:
+  max-size: ${DOCUMENT_MAX_FILE_SIZE:10485760}
+
+
+# ============================================================================
+# OCR
+# ============================================================================
+
+ocr:
+  tessdata-path: ${TESSDATA_PATH:}
+
+  language: ${OCR_LANGUAGE:eng}
+
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+
+logging:
+  level:
+    root: INFO
+
+    com.godfrey.ai_immigration_document_analyzer: DEBUG
+
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+    org.springframework.security: DEBUG
+    org.springframework.web: INFO
+
+    com.zaxxer.hikari: INFO
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
