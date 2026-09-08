@@ -12,7 +12,16 @@ public enum Role {
 
     USER,
 
-    ADMIN;
+    ADMIN,
+
+    /**
+     * Authorized to access Fact/case data for subjects they are explicitly
+     * assigned to (see {@code CaseAssignment}). Deliberately distinct from
+     * ADMIN: platform administration privileges and case-data access
+     * privileges are separate grants - holding ADMIN alone does not confer
+     * CASE_WORKER access, and vice versa.
+     */
+    CASE_WORKER;
 
     /**
      * Converts the application role to a Spring Security authority.

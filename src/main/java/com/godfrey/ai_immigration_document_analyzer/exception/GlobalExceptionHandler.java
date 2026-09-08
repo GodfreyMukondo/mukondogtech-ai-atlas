@@ -260,6 +260,38 @@ public class GlobalExceptionHandler {
     }
 
     // =========================================================================
+    // INVALID STATE TRANSITION
+    // =========================================================================
+
+    /**
+     * Thrown by the Fact foundation's lifecycle/conflict state machines
+     * (e.g. an out-of-order status transition, or resolving an
+     * already-resolved conflict) - a client-caused conflict with the
+     * resource's current state, not a server fault.
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalState(
+            IllegalStateException ex,
+            WebRequest request
+    ) {
+
+        log.debug(
+                "Invalid state transition | path={} | message={}",
+                getPath(request),
+                ex.getMessage()
+        );
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                safeMessage(
+                        ex.getMessage(),
+                        "This action cannot be performed in the resource's current state."
+                ),
+                request
+        );
+    }
+
+    // =========================================================================
     // DUPLICATE RESOURCE
     // =========================================================================
 
