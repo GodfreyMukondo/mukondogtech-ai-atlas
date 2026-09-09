@@ -1,6 +1,9 @@
+import { Link } from "react-router-dom";
+
 import {
   Calendar,
   FileText,
+  Waypoints,
 } from "lucide-react";
 
 import type {
@@ -447,6 +450,31 @@ export default function DocumentCard({
           >
             Status: {statusLabel}
           </p>
+
+
+          {/* ---------------------------------------------------------------- */}
+          {/* TRACE EVIDENCE ENTRY POINT                                       */}
+          {/* ---------------------------------------------------------------- */}
+
+          {typeof doc?.id === "number" && (
+            <Link
+              to={`/dashboard/evidence-graph?document=${doc.id}`}
+              className="
+                mt-3
+                inline-flex
+                items-center
+                gap-1
+                text-xs
+                font-semibold
+                text-[#C6A15B]
+                transition
+                hover:text-[#dbb877]
+              "
+            >
+              <Waypoints size={13} />
+              Trace evidence
+            </Link>
+          )}
 
         </div>
 
