@@ -11,7 +11,6 @@ import com.godfrey.ai_immigration_document_analyzer.requirement.entity.Pathway;
 import com.godfrey.ai_immigration_document_analyzer.requirement.entity.PathwayAssessment;
 import com.godfrey.ai_immigration_document_analyzer.requirement.entity.PathwayAssessmentRequirementEvaluation;
 import com.godfrey.ai_immigration_document_analyzer.requirement.entity.RegulatoryVerificationStatus;
-import com.godfrey.ai_immigration_document_analyzer.requirement.entity.Requirement;
 import com.godfrey.ai_immigration_document_analyzer.requirement.entity.RequirementEvaluation;
 import com.godfrey.ai_immigration_document_analyzer.requirement.entity.RequirementEvaluationOutcome;
 import com.godfrey.ai_immigration_document_analyzer.requirement.logic.EvaluationContext;
@@ -20,11 +19,9 @@ import com.godfrey.ai_immigration_document_analyzer.requirement.logic.FactEviden
 import com.godfrey.ai_immigration_document_analyzer.requirement.logic.LogicEvaluationService;
 import com.godfrey.ai_immigration_document_analyzer.requirement.logic.LogicNode;
 import com.godfrey.ai_immigration_document_analyzer.requirement.logic.NodeResult;
-import com.godfrey.ai_immigration_document_analyzer.requirement.logic.OutcomeMapping;
 import com.godfrey.ai_immigration_document_analyzer.requirement.repository.PathwayAssessmentRepository;
 import com.godfrey.ai_immigration_document_analyzer.requirement.repository.PathwayAssessmentRequirementEvaluationRepository;
 import com.godfrey.ai_immigration_document_analyzer.requirement.repository.PathwayRepository;
-import com.godfrey.ai_immigration_document_analyzer.requirement.repository.RequirementRepository;
 import com.godfrey.ai_immigration_document_analyzer.security.AuthenticatedUser;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +58,6 @@ import java.util.Map;
 public class PathwayAssessmentService {
 
     private final PathwayRepository pathwayRepository;
-    private final RequirementRepository requirementRepository;
     private final PathwayAssessmentRepository pathwayAssessmentRepository;
     private final PathwayAssessmentRequirementEvaluationRepository pathwayAssessmentEvalRepository;
 
@@ -70,6 +66,7 @@ public class PathwayAssessmentService {
     private final RequirementEvaluationService requirementEvaluationService;
     private final EvaluationCertaintyCalculator certaintyCalculator;
     private final FactAuthorizationService factAuthorizationService;
+    private final PathwayOutcomeCalculator pathwayOutcomeCalculator;
     private final ObjectMapper objectMapper;
 
     // =========================================================================
@@ -107,7 +104,7 @@ public class PathwayAssessmentService {
         LogicNode compositionLogic = deserialize(pathway.getCompositionLogic());
         NodeResult root = logicEvaluationService.evaluate(compositionLogic, context);
 
-        RequirementEvaluationOutcome outcome = resolvePathwayOutcome(root, run);
+        RequirementEvaluationOutcome outcome = pathwayOutcomeCalculator.resolvePathwayOutcome(root, run.computed.values());
 
         Double confidenceScore = (outcome == RequirementEvaluationOutcome.SATISFIED || outcome == RequirementEvaluationOutcome.NOT_SATISFIED)
                 ? certaintyCalculator.forDefiniteOutcome(
@@ -144,41 +141,6 @@ public class PathwayAssessmentService {
                 .toList();
 
         return PathwayAssessmentResponse.from(saved, pathway.getPathwayKey(), pathway.getName(), evaluationResponses);
-    }
-
-    /**
-     * PARTIALLY_SATISFIED is a presentation-only refinement applied here,
-     * never inside the boolean logic algebra itself (approved specification,
-     * section 3): when the tree's genuine result is indeterminate but at
-     * least one MANDATORY referenced Requirement is independently SATISFIED,
-     * the assessment is presented as partial progress rather than a bare
-     * "we don't know".
-     */
-    private RequirementEvaluationOutcome resolvePathwayOutcome(NodeResult root, RequirementEvaluationService.EvaluationRun run) {
-
-        RequirementEvaluationOutcome baseOutcome = OutcomeMapping.fromNodeResult(root);
-
-        boolean indeterminate = baseOutcome == RequirementEvaluationOutcome.INSUFFICIENT_EVIDENCE
-                || baseOutcome == RequirementEvaluationOutcome.UNKNOWN
-                || baseOutcome == RequirementEvaluationOutcome.CONFLICTED
-                || baseOutcome == RequirementEvaluationOutcome.PENDING_REVIEW;
-
-        if (!indeterminate) {
-            return baseOutcome;
-        }
-
-        boolean anyMandatorySatisfied = run.computed.values().stream()
-                .anyMatch(evaluation -> evaluation.getOutcome() == RequirementEvaluationOutcome.SATISFIED
-                        && isMandatory(evaluation.getRequirementId()));
-
-        return anyMandatorySatisfied ? RequirementEvaluationOutcome.PARTIALLY_SATISFIED : baseOutcome;
-    }
-
-    private boolean isMandatory(Long requirementId) {
-        return requirementRepository.findById(requirementId)
-                .map(Requirement::getMandatory)
-                .map(Boolean.TRUE::equals)
-                .orElse(false);
     }
 
     // =========================================================================

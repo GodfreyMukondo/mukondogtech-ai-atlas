@@ -136,6 +136,10 @@ const ApplicationsPage = lazy(
   () => import("../pages/dashboard/ApplicationsPage")
 );
 
+const PathwayDiscoveryPage = lazy(
+  () => import("../pages/dashboard/PathwayDiscoveryPage")
+);
+
 const CaseIntelligencePage = lazy(
   () => import("../pages/dashboard/CaseIntelligencePage")
 );
@@ -442,6 +446,11 @@ export default function AppRoutes() {
             <Route
               path="/dashboard/applications"
               element={<ApplicationsPage />}
+            />
+
+            <Route
+              path="/dashboard/pathways/discovery"
+              element={<PathwayDiscoveryPage />}
             />
 
             <Route

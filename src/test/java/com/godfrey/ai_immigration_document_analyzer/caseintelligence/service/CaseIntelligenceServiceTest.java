@@ -85,7 +85,8 @@ class CaseIntelligenceServiceTest {
 
         caseIntelligenceService = new CaseIntelligenceService(
                 explainabilityService, requirementFactBindingRepository,
-                pathwayAssessmentRepository, pathwayRepository, caseOverviewService
+                pathwayAssessmentRepository, pathwayRepository, caseOverviewService,
+                new RequirementReadinessCalculator()
         );
 
         PathwayAssessment assessment = PathwayAssessment.builder().id(1L).pathwayId(1L).subjectUserId(SUBJECT_ID).build();

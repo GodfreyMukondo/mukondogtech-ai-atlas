@@ -27,6 +27,7 @@ import {
   Settings,
   ShieldCheck,
   Sparkles,
+  Telescope,
   UserCircle,
   Users,
   X,
@@ -86,6 +87,11 @@ const userNavigationGroups: NavigationGroup[] = [
         label: "Applications",
         path: "/dashboard/applications",
         icon: ClipboardCheck,
+      },
+      {
+        label: "Pathway Discovery",
+        path: "/dashboard/pathways/discovery",
+        icon: Telescope,
       },
       {
         label: "Case Timeline & Signals",

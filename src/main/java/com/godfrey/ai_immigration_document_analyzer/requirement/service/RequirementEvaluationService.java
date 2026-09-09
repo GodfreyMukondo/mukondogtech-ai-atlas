@@ -95,14 +95,23 @@ public class RequirementEvaluationService {
         final Long subjectUserId;
         final LocalDateTime assessmentDate;
         final EvaluationFactView factView;
+        /** When false (Pathway Discovery only), {@link #performEvaluation} never writes a row - see {@link #finish}. */
+        final boolean persistResults;
         final Set<Long> currentlyEvaluating = new LinkedHashSet<>();
         final Map<Long, RequirementEvaluation> computed = new HashMap<>();
+        /** In-memory mirror of {@link #toNodeResult(RequirementEvaluation)}, populated without a DB read either way - the only thing a transient run can use to resolve a REQUIREMENT_REF. */
+        final Map<Long, NodeResult> computedNodeResults = new HashMap<>();
 
         EvaluationRun(AuthenticatedUser actor, Long subjectUserId, LocalDateTime assessmentDate, EvaluationFactView factView) {
+            this(actor, subjectUserId, assessmentDate, factView, true);
+        }
+
+        EvaluationRun(AuthenticatedUser actor, Long subjectUserId, LocalDateTime assessmentDate, EvaluationFactView factView, boolean persistResults) {
             this.actor = actor;
             this.subjectUserId = subjectUserId;
             this.assessmentDate = assessmentDate;
             this.factView = factView;
+            this.persistResults = persistResults;
         }
     }
 
@@ -173,7 +182,7 @@ public class RequirementEvaluationService {
 
         if (requirement.getStatus() != RequirementStatus.PUBLISHED) {
 
-            return persist(
+            return finish(
                     requirement,
                     RequirementEvaluationOutcome.UNKNOWN,
                     certaintyCalculator.notApplicable(),
@@ -195,7 +204,13 @@ public class RequirementEvaluationService {
                 run.assessmentDate,
                 run.factView,
                 expectations,
-                refRequirementId -> toNodeResult(evaluateAndPersist(refRequirementId, run))
+                // Persisting runs keep the ORIGINAL DB-backed resolution path unchanged; only a
+                // transient (Pathway Discovery) run uses the in-memory computedNodeResults cache -
+                // see resolveNodeResult. Never a second evaluation algorithm, just a second source
+                // for the same NodeResult.
+                refRequirementId -> run.persistResults
+                        ? toNodeResult(evaluateAndPersist(refRequirementId, run))
+                        : resolveNodeResult(refRequirementId, run)
         );
 
         LogicNode applicabilityLogic = deserialize(requirement.getApplicabilityLogic());
@@ -206,7 +221,7 @@ public class RequirementEvaluationService {
 
             if (applicabilityResult.value() == KleeneValue.FALSE) {
 
-                return persist(
+                return finish(
                         requirement,
                         RequirementEvaluationOutcome.NOT_APPLICABLE,
                         certaintyCalculator.notApplicable(),
@@ -237,7 +252,7 @@ public class RequirementEvaluationService {
                         )
                         : certaintyCalculator.notApplicable();
 
-        return persist(
+        return finish(
                 requirement,
                 outcome,
                 certainty,
@@ -291,6 +306,81 @@ public class RequirementEvaluationService {
         }
 
         return saved;
+    }
+
+    /**
+     * The transient counterpart of {@link #persist} - Pathway Discovery only
+     * (Phase 4). Builds the exact same {@code RequirementEvaluation} shape
+     * with no id and writes nothing: no {@code RequirementEvaluation} row, no
+     * {@code RequirementEvaluationFact}/{@code RequirementEvaluationConflict}
+     * join rows. This is the ONLY difference from {@link #persist} - the
+     * evaluation algebra above ({@code performEvaluation}) is identical
+     * either way.
+     */
+    private RequirementEvaluation buildTransient(
+            Requirement requirement,
+            RequirementEvaluationOutcome outcome,
+            EvaluationCertaintyCalculator.Result certainty,
+            String explanation,
+            List<DerivedValueRecord> derivedValues,
+            EvaluationRun run
+    ) {
+
+        return RequirementEvaluation.builder()
+                .requirementId(requirement.getId())
+                .regulatoryVersionId(requirement.getRegulatoryVersionId())
+                .subjectUserId(run.subjectUserId)
+                .assessmentDate(run.assessmentDate)
+                .outcome(outcome)
+                .certaintyScore(certainty.score())
+                .certaintyLevel(certainty.level())
+                .explanation(explanation)
+                .derivedValuesJson(serializeDerivedValues(derivedValues))
+                .evaluatedAt(run.assessmentDate)
+                .build();
+    }
+
+    /**
+     * The single point where {@code performEvaluation} routes to a real,
+     * persisted row ({@link #persist}) or a disposable, never-saved one
+     * ({@link #buildTransient}) - decided once per run via
+     * {@link EvaluationRun#persistResults}, never per requirement. Either
+     * way, {@code run.computedNodeResults} is populated from the SAME
+     * in-memory sets just computed by {@code performEvaluation} (no DB
+     * round-trip), so a transient run can resolve a nested REQUIREMENT_REF
+     * without ever reading a join table that was never written.
+     */
+    private RequirementEvaluation finish(
+            Requirement requirement,
+            RequirementEvaluationOutcome outcome,
+            EvaluationCertaintyCalculator.Result certainty,
+            String explanation,
+            Set<Long> contributingFactIds,
+            Set<Long> unresolvedConflictIds,
+            List<DerivedValueRecord> derivedValues,
+            EvaluationRun run
+    ) {
+
+        RequirementEvaluation evaluation = run.persistResults
+                ? persist(requirement, outcome, certainty, explanation, contributingFactIds, unresolvedConflictIds, derivedValues, run)
+                : buildTransient(requirement, outcome, certainty, explanation, derivedValues, run);
+
+        run.computedNodeResults.put(requirement.getId(), toNodeResult(evaluation, contributingFactIds, unresolvedConflictIds));
+
+        return evaluation;
+    }
+
+    /**
+     * Resolves one Requirement's {@link NodeResult} within a shared run,
+     * for a REQUIREMENT_REF leaf - Pathway Discovery's transient equivalent
+     * of {@code toNodeResult(evaluateAndPersist(id, run))}. Correct for a
+     * persisting run too (evaluateAndPersist always populates
+     * computedNodeResults via {@link #finish}), but only Pathway Discovery
+     * calls this directly; the original persisting call sites are untouched.
+     */
+    NodeResult resolveNodeResult(Long requirementId, EvaluationRun run) {
+        evaluateAndPersist(requirementId, run);
+        return run.computedNodeResults.get(requirementId);
     }
 
     // =========================================================================
@@ -349,6 +439,17 @@ public class RequirementEvaluationService {
                 evaluationConflictRepository.findByEvaluationId(evaluation.getId())
                         .stream().map(RequirementEvaluationConflict::getConflictId).toList()
         );
+
+        return toNodeResult(evaluation, factIds, conflictIds);
+    }
+
+    /**
+     * The pure mapping {@link #toNodeResult(RequirementEvaluation)} delegates
+     * to after its two DB reads - extracted so {@link #finish} can build the
+     * identical {@link NodeResult} from the sets it already holds in memory
+     * (real evaluation or transient), with no repository call at all.
+     */
+    private NodeResult toNodeResult(RequirementEvaluation evaluation, Set<Long> factIds, Set<Long> conflictIds) {
 
         return switch (evaluation.getOutcome()) {
             case SATISFIED -> NodeResult.trueResult(scoreOf(evaluation), factIds, List.of());

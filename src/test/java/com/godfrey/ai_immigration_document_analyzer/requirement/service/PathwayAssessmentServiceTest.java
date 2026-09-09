@@ -107,9 +107,10 @@ class PathwayAssessmentServiceTest {
         );
 
         pathwayAssessmentService = new PathwayAssessmentService(
-                pathwayRepository, requirementRepository, pathwayAssessmentRepository, pathwayAssessmentEvalRepository,
+                pathwayRepository, pathwayAssessmentRepository, pathwayAssessmentEvalRepository,
                 temporalFactResolver, new LogicEvaluationService(), requirementEvaluationService,
-                new EvaluationCertaintyCalculator(), factAuthorizationService, objectMapper
+                new EvaluationCertaintyCalculator(), factAuthorizationService,
+                new PathwayOutcomeCalculator(requirementRepository), objectMapper
         );
 
         lenient().when(evaluationRepository.save(any(RequirementEvaluation.class))).thenAnswer(inv -> {

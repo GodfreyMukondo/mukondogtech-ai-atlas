@@ -2,8 +2,10 @@ package com.godfrey.ai_immigration_document_analyzer.requirement.controller;
 
 import com.godfrey.ai_immigration_document_analyzer.requirement.dto.ExplanationResponse;
 import com.godfrey.ai_immigration_document_analyzer.requirement.dto.PathwayAssessmentResponse;
+import com.godfrey.ai_immigration_document_analyzer.requirement.dto.PathwayDiscoveryResponse;
 import com.godfrey.ai_immigration_document_analyzer.requirement.service.ExplainabilityService;
 import com.godfrey.ai_immigration_document_analyzer.requirement.service.PathwayAssessmentService;
+import com.godfrey.ai_immigration_document_analyzer.requirement.service.PathwayDiscoveryService;
 import com.godfrey.ai_immigration_document_analyzer.security.AuthenticatedUser;
 
 import jakarta.validation.constraints.Positive;
@@ -42,6 +44,7 @@ import java.time.LocalDateTime;
  *
  * Endpoints:
  *
+ *   GET  /api/pathways/discovery                                   read-only, ranked alignment across every PUBLISHED pathway (Phase 4)
  *   POST /api/pathways/{pathwayId}/assessments                     request a personalized assessment
  *   GET  /api/pathways/assessments/{assessmentId}                  retrieve an assessment
  *   GET  /api/pathways/assessments/{assessmentId}/explanation      full explainability chain
@@ -55,6 +58,21 @@ public class PathwayAssessmentController {
 
     private final PathwayAssessmentService pathwayAssessmentService;
     private final ExplainabilityService explainabilityService;
+    private final PathwayDiscoveryService pathwayDiscoveryService;
+
+    /**
+     * Read-only, transient ranking of every PUBLISHED pathway against the
+     * subject's current case (Phase 4). Never creates a PathwayAssessment or
+     * RequirementEvaluation row - see {@link PathwayDiscoveryService}.
+     */
+    @GetMapping(value = "/discovery", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PathwayDiscoveryResponse> discoverPathways(
+            @AuthenticationPrincipal AuthenticatedUser actor,
+            @RequestParam("subjectUserId") @Positive Long subjectUserId
+    ) {
+
+        return ResponseEntity.ok(pathwayDiscoveryService.discover(actor, subjectUserId));
+    }
 
     @PostMapping(value = "/{pathwayId}/assessments", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PathwayAssessmentResponse> requestAssessment(

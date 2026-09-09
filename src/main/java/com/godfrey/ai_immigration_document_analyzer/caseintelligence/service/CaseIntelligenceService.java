@@ -12,7 +12,6 @@ import com.godfrey.ai_immigration_document_analyzer.caseintelligence.dto.Require
 import com.godfrey.ai_immigration_document_analyzer.exception.ResourceNotFoundException;
 import com.godfrey.ai_immigration_document_analyzer.requirement.dto.ExplanationResponse;
 import com.godfrey.ai_immigration_document_analyzer.requirement.entity.PathwayAssessment;
-import com.godfrey.ai_immigration_document_analyzer.requirement.entity.RequirementEvaluationOutcome;
 import com.godfrey.ai_immigration_document_analyzer.requirement.entity.RequirementFactBinding;
 import com.godfrey.ai_immigration_document_analyzer.requirement.repository.PathwayAssessmentRepository;
 import com.godfrey.ai_immigration_document_analyzer.requirement.repository.PathwayRepository;
@@ -66,6 +65,7 @@ public class CaseIntelligenceService {
     private final PathwayAssessmentRepository pathwayAssessmentRepository;
     private final PathwayRepository pathwayRepository;
     private final CaseOverviewService caseOverviewService;
+    private final RequirementReadinessCalculator requirementReadinessCalculator;
 
     @Transactional(readOnly = true)
     public CaseIntelligenceResponse getCaseIntelligence(AuthenticatedUser actor, Long pathwayAssessmentId) {
@@ -111,18 +111,7 @@ public class CaseIntelligenceService {
     // =========================================================================
 
     private CaseRequirementSupportStatus deriveSupportStatus(ExplanationResponse.RequirementExplanation requirement) {
-
-        return switch (requirement.outcome()) {
-            case SATISFIED -> CaseRequirementSupportStatus.SATISFIED;
-            case PARTIALLY_SATISFIED -> CaseRequirementSupportStatus.PARTIALLY_SUPPORTED;
-            case NOT_SATISFIED -> CaseRequirementSupportStatus.NOT_SATISFIED;
-            case CONFLICTED -> CaseRequirementSupportStatus.CONFLICTING;
-            case EXPIRED, PENDING_REVIEW -> CaseRequirementSupportStatus.NEEDS_VERIFICATION;
-            case UNKNOWN, NOT_APPLICABLE -> CaseRequirementSupportStatus.NOT_ASSESSABLE;
-            case INSUFFICIENT_EVIDENCE -> requirement.contributingFacts().isEmpty()
-                    ? CaseRequirementSupportStatus.MISSING
-                    : CaseRequirementSupportStatus.NEEDS_VERIFICATION;
-        };
+        return requirementReadinessCalculator.deriveSupportStatus(requirement.outcome(), !requirement.contributingFacts().isEmpty());
     }
 
     private RequirementEvidenceMatrixRowResponse toMatrixRow(ExplanationResponse.RequirementExplanation requirement) {
@@ -168,27 +157,11 @@ public class CaseIntelligenceService {
             List<RequirementEvidenceMatrixRowResponse> matrix
     ) {
 
-        List<ExplanationResponse.RequirementExplanation> requirements = explanation.requirements();
-
-        if (requirements.isEmpty()) {
-            return new CaseReadinessResponse(100.0, 100.0, 100.0, 100.0, List.of());
-        }
-
-        List<ExplanationResponse.RequirementExplanation> mandatory = requirements.stream()
-                .filter(r -> Boolean.TRUE.equals(r.mandatory()))
+        List<RequirementReadinessCalculator.MandatoryOutcome> outcomes = explanation.requirements().stream()
+                .map(r -> new RequirementReadinessCalculator.MandatoryOutcome(Boolean.TRUE.equals(r.mandatory()), r.outcome()))
                 .toList();
 
-        double requirementCoverage = mandatory.isEmpty()
-                ? 100.0
-                : percentage(mandatory, r -> r.outcome() == RequirementEvaluationOutcome.SATISFIED);
-
-        double evidenceCoverage =
-                percentage(requirements, r -> r.outcome() != RequirementEvaluationOutcome.INSUFFICIENT_EVIDENCE);
-
-        double consistency =
-                percentage(requirements, r -> r.outcome() != RequirementEvaluationOutcome.CONFLICTED);
-
-        double overall = round((requirementCoverage + evidenceCoverage + consistency) / 3.0);
+        RequirementReadinessCalculator.ReadinessMetrics metrics = requirementReadinessCalculator.computeReadiness(outcomes);
 
         List<OutstandingIssueResponse> outstandingIssues = matrix.stream()
                 .map(this::toOutstandingIssue)
@@ -196,7 +169,11 @@ public class CaseIntelligenceService {
                 .toList();
 
         return new CaseReadinessResponse(
-                round(requirementCoverage), round(evidenceCoverage), round(consistency), overall, outstandingIssues
+                metrics.requirementCoveragePercent(),
+                metrics.evidenceCoveragePercent(),
+                metrics.consistencyPercent(),
+                metrics.overallReadinessPercent(),
+                outstandingIssues
         );
     }
 
@@ -227,17 +204,6 @@ public class CaseIntelligenceService {
         );
     }
 
-    private double percentage(
-            List<ExplanationResponse.RequirementExplanation> requirements,
-            java.util.function.Predicate<ExplanationResponse.RequirementExplanation> predicate
-    ) {
-        long matching = requirements.stream().filter(predicate).count();
-        return (matching * 100.0) / requirements.size();
-    }
-
-    private double round(double value) {
-        return Math.round(value * 10.0) / 10.0;
-    }
 
     // =========================================================================
     // MISSING EVIDENCE
