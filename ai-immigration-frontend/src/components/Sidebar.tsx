@@ -9,6 +9,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ClipboardCheck,
+  Clock,
   CreditCard,
   Database,
   FileCheck,
@@ -85,6 +86,11 @@ const userNavigationGroups: NavigationGroup[] = [
         label: "Applications",
         path: "/dashboard/applications",
         icon: ClipboardCheck,
+      },
+      {
+        label: "Case Timeline & Signals",
+        path: "/dashboard/case-timeline",
+        icon: Clock,
       },
       {
         label: "Reports & Analytics",

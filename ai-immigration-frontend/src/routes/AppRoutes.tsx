@@ -136,6 +136,14 @@ const ApplicationsPage = lazy(
   () => import("../pages/dashboard/ApplicationsPage")
 );
 
+const CaseIntelligencePage = lazy(
+  () => import("../pages/dashboard/CaseIntelligencePage")
+);
+
+const CaseTimelinePage = lazy(
+  () => import("../pages/dashboard/CaseTimelinePage")
+);
+
 // ======================================================
 // ACCOUNT PAGES
 // ======================================================
@@ -434,6 +442,16 @@ export default function AppRoutes() {
             <Route
               path="/dashboard/applications"
               element={<ApplicationsPage />}
+            />
+
+            <Route
+              path="/dashboard/pathways/assessments/:assessmentId/intelligence"
+              element={<CaseIntelligencePage />}
+            />
+
+            <Route
+              path="/dashboard/case-timeline"
+              element={<CaseTimelinePage />}
             />
 
             <Route
