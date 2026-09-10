@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import {
   AlertTriangle,
   ArrowLeft,
+  Bot,
   Compass,
   Gauge,
   RefreshCw,
@@ -27,6 +28,7 @@ import Button from "../../components/common/Button";
 import Loader from "../../components/common/Loader";
 import ErrorAlert from "../../components/common/ErrorAlert";
 import EmptyState from "../../components/common/EmptyState";
+import ExplainRequirementPanel from "../../components/agent/ExplainRequirementPanel";
 
 /**
  * ============================================================================
@@ -56,6 +58,7 @@ export default function PathwayAssessmentResultsPage() {
   const [assessment, setAssessment] = useState<PathwayAssessment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [explainingRequirementId, setExplainingRequirementId] = useState<number | null>(null);
 
   const numericAssessmentId = assessmentId ? Number(assessmentId) : null;
 
@@ -261,12 +264,33 @@ export default function PathwayAssessmentResultsPage() {
                       </span>
                     )}
                   </div>
+
+                  <div className="mt-3 flex flex-wrap items-center justify-end gap-4 border-t border-white/10 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setExplainingRequirementId(evaluation.requirementId)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#C6A15B] transition hover:text-[#dbb877]"
+                    >
+                      <Bot size={12} />
+                      Explain this requirement
+                    </button>
+                  </div>
                 </li>
               );
             })}
           </ul>
         )}
       </section>
+
+      {explainingRequirementId != null && (
+        <div className="fixed inset-y-0 right-0 z-40 h-full">
+          <ExplainRequirementPanel
+            pathwayAssessmentId={assessment.id}
+            requirementId={explainingRequirementId}
+            onClose={() => setExplainingRequirementId(null)}
+          />
+        </div>
+      )}
     </motion.div>
   );
 }
