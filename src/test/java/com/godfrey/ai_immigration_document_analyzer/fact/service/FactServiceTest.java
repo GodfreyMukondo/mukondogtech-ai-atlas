@@ -1,6 +1,12 @@
 package com.godfrey.ai_immigration_document_analyzer.fact.service;
 
 import com.godfrey.ai_immigration_document_analyzer.entity.Role;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.DocumentVersion;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.EvidenceItem;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.EvidenceItemStatus;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.DocumentVersionRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.EvidenceItemRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.service.EvidenceItemLifecycleService;
 import com.godfrey.ai_immigration_document_analyzer.exception.ResourceNotFoundException;
 import com.godfrey.ai_immigration_document_analyzer.fact.dto.FactProposalRequest;
 import com.godfrey.ai_immigration_document_analyzer.fact.dto.FactResponse;
@@ -80,6 +86,15 @@ class FactServiceTest {
     @Mock
     private ConfidenceCalculator confidenceCalculator;
 
+    @Mock
+    private DocumentVersionRepository documentVersionRepository;
+
+    @Mock
+    private EvidenceItemRepository evidenceItemRepository;
+
+    @Mock
+    private EvidenceItemLifecycleService evidenceItemLifecycleService;
+
     private FactService factService;
 
     @BeforeEach
@@ -87,7 +102,8 @@ class FactServiceTest {
 
         factService = new FactService(
                 factRepository, evidenceRepository, conflictRepository, timelineEventRepository,
-                authorizationService, factConflictService, lifecycleService, confidenceCalculator
+                authorizationService, factConflictService, lifecycleService, confidenceCalculator,
+                documentVersionRepository, evidenceItemRepository, evidenceItemLifecycleService
         );
     }
 
@@ -251,6 +267,158 @@ class FactServiceTest {
         verify(authorizationService).assertCanCreate(eq(actor), eq(SUBJECT_ID), any(), anyString());
         verify(factRepository).save(any(Fact.class));
         verify(factConflictService).processIncomingFact(any(Fact.class));
+    }
+
+    // =========================================================================
+    // PROPOSE - EVIDENCE INTELLIGENCE GRAPH LINKAGE (Phase 4 gap closure)
+    // =========================================================================
+
+    private void stubHappyPathSave(Fact accepted) {
+
+        when(confidenceCalculator.compute(any())).thenReturn(
+                new ConfidenceCalculator.Result(0.5, com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConfidenceLevel.MODERATE, "document extraction")
+        );
+
+        when(factRepository.save(any(Fact.class))).thenAnswer(invocation -> {
+            Fact f = invocation.getArgument(0);
+            f.setId(1L);
+            return f;
+        });
+
+        when(factConflictService.processIncomingFact(any(Fact.class))).thenReturn(accepted);
+        when(evidenceRepository.findByFactId(1L)).thenReturn(List.of());
+    }
+
+    @Test
+    void proposeFactLinksAnExistingCandidateEvidenceItemAndTransitionsItToLinkedWhenAccepted() {
+
+        FactProposalRequest request = validRequest();
+        request.setProvenanceType(FactProvenanceType.DOCUMENT_EXTRACTION);
+        request.setSourceDocumentId(55L);
+
+        AuthenticatedUser actor = user(SUBJECT_ID, Role.USER);
+
+        DocumentVersion version = DocumentVersion.builder().id(1L).documentId(55L).versionNumber(1).build();
+        EvidenceItem candidate = EvidenceItem.builder()
+                .id(900L).documentVersionId(1L).status(EvidenceItemStatus.CANDIDATE).build();
+
+        when(documentVersionRepository.findFirstByDocumentIdOrderByVersionNumberDesc(55L))
+                .thenReturn(Optional.of(version));
+        when(evidenceItemRepository.findByDocumentVersionId(1L)).thenReturn(List.of(candidate));
+
+        Fact accepted = Fact.builder()
+                .id(1L).subjectUserId(SUBJECT_ID).category(FactCategory.IDENTITY).factKey("IDENTITY.FULL_NAME")
+                .valueType(FactValueType.STRING).stringValue("Jane Doe").status(FactStatus.ACCEPTED)
+                .provenanceType(FactProvenanceType.DOCUMENT_EXTRACTION)
+                .confidenceScore(0.5).confidenceLevel(com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConfidenceLevel.MODERATE)
+                .isVerified(false).observedAt(LocalDateTime.now()).lastObservedAt(LocalDateTime.now())
+                .build();
+
+        stubHappyPathSave(accepted);
+
+        factService.proposeFact(actor, request);
+
+        verify(evidenceRepository).save(org.mockito.ArgumentMatchers.argThat(evidence ->
+                evidence.getEvidenceItemId() != null && evidence.getEvidenceItemId().equals(900L)
+        ));
+        verify(evidenceItemLifecycleService).transition(candidate, EvidenceItemStatus.LINKED);
+    }
+
+    @Test
+    void proposeFactDoesNotLinkAValidationFailedEvidenceItem() {
+
+        FactProposalRequest request = validRequest();
+        request.setProvenanceType(FactProvenanceType.DOCUMENT_EXTRACTION);
+        request.setSourceDocumentId(55L);
+
+        AuthenticatedUser actor = user(SUBJECT_ID, Role.USER);
+
+        DocumentVersion version = DocumentVersion.builder().id(1L).documentId(55L).versionNumber(1).build();
+        EvidenceItem validationFailed = EvidenceItem.builder()
+                .id(900L).documentVersionId(1L).status(EvidenceItemStatus.VALIDATION_FAILED).build();
+
+        when(documentVersionRepository.findFirstByDocumentIdOrderByVersionNumberDesc(55L))
+                .thenReturn(Optional.of(version));
+        when(evidenceItemRepository.findByDocumentVersionId(1L)).thenReturn(List.of(validationFailed));
+
+        Fact accepted = Fact.builder()
+                .id(1L).subjectUserId(SUBJECT_ID).category(FactCategory.IDENTITY).factKey("IDENTITY.FULL_NAME")
+                .valueType(FactValueType.STRING).stringValue("Jane Doe").status(FactStatus.ACCEPTED)
+                .provenanceType(FactProvenanceType.DOCUMENT_EXTRACTION)
+                .confidenceScore(0.5).confidenceLevel(com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConfidenceLevel.MODERATE)
+                .isVerified(false).observedAt(LocalDateTime.now()).lastObservedAt(LocalDateTime.now())
+                .build();
+
+        stubHappyPathSave(accepted);
+
+        factService.proposeFact(actor, request);
+
+        verify(evidenceRepository).save(org.mockito.ArgumentMatchers.argThat(evidence ->
+                evidence.getEvidenceItemId() == null
+        ));
+        verify(evidenceItemLifecycleService, never()).transition(any(), any());
+    }
+
+    @Test
+    void proposeFactLeavesACandidateEvidenceItemUnlinkedWhenTheFactIsNotAccepted() {
+
+        FactProposalRequest request = validRequest();
+        request.setProvenanceType(FactProvenanceType.DOCUMENT_EXTRACTION);
+        request.setSourceDocumentId(55L);
+
+        AuthenticatedUser actor = user(SUBJECT_ID, Role.USER);
+
+        DocumentVersion version = DocumentVersion.builder().id(1L).documentId(55L).versionNumber(1).build();
+        EvidenceItem candidate = EvidenceItem.builder()
+                .id(900L).documentVersionId(1L).status(EvidenceItemStatus.CANDIDATE).build();
+
+        when(documentVersionRepository.findFirstByDocumentIdOrderByVersionNumberDesc(55L))
+                .thenReturn(Optional.of(version));
+        when(evidenceItemRepository.findByDocumentVersionId(1L)).thenReturn(List.of(candidate));
+
+        Fact contested = Fact.builder()
+                .id(1L).subjectUserId(SUBJECT_ID).category(FactCategory.IDENTITY).factKey("IDENTITY.FULL_NAME")
+                .valueType(FactValueType.STRING).stringValue("Jane Doe").status(FactStatus.CONTESTED)
+                .provenanceType(FactProvenanceType.DOCUMENT_EXTRACTION)
+                .confidenceScore(0.5).confidenceLevel(com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConfidenceLevel.MODERATE)
+                .isVerified(false).observedAt(LocalDateTime.now()).lastObservedAt(LocalDateTime.now())
+                .build();
+
+        stubHappyPathSave(contested);
+
+        factService.proposeFact(actor, request);
+
+        verify(evidenceItemLifecycleService, never()).transition(any(), any());
+    }
+
+    @Test
+    void proposeFactRecordsPlainFactEvidenceWhenNoEvidenceItemExistsYet() {
+
+        FactProposalRequest request = validRequest();
+        request.setProvenanceType(FactProvenanceType.DOCUMENT_EXTRACTION);
+        request.setSourceDocumentId(55L);
+
+        AuthenticatedUser actor = user(SUBJECT_ID, Role.USER);
+
+        when(documentVersionRepository.findFirstByDocumentIdOrderByVersionNumberDesc(55L))
+                .thenReturn(Optional.empty());
+
+        Fact accepted = Fact.builder()
+                .id(1L).subjectUserId(SUBJECT_ID).category(FactCategory.IDENTITY).factKey("IDENTITY.FULL_NAME")
+                .valueType(FactValueType.STRING).stringValue("Jane Doe").status(FactStatus.ACCEPTED)
+                .provenanceType(FactProvenanceType.DOCUMENT_EXTRACTION)
+                .confidenceScore(0.5).confidenceLevel(com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConfidenceLevel.MODERATE)
+                .isVerified(false).observedAt(LocalDateTime.now()).lastObservedAt(LocalDateTime.now())
+                .build();
+
+        stubHappyPathSave(accepted);
+
+        factService.proposeFact(actor, request);
+
+        verify(evidenceRepository).save(org.mockito.ArgumentMatchers.argThat(evidence ->
+                evidence.getEvidenceItemId() == null && evidence.getDocumentId().equals(55L)
+        ));
+        verify(evidenceItemLifecycleService, never()).transition(any(), any());
     }
 
     // =========================================================================

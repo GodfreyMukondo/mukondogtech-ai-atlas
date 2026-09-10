@@ -2,6 +2,9 @@ package com.godfrey.ai_immigration_document_analyzer.service;
 
 import com.godfrey.ai_immigration_document_analyzer.dto.response.DocumentResponse;
 import com.godfrey.ai_immigration_document_analyzer.entity.Document;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.DocumentVersionRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.EvidenceItemRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.service.EvidenceItemLifecycleService;
 import com.godfrey.ai_immigration_document_analyzer.exception.ResourceNotFoundException;
 import com.godfrey.ai_immigration_document_analyzer.repository.DocumentRepository;
 import com.godfrey.ai_immigration_document_analyzer.service.storage.S3FileStorageService;
@@ -55,6 +58,15 @@ class DocumentServiceOwnershipTest {
     @Mock
     private LlmService llmService;
 
+    @Mock
+    private DocumentVersionRepository documentVersionRepository;
+
+    @Mock
+    private EvidenceItemRepository evidenceItemRepository;
+
+    @Mock
+    private EvidenceItemLifecycleService evidenceItemLifecycleService;
+
     private DocumentService documentService;
 
     @BeforeEach
@@ -64,7 +76,10 @@ class DocumentServiceOwnershipTest {
                 s3FileStorageService,
                 ocrService,
                 documentRepository,
-                llmService
+                llmService,
+                documentVersionRepository,
+                evidenceItemRepository,
+                evidenceItemLifecycleService
         );
     }
 

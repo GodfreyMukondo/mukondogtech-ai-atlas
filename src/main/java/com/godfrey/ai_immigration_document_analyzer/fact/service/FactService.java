@@ -1,5 +1,11 @@
 package com.godfrey.ai_immigration_document_analyzer.fact.service;
 
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.DocumentVersion;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.EvidenceItem;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.EvidenceItemStatus;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.DocumentVersionRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.EvidenceItemRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.service.EvidenceItemLifecycleService;
 import com.godfrey.ai_immigration_document_analyzer.exception.ResourceNotFoundException;
 import com.godfrey.ai_immigration_document_analyzer.fact.dto.ConflictResolutionRequest;
 import com.godfrey.ai_immigration_document_analyzer.fact.dto.DigitalTwinResponse;
@@ -33,6 +39,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -74,6 +81,19 @@ public class FactService {
     private final FactConflictService factConflictService;
     private final FactLifecycleService lifecycleService;
     private final ConfidenceCalculator confidenceCalculator;
+
+    /**
+     * Evidence Intelligence Graph enrichment link (Phase 4 gap closure) -
+     * resolves the optional, already-populated {@code EvidenceItem} for a
+     * proposed Fact's source document, if one exists, and completes its
+     * lifecycle when the Fact it supports is accepted. Never a second
+     * Fact/Evidence linkage mechanism - {@code FactEvidence} remains the one
+     * Document&lt;-&gt;Fact link; this only wires its optional
+     * {@code evidenceItemId} enrichment now that a write path produces it.
+     */
+    private final DocumentVersionRepository documentVersionRepository;
+    private final EvidenceItemRepository evidenceItemRepository;
+    private final EvidenceItemLifecycleService evidenceItemLifecycleService;
 
     // =========================================================================
     // PROPOSE
@@ -144,7 +164,11 @@ public class FactService {
 
         Fact saved = factRepository.save(fact);
 
+        EvidenceItem linkableEvidenceItem = null;
+
         if (request.getSourceDocumentId() != null) {
+
+            linkableEvidenceItem = findLinkableEvidenceItem(request.getSourceDocumentId());
 
             evidenceRepository.save(
                     FactEvidence.builder()
@@ -153,13 +177,53 @@ public class FactService {
                             .documentId(request.getSourceDocumentId())
                             .sourceLocator(request.getSourceLocator())
                             .sourceSnippet(truncate(request.getSourceSnippet(), 500))
+                            .evidenceItemId(linkableEvidenceItem != null ? linkableEvidenceItem.getId() : null)
                             .build()
             );
         }
 
         Fact finalState = factConflictService.processIncomingFact(saved);
 
+        if (linkableEvidenceItem != null
+                && linkableEvidenceItem.getStatus() == EvidenceItemStatus.CANDIDATE
+                && finalState.getStatus() == FactStatus.ACCEPTED) {
+
+            // The one place CANDIDATE -> LINKED is reached - as a side
+            // effect of the Fact it supports being accepted, exactly as
+            // EvidenceItemLifecycleService's own contract requires. Never a
+            // directly callable transition.
+            evidenceItemLifecycleService.transition(linkableEvidenceItem, EvidenceItemStatus.LINKED);
+        }
+
         return toResponse(finalState);
+    }
+
+    /**
+     * The Evidence Intelligence Graph's {@code EvidenceItem} for this
+     * document, if the ingestion write path has already produced one and it
+     * is still a genuine candidate (or already linked by an earlier Fact
+     * sharing the same document). Never resolves a VALIDATION_FAILED/
+     * REJECTED/SUPERSEDED item - linking one of those would misrepresent
+     * evidence the system has already determined is not usable. Returns
+     * {@code null} when none exists yet, in which case {@code FactEvidence}
+     * is still recorded exactly as before - graceful degradation, not a
+     * required dependency.
+     */
+    private EvidenceItem findLinkableEvidenceItem(Long documentId) {
+
+        Optional<DocumentVersion> latestVersion =
+                documentVersionRepository.findFirstByDocumentIdOrderByVersionNumberDesc(documentId);
+
+        if (latestVersion.isEmpty()) {
+            return null;
+        }
+
+        return evidenceItemRepository.findByDocumentVersionId(latestVersion.get().getId())
+                .stream()
+                .filter(item -> item.getStatus() == EvidenceItemStatus.CANDIDATE
+                        || item.getStatus() == EvidenceItemStatus.LINKED)
+                .findFirst()
+                .orElse(null);
     }
 
     // =========================================================================

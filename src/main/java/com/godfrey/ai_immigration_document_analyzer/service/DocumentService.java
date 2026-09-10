@@ -3,7 +3,14 @@ package com.godfrey.ai_immigration_document_analyzer.service;
 import com.godfrey.ai_immigration_document_analyzer.dto.response.DocumentResponse;
 import com.godfrey.ai_immigration_document_analyzer.dto.response.DocumentUploadResponse;
 import com.godfrey.ai_immigration_document_analyzer.entity.Document;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.DocumentVersion;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.EvidenceItem;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.entity.EvidenceItemStatus;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.DocumentVersionRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.repository.EvidenceItemRepository;
+import com.godfrey.ai_immigration_document_analyzer.evidencegraph.service.EvidenceItemLifecycleService;
 import com.godfrey.ai_immigration_document_analyzer.exception.ResourceNotFoundException;
+import com.godfrey.ai_immigration_document_analyzer.fact.entity.EvidenceSourceType;
 import com.godfrey.ai_immigration_document_analyzer.repository.DocumentRepository;
 import com.godfrey.ai_immigration_document_analyzer.service.storage.S3FileStorageService;
 
@@ -170,6 +177,19 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
 
     private final LlmService llmService;
+
+    /**
+     * Evidence Intelligence Graph write path (Phase 4 gap closure - see
+     * docs/evidence-intelligence-graph.md). Populating these is optional
+     * enrichment over the document this method already persists - never a
+     * second document-processing pipeline, never a source of truth of its
+     * own. See {@link #recordEvidenceIntelligence(Document, String, String)}.
+     */
+    private final DocumentVersionRepository documentVersionRepository;
+
+    private final EvidenceItemRepository evidenceItemRepository;
+
+    private final EvidenceItemLifecycleService evidenceItemLifecycleService;
 
 
     // =========================================================================
@@ -410,6 +430,16 @@ public class DocumentService {
                     userId,
                     savedDocument.getRiskLevel(),
                     savedDocument.getFraudDetected()
+            );
+
+            // ================================================================
+            // 8b. EVIDENCE INTELLIGENCE GRAPH: DOCUMENT VERSION + EVIDENCE ITEM
+            // ================================================================
+
+            recordEvidenceIntelligence(
+                    savedDocument,
+                    extractedText,
+                    mimeType
             );
 
             // ================================================================
@@ -798,6 +828,157 @@ public class DocumentService {
                     exception
             );
         }
+    }
+
+
+    // =========================================================================
+    // EVIDENCE INTELLIGENCE GRAPH
+    // =========================================================================
+
+    /**
+     * Closes the Phase 4 gap identified during the Evidence Graph audit: the
+     * only production write path that can populate the Evidence Intelligence
+     * Graph's additive {@code DocumentVersion}/{@code EvidenceItem} records.
+     *
+     * Reuses this document's own already-verified ownership (documentId,
+     * userId) and the OCR result already computed above - never a second
+     * OCR/extraction pipeline.
+     *
+     * Consistent with this method's existing treatment of OCR/AI failures:
+     * a failure here is logged and swallowed, never allowed to fail the
+     * upload, because the document itself is already safely stored and
+     * remains useful without this optional graph enrichment (see this
+     * class's SECURITY MODEL/ERROR HANDLING Javadoc above, and
+     * {@code FactEvidence.evidenceItemId}'s own "optional enrichment, never
+     * a replacement" contract). Whatever was already written before a
+     * failure (e.g. a DocumentVersion with no EvidenceItem yet) is left as
+     * a partial-but-honest graph fragment, exactly the same shape
+     * {@code EvidenceGraphService} already renders correctly today when no
+     * richer record exists yet - never a fabricated or misleading one.
+     *
+     * Idempotent: a {@code DocumentVersion} is created only when none exists
+     * yet for this document id. The current upload flow always creates a
+     * brand new {@code Document} row (there is no "reprocess an existing
+     * document" entry point), so this guard is defensive rather than
+     * routinely exercised - but it means a future retry/reprocessing path
+     * can call this method safely without producing duplicates.
+     */
+    private void recordEvidenceIntelligence(
+            Document document,
+            String extractedText,
+            String mimeType
+    ) {
+
+        try {
+
+            List<DocumentVersion> existingVersions =
+                    documentVersionRepository.findByDocumentIdOrderByVersionNumberDesc(
+                            document.getId()
+                    );
+
+            if (!existingVersions.isEmpty()) {
+
+                log.debug(
+                        "DocumentVersion already exists for this document - skipping to avoid a duplicate | documentId={}",
+                        document.getId()
+                );
+
+                return;
+            }
+
+            DocumentVersion version =
+                    documentVersionRepository.save(
+                            DocumentVersion.builder()
+                                    .documentId(document.getId())
+                                    .versionNumber(1)
+                                    .extractionMethod(extractionMethodFor(mimeType))
+                                    .build()
+                    );
+
+            EvidenceItem item =
+                    evidenceItemRepository.save(
+                            EvidenceItem.builder()
+                                    .documentVersionId(version.getId())
+                                    .sourceType(EvidenceSourceType.DOCUMENT)
+                                    .status(EvidenceItemStatus.DISCOVERED)
+                                    .build()
+                    );
+
+            item = evidenceItemLifecycleService.transition(
+                    item,
+                    EvidenceItemStatus.EXTRACTED
+            );
+
+            boolean hasReadableText =
+                    extractedText != null && !extractedText.isBlank();
+
+            if (hasReadableText) {
+
+                item.setSourceSnippet(
+                        truncate(extractedText, 500)
+                );
+            }
+
+            item = evidenceItemLifecycleService.transition(
+                    item,
+                    hasReadableText
+                            ? EvidenceItemStatus.CANDIDATE
+                            : EvidenceItemStatus.VALIDATION_FAILED
+            );
+
+            log.info(
+                    "Evidence Intelligence Graph populated | documentId={} | documentVersionId={} | evidenceItemId={} | status={}",
+                    document.getId(),
+                    version.getId(),
+                    item.getId(),
+                    item.getStatus()
+            );
+
+        } catch (Exception exception) {
+
+            log.error(
+                    "Failed to populate the Evidence Intelligence Graph for this document - the document itself remains stored | documentId={}",
+                    document.getId(),
+                    exception
+            );
+        }
+    }
+
+    /**
+     * A truthful label for how this document's text was produced - mirrors
+     * {@code OcrService}'s own PDF-vs-image branching (PDFBox native text
+     * extraction vs. Tesseract OCR) without re-implementing or duplicating
+     * that extraction itself.
+     */
+    private String extractionMethodFor(
+            String mimeType
+    ) {
+
+        if ("application/pdf".equals(mimeType)) {
+            return "PDFBOX_NATIVE_TEXT";
+        }
+
+        if ("image/png".equals(mimeType) || "image/jpeg".equals(mimeType)) {
+            return "TESSERACT_OCR";
+        }
+
+        return "UNKNOWN";
+    }
+
+    /**
+     * Same data-minimization discipline as {@code FactService.truncate} -
+     * never stores more than a short excerpt.
+     */
+    private String truncate(
+            String value,
+            int maxLength
+    ) {
+
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+
+        return value.substring(0, maxLength);
     }
 
 
