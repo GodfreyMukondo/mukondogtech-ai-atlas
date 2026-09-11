@@ -1,6 +1,6 @@
 import {
   useAuth,
-} from "./useAuth";
+} from "../features/auth/hooks/useAuth";
 
 
 
@@ -44,7 +44,7 @@ permission:string
 
 return (
 
-user?.permissions
+user?.authorities
 ?.includes(permission)
 
 ||

@@ -6,6 +6,10 @@ useContext,
 
 useState,
 
+} from "react";
+
+import type {
+
 ReactNode
 
 } from "react";
@@ -302,7 +306,7 @@ min-w-[300px]
 className="
 text-sm
 font-medium
-text-[#0B1736]
+text-[#0B1F3A]
 flex-1
 "
 

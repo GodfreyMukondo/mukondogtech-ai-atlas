@@ -14,7 +14,12 @@ import com.godfrey.ai_immigration_document_analyzer.exception.DuplicateResourceE
 import com.godfrey.ai_immigration_document_analyzer.exception.ResourceNotFoundException;
 
 
+import com.godfrey.ai_immigration_document_analyzer.repository.ApplicationRepository;
+import com.godfrey.ai_immigration_document_analyzer.repository.DocumentRepository;
+import com.godfrey.ai_immigration_document_analyzer.repository.NotificationRepository;
+import com.godfrey.ai_immigration_document_analyzer.repository.PasswordResetTokenRepository;
 import com.godfrey.ai_immigration_document_analyzer.repository.UserRepository;
+import com.godfrey.ai_immigration_document_analyzer.service.NotificationService;
 
 
 import com.godfrey.ai_immigration_document_analyzer.service.UserService;
@@ -29,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 
 import org.springframework.data.jpa.domain.Specification;
@@ -44,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 
+import java.util.List;
 import java.util.Locale;
 
 
@@ -92,6 +99,16 @@ public class UserServiceImpl implements UserService {
 
 
     private final UserRepository userRepository;
+
+    private final ApplicationRepository applicationRepository;
+
+    private final DocumentRepository documentRepository;
+
+    private final NotificationRepository notificationRepository;
+
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+
+    private final NotificationService notificationService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -210,6 +227,14 @@ public class UserServiceImpl implements UserService {
                                 passwordEncoder.encode(
                                         request.getPassword()
                                 )
+                        )
+
+                        .phone(
+                                request.getPhone()
+                        )
+
+                        .country(
+                                request.getCountry()
                         )
 
                         .role(
@@ -341,6 +366,34 @@ public class UserServiceImpl implements UserService {
 
 
 
+        if(request.getPhone() != null) {
+
+
+            user.setPhone(
+                    request.getPhone().isBlank()
+                            ? null
+                            : request.getPhone()
+            );
+
+        }
+
+
+
+
+        if(request.getCountry() != null) {
+
+
+            user.setCountry(
+                    request.getCountry().isBlank()
+                            ? null
+                            : request.getCountry()
+            );
+
+        }
+
+
+
+
 
         User updatedUser =
                 userRepository.save(user);
@@ -350,6 +403,16 @@ public class UserServiceImpl implements UserService {
         log.info(
                 "Updated user id={}",
                 updatedUser.getId()
+        );
+
+
+
+        notifyUserOfAdminAction(
+                updatedUser.getId(),
+                "ACCOUNT_UPDATED",
+                "Account Details Updated",
+                "An administrator updated your account details.",
+                "/dashboard/account"
         );
 
 
@@ -391,6 +454,16 @@ public class UserServiceImpl implements UserService {
                 id
         );
 
+
+
+        notifyUserOfAdminAction(
+                id,
+                "ACCOUNT_SUSPENDED",
+                "Account Suspended",
+                "Your account has been suspended by an administrator. Contact support if you believe this is a mistake.",
+                "/dashboard/account"
+        );
+
     }
 
 
@@ -426,6 +499,16 @@ public class UserServiceImpl implements UserService {
                 id
         );
 
+
+
+        notifyUserOfAdminAction(
+                id,
+                "ACCOUNT_REACTIVATED",
+                "Account Reactivated",
+                "Your account has been reactivated. You can now log in again.",
+                "/dashboard/account"
+        );
+
     }
 
 
@@ -438,6 +521,15 @@ public class UserServiceImpl implements UserService {
     /**
      * Delete user.
      */
+    /**
+     * Deletes a user together with every record that would otherwise
+     * block the delete via a foreign key (documents, applications,
+     * notifications, password reset tokens).
+     *
+     * Order matters: documents must go first because
+     * fk_document_application ties them to this user's applications, and
+     * everything else must go before the user row itself.
+     */
     @Override
     public void deleteUser(
             Long id
@@ -449,12 +541,22 @@ public class UserServiceImpl implements UserService {
 
 
 
+        documentRepository.deleteByUserId(id);
+
+        applicationRepository.deleteByUserId(id);
+
+        notificationRepository.deleteByUserId(id);
+
+        passwordResetTokenRepository.deleteByUserId(id);
+
+
+
         userRepository.delete(user);
 
 
 
         log.warn(
-                "Deleted user id={}",
+                "Deleted user id={} together with their documents, applications, notifications and reset tokens",
                 id
         );
 
@@ -549,6 +651,66 @@ public class UserServiceImpl implements UserService {
 
 
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserManagementResponse> getAllUsersForExport() {
+
+
+        return userRepository
+                .findAll(
+                        Sort.by(
+                                Sort.Direction.DESC,
+                                "createdAt"
+                        )
+                )
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+
+    }
+
+
+
+
+
+
+
+
+    /**
+     * Notifies a user that an administrator performed an action on their
+     * account.
+     *
+     * Best-effort: the admin action has already been committed, so a
+     * notification failure must never fail the action itself.
+     */
+    private void notifyUserOfAdminAction(
+            Long userId,
+            String type,
+            String title,
+            String message,
+            String link
+    ) {
+
+        try {
+
+            notificationService.notify(
+                    userId,
+                    type,
+                    title,
+                    message,
+                    link
+            );
+
+        } catch (RuntimeException ex) {
+
+            log.error(
+                    "Admin action completed but user notification failed | userId={} | type={}",
+                    userId,
+                    type,
+                    ex
+            );
+        }
+    }
 
 
 
@@ -603,13 +765,13 @@ public class UserServiceImpl implements UserService {
                         user.getEmail()
                 )
 
-                /*
-                 * User entity does not currently
-                 * contain these fields.
-                 */
-                .phone(null)
+                .phone(
+                        user.getPhone()
+                )
 
-                .country(null)
+                .country(
+                        user.getCountry()
+                )
 
 
                 .role(
@@ -626,10 +788,11 @@ public class UserServiceImpl implements UserService {
                 )
 
 
-                /*
-                 * Application module not connected yet.
-                 */
-                .applications(0L)
+                .applications(
+                        applicationRepository.countByUserId(
+                                user.getId()
+                        )
+                )
 
 
                 .joined(

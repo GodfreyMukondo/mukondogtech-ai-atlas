@@ -31,7 +31,7 @@ return (
 
 className={`
 animate-pulse
-bg-gray-200
+bg-white/10
 ${width}
 ${height}
 ${rounded}

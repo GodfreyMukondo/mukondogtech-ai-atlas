@@ -6,7 +6,6 @@ return (
 <div
 className="
 min-h-screen
-bg-[#F8F6F1]
 flex
 items-center
 justify-center
@@ -21,7 +20,7 @@ p-6
 className="
 text-7xl
 font-bold
-text-[#0B1736]
+text-slate-100
 "
 >
 500
@@ -41,7 +40,7 @@ Server Error
 
 <p
 className="
-text-gray-600
+text-slate-300
 mt-3
 "
 >
@@ -52,7 +51,9 @@ Something went wrong on our servers.
 <button
 className="
 mt-6
-bg-[#F4B81A]
+bg-[#C6A15B]
+text-[#071426]
+font-semibold
 px-6
 py-3
 rounded-xl

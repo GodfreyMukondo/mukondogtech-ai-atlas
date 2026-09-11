@@ -23,7 +23,7 @@ export function validateFile(
 
 
   if (
-    !appConfig.upload.allowedTypes.includes(
+    !(appConfig.upload.allowedTypes as readonly string[]).includes(
       file.type
     )
   ) {

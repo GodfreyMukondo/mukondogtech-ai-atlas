@@ -54,6 +54,11 @@ import java.util.List;
  *   GET   /api/facts/timeline?subjectUserId=  view the transactional timeline
  *   GET   /api/facts/conflicts/{conflictId}   view a conflict
  *   PATCH /api/facts/conflicts/{conflictId}/resolve   resolve a conflict (case worker only)
+ *   POST  /api/facts/conflicts/{conflictId}/applicant-confirmation
+ *                                              applicant confirms their own conflict
+ *                                              (self-reported, never verification -
+ *                                              distinct from /resolve, see
+ *                                              FactAuthorizationService.assertCanApplicantConfirmConflict)
  * ============================================================================
  */
 @RestController
@@ -141,5 +146,28 @@ public class FactController {
     ) {
 
         return ResponseEntity.ok(factService.resolveConflict(actor, conflictId, request));
+    }
+
+    /**
+     * The applicant's own confirmation of which value they believe is
+     * correct for a conflict on their own case - self-reported provenance,
+     * never verification, and never a substitute for
+     * {@link #resolveConflict}. Authorization is enforced by
+     * {@code FactAuthorizationService.assertCanApplicantConfirmConflict}
+     * (subject only) through {@code FactService}, exactly like every other
+     * endpoint here.
+     */
+    @PostMapping(
+            value = "/conflicts/{conflictId}/applicant-confirmation",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<FactConflictResponse> confirmConflictAsApplicant(
+            @AuthenticationPrincipal AuthenticatedUser actor,
+            @PathVariable("conflictId") @Positive Long conflictId,
+            @Valid @RequestBody ConflictResolutionRequest request
+    ) {
+
+        return ResponseEntity.ok(factService.applicantConfirmConflict(actor, conflictId, request));
     }
 }

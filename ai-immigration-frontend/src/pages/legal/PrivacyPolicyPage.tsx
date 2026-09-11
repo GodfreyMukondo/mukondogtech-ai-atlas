@@ -183,8 +183,7 @@ return (
 <div
 className="
 min-h-screen
-bg-[#F8F6F1]
-text-[#0B1736]
+text-slate-100
 py-16
 px-6
 "
@@ -208,7 +207,7 @@ gap-2
 mb-10
 text-sm
 font-medium
-hover:text-[#F4B81A]
+hover:text-[#C6A15B]
 "
 >
 
@@ -254,7 +253,7 @@ Privacy Policy
 <p
 className="
 mt-4
-text-gray-600
+text-slate-300
 "
 >
 
@@ -315,12 +314,13 @@ once:true
 }}
 
 className="
-bg-white
+bg-white/5
+backdrop-blur-xl
 rounded-2xl
 shadow-sm
 p-8
 border
-border-gray-100
+border-white/10
 "
 
 >
@@ -337,7 +337,7 @@ mb-4
 
 <Icon
 className="
-text-[#F4B81A]
+text-[#C6A15B]
 "
 />
 
@@ -362,7 +362,7 @@ font-semibold
 className="
 whitespace-pre-line
 leading-relaxed
-text-gray-700
+text-slate-300
 "
 >
 

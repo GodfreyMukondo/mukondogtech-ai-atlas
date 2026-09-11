@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.orm.jpa.JpaSystemException;
 
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -443,6 +445,37 @@ public class GlobalExceptionHandler {
         return buildResponse(
                 HttpStatus.NOT_FOUND,
                 "Resource not found.",
+                request
+        );
+    }
+
+    // =========================================================================
+    // CONTENT NEGOTIATION
+    // =========================================================================
+
+    /**
+     * Thrown by Spring's handler mapping (before any controller method
+     * runs) when a request's Accept header doesn't match the endpoint's
+     * declared `produces` type - e.g. a JSON-only client hitting a CSV
+     * export endpoint. Without this handler it falls through to the
+     * generic 500 handler below, which hides the real, correctable
+     * (client-side) cause behind "unexpected server error".
+     */
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<Map<String, Object>> handleMediaTypeNotAcceptable(
+            HttpMediaTypeNotAcceptableException ex,
+            WebRequest request
+    ) {
+
+        log.warn(
+                "Unacceptable media type requested | path={} | message={}",
+                getPath(request),
+                ex.getMessage()
+        );
+
+        return buildResponse(
+                HttpStatus.NOT_ACCEPTABLE,
+                "The requested response format is not supported for this endpoint.",
                 request
         );
     }

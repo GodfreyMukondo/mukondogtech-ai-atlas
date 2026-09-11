@@ -18,11 +18,10 @@ export default function ContactPage(){
     <main
       className="
         min-h-screen
-        bg-[#F8F6F1]
         px-6
         pt-32
         pb-20
-        text-[#0B1736]
+        text-slate-100
       "
     >
 
@@ -69,7 +68,7 @@ export default function ContactPage(){
               inline-flex
               items-center
               rounded-full
-              bg-[#071330]
+              bg-[#071426]
               px-5
               py-2
               text-sm
@@ -106,7 +105,7 @@ export default function ContactPage(){
               mt-5
               text-lg
               leading-relaxed
-              text-gray-600
+              text-slate-300
             "
           >
 
@@ -223,8 +222,9 @@ export default function ContactPage(){
             className="
               rounded-3xl
               border
-              border-[#E5E7EB]
-              bg-white
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
               p-8
               shadow-sm
               space-y-5
@@ -252,7 +252,7 @@ export default function ContactPage(){
                 className="
                   mt-2
                   text-sm
-                  text-gray-600
+                  text-slate-300
                 "
               >
 
@@ -292,14 +292,17 @@ export default function ContactPage(){
                   w-full
                   rounded-xl
                   border
-                  border-[#D8DFEA]
+                  border-white/15
+                  bg-white/5
+                  text-white
+                  placeholder:text-slate-500
                   px-4
                   py-3
                   outline-none
                   transition
-                  focus:border-[#F4B81A]
+                  focus:border-[#C6A15B]
                   focus:ring-4
-                  focus:ring-[#F4B81A]/10
+                  focus:ring-[#C6A15B]/10
                 "
 
               />
@@ -335,14 +338,17 @@ export default function ContactPage(){
                   w-full
                   rounded-xl
                   border
-                  border-[#D8DFEA]
+                  border-white/15
+                  bg-white/5
+                  text-white
+                  placeholder:text-slate-500
                   px-4
                   py-3
                   outline-none
                   transition
-                  focus:border-[#F4B81A]
+                  focus:border-[#C6A15B]
                   focus:ring-4
-                  focus:ring-[#F4B81A]/10
+                  focus:ring-[#C6A15B]/10
                 "
 
               />
@@ -379,14 +385,17 @@ export default function ContactPage(){
                   w-full
                   rounded-xl
                   border
-                  border-[#D8DFEA]
+                  border-white/15
+                  bg-white/5
+                  text-white
+                  placeholder:text-slate-500
                   px-4
                   py-3
                   outline-none
                   transition
-                  focus:border-[#F4B81A]
+                  focus:border-[#C6A15B]
                   focus:ring-4
-                  focus:ring-[#F4B81A]/10
+                  focus:ring-[#C6A15B]/10
                 "
 
               />
@@ -424,14 +433,17 @@ export default function ContactPage(){
                   resize-none
                   rounded-xl
                   border
-                  border-[#D8DFEA]
+                  border-white/15
+                  bg-white/5
+                  text-white
+                  placeholder:text-slate-500
                   px-4
                   py-3
                   outline-none
                   transition
-                  focus:border-[#F4B81A]
+                  focus:border-[#C6A15B]
                   focus:ring-4
-                  focus:ring-[#F4B81A]/10
+                  focus:ring-[#C6A15B]/10
                 "
 
               />
@@ -456,12 +468,12 @@ export default function ContactPage(){
                 justify-center
                 gap-2
                 rounded-xl
-                bg-[#071330]
+                bg-[#071426]
                 py-4
                 font-bold
                 text-white
                 transition
-                hover:bg-[#183B6B]
+                hover:bg-[#3C4C61]
               "
 
             >
@@ -536,8 +548,9 @@ function ContactCard({
       className="
         rounded-3xl
         border
-        border-[#E5E7EB]
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-sm
         transition
@@ -554,8 +567,8 @@ function ContactCard({
           items-center
           justify-center
           rounded-2xl
-          bg-[#FFF4CC]
-          text-[#F4B81A]
+          bg-[#C6A15B]/15
+          text-[#C6A15B]
         "
       >
 
@@ -571,6 +584,7 @@ function ContactCard({
           mt-5
           text-lg
           font-bold
+          text-white
         "
       >
 
@@ -585,7 +599,7 @@ function ContactCard({
           mt-2
           text-sm
           leading-relaxed
-          text-gray-600
+          text-slate-300
         "
       >
 
@@ -600,7 +614,7 @@ function ContactCard({
         className="
           mt-4
           font-semibold
-          text-[#183B6B]
+          text-[#C6A15B]
         "
       >
 

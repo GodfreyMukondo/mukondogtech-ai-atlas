@@ -1,0 +1,2 @@
+ALTER TABLE users ADD phone VARCHAR2(30);
+ALTER TABLE users ADD country VARCHAR2(100);

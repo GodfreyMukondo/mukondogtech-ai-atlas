@@ -1,9 +1,9 @@
 import React, {
-    FormEvent,
     useCallback,
     useEffect,
     useMemo,
     useState,
+    type FormEvent,
 } from "react";
 
 import {
@@ -29,12 +29,9 @@ import {
 import {
     createImmigrationRule,
     deleteImmigrationRule,
-    draftImmigrationRule,
     getImmigrationRule,
     getImmigrationRuleStatistics,
     getImmigrationRules,
-    publishImmigrationRule,
-    reviewImmigrationRule,
     updateImmigrationRule,
     type CreateImmigrationRuleRequest,
     type ImmigrationRule,
@@ -110,13 +107,13 @@ function StatusBadge({
         string
     > = {
         ACTIVE:
-            "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200",
+            "bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20",
 
         DRAFT:
-            "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
+            "bg-white/10 text-slate-300 ring-1 ring-white/10",
 
         REVIEW:
-            "bg-amber-100 text-amber-700 ring-1 ring-amber-200",
+            "bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20",
     };
 
     return (
@@ -148,19 +145,19 @@ function MetricCard({
     loading?: boolean;
 }) {
     return (
-        <div className="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl">
-            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-slate-100/70 transition-transform duration-500 group-hover:scale-150" />
+        <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-xl">
+            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/5 transition-transform duration-500 group-hover:scale-150" />
 
             <div className="relative flex items-center justify-between">
                 <div>
-                    <p className="text-sm font-semibold text-slate-500">
+                    <p className="text-sm font-semibold text-slate-400">
                         {title}
                     </p>
 
                     {loading ? (
-                        <div className="mt-3 h-9 w-20 animate-pulse rounded-lg bg-slate-100" />
+                        <div className="mt-3 h-9 w-20 animate-pulse rounded-lg bg-white/10" />
                     ) : (
-                        <h2 className="mt-2 text-3xl font-black tracking-tight text-[#0B1736]">
+                        <h2 className="mt-2 text-3xl font-black tracking-tight text-white">
                             {value.toLocaleString()}
                         </h2>
                     )}
@@ -201,11 +198,11 @@ function FormInput({
 }) {
     return (
         <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
+            <label className="mb-2 block text-sm font-semibold text-slate-300">
                 {label}
 
                 {required && (
-                    <span className="ml-1 text-red-500">
+                    <span className="ml-1 text-red-400">
                         *
                     </span>
                 )}
@@ -221,7 +218,7 @@ function FormInput({
                 }
                 placeholder={placeholder}
                 required={required}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white shadow-sm outline-none transition-all duration-200 placeholder:text-slate-500 hover:border-white/25 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
             />
         </div>
     );
@@ -250,7 +247,7 @@ function FormTextarea({
 }) {
     return (
         <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
+            <label className="mb-2 block text-sm font-semibold text-slate-300">
                 {label}
             </label>
 
@@ -263,7 +260,7 @@ function FormTextarea({
                 }
                 placeholder={placeholder}
                 rows={rows}
-                className="w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-900 shadow-sm outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="w-full resize-y rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm leading-6 text-white shadow-sm outline-none transition-all duration-200 placeholder:text-slate-500 hover:border-white/25 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
             />
         </div>
     );
@@ -292,11 +289,11 @@ function FormSelect({
 }) {
     return (
         <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
+            <label className="mb-2 block text-sm font-semibold text-slate-300">
                 {label}
 
                 {required && (
-                    <span className="ml-1 text-red-500">
+                    <span className="ml-1 text-red-400">
                         *
                     </span>
                 )}
@@ -310,7 +307,7 @@ function FormSelect({
                     )
                 }
                 required={required}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition-all duration-200 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white shadow-sm outline-none transition-all duration-200 hover:border-white/25 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
             >
                 {children}
             </select>
@@ -978,62 +975,6 @@ export default function ImmigrationRulesPage() {
 
     /**
      * =========================================================================
-     * STATUS ACTION
-     * =========================================================================
-     */
-
-    const handleStatusChange =
-        async (
-            rule: ImmigrationRuleSummary,
-            status: ImmigrationRuleStatus
-        ) => {
-            setActionId(
-                rule.id
-            );
-
-            try {
-                if (status === "ACTIVE") {
-                    await publishImmigrationRule(
-                        rule.id
-                    );
-                } else if (
-                    status === "REVIEW"
-                ) {
-                    await reviewImmigrationRule(
-                        rule.id
-                    );
-                } else {
-                    await draftImmigrationRule(
-                        rule.id
-                    );
-                }
-
-                toast.success(
-                    `Rule moved to ${status.toLowerCase()}.`
-                );
-
-                await Promise.all([
-                    loadRules(),
-                    loadStatistics(),
-                ]);
-            } catch (error) {
-                console.error(
-                    "Failed to change rule status:",
-                    error
-                );
-
-                toast.error(
-                    "Unable to change rule status."
-                );
-            } finally {
-                setActionId(
-                    null
-                );
-            }
-        };
-
-    /**
-     * =========================================================================
      * REFRESH
      * =========================================================================
      */
@@ -1089,8 +1030,8 @@ export default function ImmigrationRulesPage() {
      */
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#F8F6F1] via-white to-blue-50/60 p-4 sm:p-6">
-            <div className="mx-auto max-w-[1800px]">
+        <div className="min-h-screen p-4 sm:p-6">
+            <div className="w-full">
 
                 {/* =========================================================
                     HEADER
@@ -1101,21 +1042,21 @@ export default function ImmigrationRulesPage() {
                     <div>
                         <div className="flex items-center gap-3">
 
-                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#071330] via-[#123B68] to-[#2563EB] p-3 shadow-lg shadow-blue-900/20">
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#071426] via-[#123B68] to-[#2563EB] p-3 shadow-lg shadow-blue-900/20">
                                 <div className="absolute inset-0 bg-white/10" />
 
                                 <Scale
-                                    className="relative text-[#F4B81A]"
+                                    className="relative text-[#C6A15B]"
                                     size={28}
                                 />
                             </div>
 
                             <div>
-                                <h1 className="bg-gradient-to-r from-[#071330] via-[#123B68] to-blue-700 bg-clip-text text-3xl font-black tracking-tight text-transparent sm:text-4xl">
+                                <h1 className="bg-gradient-to-r from-white via-blue-100 to-blue-300 bg-clip-text text-3xl font-black tracking-tight text-transparent sm:text-4xl">
                                     Immigration Rules Engine
                                 </h1>
 
-                                <p className="mt-1 max-w-3xl text-slate-600">
+                                <p className="mt-1 max-w-3xl text-slate-300">
                                     Manage immigration regulations,
                                     visa requirements, compliance
                                     rules and AI knowledge sources.
@@ -1132,7 +1073,7 @@ export default function ImmigrationRulesPage() {
                             onClick={
                                 openCreateModal
                             }
-                            className="group flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#F4B81A] to-[#FFD45A] px-5 py-3 font-bold text-[#071330] shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#e8aa0c] hover:to-[#F4B81A] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#F4B81A]/30"
+                            className="group flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#C6A15B] to-[#FFD45A] px-5 py-3 font-bold text-[#071426] shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-[#e8aa0c] hover:to-[#C6A15B] hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#C6A15B]/30"
                         >
                             <Plus
                                 size={19}
@@ -1150,7 +1091,7 @@ export default function ImmigrationRulesPage() {
                             disabled={
                                 refreshing
                             }
-                            className="flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                            className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-slate-200 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-400/50 hover:bg-blue-500/10 hover:text-blue-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             <RefreshCw
                                 size={18}
@@ -1180,7 +1121,7 @@ export default function ImmigrationRulesPage() {
                             0
                         }
                         icon={Database}
-                        color="bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-700"
+                        color="bg-gradient-to-br from-blue-500/15 to-cyan-500/10 text-blue-300"
                         loading={
                             statisticsLoading
                         }
@@ -1193,7 +1134,7 @@ export default function ImmigrationRulesPage() {
                             0
                         }
                         icon={CheckCircle2}
-                        color="bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700"
+                        color="bg-gradient-to-br from-emerald-500/15 to-teal-500/10 text-emerald-300"
                         loading={
                             statisticsLoading
                         }
@@ -1206,7 +1147,7 @@ export default function ImmigrationRulesPage() {
                             0
                         }
                         icon={Clock3}
-                        color="bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700"
+                        color="bg-gradient-to-br from-amber-500/15 to-orange-500/10 text-amber-300"
                         loading={
                             statisticsLoading
                         }
@@ -1219,7 +1160,7 @@ export default function ImmigrationRulesPage() {
                             0
                         }
                         icon={Globe2}
-                        color="bg-gradient-to-br from-violet-100 to-fuchsia-100 text-violet-700"
+                        color="bg-gradient-to-br from-violet-500/15 to-fuchsia-500/10 text-violet-300"
                         loading={
                             statisticsLoading
                         }
@@ -1233,20 +1174,20 @@ export default function ImmigrationRulesPage() {
 
                 <div className="mt-5 grid gap-4 sm:grid-cols-3">
 
-                    <div className="group rounded-2xl border border-blue-100 bg-gradient-to-br from-white to-blue-50/70 p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
+                    <div className="group rounded-2xl border border-blue-500/20 bg-white/5 backdrop-blur-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-400/30 hover:shadow-md">
 
                         <div className="flex items-center justify-between">
-                            <p className="text-sm font-semibold text-slate-500">
+                            <p className="text-sm font-semibold text-slate-400">
                                 Countries Covered
                             </p>
 
                             <Globe2
                                 size={20}
-                                className="text-blue-500 transition-transform group-hover:scale-110"
+                                className="text-blue-400 transition-transform group-hover:scale-110"
                             />
                         </div>
 
-                        <p className="mt-2 text-2xl font-black text-slate-900">
+                        <p className="mt-2 text-2xl font-black text-white">
                             {statisticsLoading
                                 ? "—"
                                 : (
@@ -1257,20 +1198,20 @@ export default function ImmigrationRulesPage() {
 
                     </div>
 
-                    <div className="group rounded-2xl border border-violet-100 bg-gradient-to-br from-white to-violet-50/70 p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-md">
+                    <div className="group rounded-2xl border border-violet-500/20 bg-white/5 backdrop-blur-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/30 hover:shadow-md">
 
                         <div className="flex items-center justify-between">
-                            <p className="text-sm font-semibold text-slate-500">
+                            <p className="text-sm font-semibold text-slate-400">
                                 Visa Types
                             </p>
 
                             <FileText
                                 size={20}
-                                className="text-violet-500 transition-transform group-hover:scale-110"
+                                className="text-violet-400 transition-transform group-hover:scale-110"
                             />
                         </div>
 
-                        <p className="mt-2 text-2xl font-black text-slate-900">
+                        <p className="mt-2 text-2xl font-black text-white">
                             {statisticsLoading
                                 ? "—"
                                 : (
@@ -1281,20 +1222,20 @@ export default function ImmigrationRulesPage() {
 
                     </div>
 
-                    <div className="group rounded-2xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/70 p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-md">
+                    <div className="group rounded-2xl border border-amber-500/20 bg-white/5 backdrop-blur-xl p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-400/30 hover:shadow-md">
 
                         <div className="flex items-center justify-between">
-                            <p className="text-sm font-semibold text-slate-500">
+                            <p className="text-sm font-semibold text-slate-400">
                                 Pending AI Index
                             </p>
 
                             <Clock3
                                 size={20}
-                                className="text-amber-500 transition-transform group-hover:scale-110"
+                                className="text-amber-400 transition-transform group-hover:scale-110"
                             />
                         </div>
 
-                        <p className="mt-2 text-2xl font-black text-slate-900">
+                        <p className="mt-2 text-2xl font-black text-white">
                             {statisticsLoading
                                 ? "—"
                                 : (
@@ -1311,19 +1252,19 @@ export default function ImmigrationRulesPage() {
                     SEARCH / FILTERS
                    ========================================================= */}
 
-                <div className="mt-8 rounded-3xl border border-slate-200 bg-white/95 p-5 shadow-lg shadow-slate-200/40 backdrop-blur">
+                <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/20 backdrop-blur-xl">
 
                     <div className="mb-4 flex items-center gap-2">
-                        <div className="rounded-xl bg-blue-100 p-2 text-blue-600">
+                        <div className="rounded-xl bg-blue-500/10 p-2 text-blue-300">
                             <Filter size={17} />
                         </div>
 
                         <div>
-                            <p className="font-bold text-[#0B1736]">
+                            <p className="font-bold text-white">
                                 Search & Filters
                             </p>
 
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-400">
                                 Find immigration regulations quickly
                             </p>
                         </div>
@@ -1350,7 +1291,7 @@ export default function ImmigrationRulesPage() {
                                     setPage(0);
                                 }}
                                 placeholder="Search country, visa type, category..."
-                                className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 py-3 pl-11 pr-4 text-sm outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-blue-300 hover:bg-white focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                                className="w-full rounded-2xl border border-white/15 bg-white/5 text-white py-3 pl-11 pr-4 text-sm outline-none transition-all duration-200 placeholder:text-slate-500 hover:border-blue-400/40 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
                             />
 
                         </div>
@@ -1366,7 +1307,7 @@ export default function ImmigrationRulesPage() {
 
                                 setPage(0);
                             }}
-                            className="rounded-2xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-sm outline-none transition-all duration-200 hover:border-blue-300 hover:bg-white focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                            className="rounded-2xl border border-white/15 bg-white/5 text-white px-4 py-3 text-sm outline-none transition-all duration-200 hover:border-blue-400/40 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
                         >
 
                             <option value="">
@@ -1397,7 +1338,7 @@ export default function ImmigrationRulesPage() {
 
                                 setPage(0);
                             }}
-                            className="rounded-2xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-sm outline-none transition-all duration-200 hover:border-violet-300 hover:bg-white focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                            className="rounded-2xl border border-white/15 bg-white/5 text-white px-4 py-3 text-sm outline-none transition-all duration-200 hover:border-violet-400/40 focus:border-violet-400 focus:ring-4 focus:ring-violet-500/20"
                         >
 
                             <option value="">
@@ -1430,7 +1371,7 @@ export default function ImmigrationRulesPage() {
 
                                 setPage(0);
                             }}
-                            className="rounded-2xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-sm outline-none transition-all duration-200 hover:border-emerald-300 hover:bg-white focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+                            className="rounded-2xl border border-white/15 bg-white/5 text-white px-4 py-3 text-sm outline-none transition-all duration-200 hover:border-emerald-400/40 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/20"
                         >
 
                             <option value="">
@@ -1459,7 +1400,7 @@ export default function ImmigrationRulesPage() {
                             disabled={
                                 !hasFilters
                             }
-                            className="flex items-center justify-center gap-2 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-slate-200 transition-all duration-200 hover:border-red-400/40 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             <Filter
                                 size={18}
@@ -1478,20 +1419,20 @@ export default function ImmigrationRulesPage() {
 
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-slate-300">
                         Showing{" "}
-                        <span className="font-bold text-blue-700">
+                        <span className="font-bold text-blue-300">
                             {rules.length}
                         </span>{" "}
                         of{" "}
-                        <span className="font-bold text-[#0B1736]">
+                        <span className="font-bold text-white">
                             {totalElements.toLocaleString()}
                         </span>{" "}
                         immigration rules
                     </p>
 
                     {statisticsLoading && (
-                        <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600">
+                        <div className="flex items-center gap-2 rounded-full bg-blue-500/10 px-3 py-1.5 text-sm font-medium text-blue-300">
                             <Loader2
                                 size={15}
                                 className="animate-spin"
@@ -1507,13 +1448,13 @@ export default function ImmigrationRulesPage() {
                     TABLE
                    ========================================================= */}
 
-                <div className="mt-4 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/40">
+                <div className="mt-4 overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/20">
 
                     <div className="overflow-x-auto">
 
                         <table className="w-full min-w-[1100px] text-left">
 
-                            <thead className="bg-gradient-to-r from-[#071330] via-[#102C54] to-[#164E8A] text-white">
+                            <thead className="bg-gradient-to-r from-[#071426] via-[#102C54] to-[#164E8A] text-white">
 
                                 <tr>
 
@@ -1562,7 +1503,7 @@ export default function ImmigrationRulesPage() {
                                                 className="mx-auto animate-spin text-blue-600"
                                             />
 
-                                            <p className="mt-3 text-sm font-medium text-slate-500">
+                                            <p className="mt-3 text-sm font-medium text-slate-400">
                                                 Loading immigration rules...
                                             </p>
                                         </td>
@@ -1573,18 +1514,18 @@ export default function ImmigrationRulesPage() {
                                             colSpan={7}
                                             className="px-5 py-16 text-center"
                                         >
-                                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+                                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5">
                                                 <AlertCircle
                                                     size={40}
                                                     className="text-slate-400"
                                                 />
                                             </div>
 
-                                            <h3 className="mt-4 font-bold text-slate-900">
+                                            <h3 className="mt-4 font-bold text-white">
                                                 No immigration rules found
                                             </h3>
 
-                                            <p className="mt-2 text-sm text-slate-500">
+                                            <p className="mt-2 text-sm text-slate-400">
                                                 Try changing your filters
                                                 or create a new immigration
                                                 rule.
@@ -1595,7 +1536,7 @@ export default function ImmigrationRulesPage() {
                                                 onClick={
                                                     openCreateModal
                                                 }
-                                                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#F4B81A] to-[#FFD45A] px-4 py-2.5 text-sm font-bold text-[#071330] shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                                                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#C6A15B] to-[#FFD45A] px-4 py-2.5 text-sm font-bold text-[#071426] shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg"
                                             >
                                                 <Plus
                                                     size={16}
@@ -1612,27 +1553,27 @@ export default function ImmigrationRulesPage() {
                                                 key={
                                                     rule.id
                                                 }
-                                                className="group border-t border-slate-100 transition-all duration-200 hover:bg-blue-50/40"
+                                                className="group border-t border-white/10 transition-all duration-200 hover:bg-blue-500/5"
                                             >
 
                                                 <td className="px-5 py-4">
 
                                                     <div className="flex items-center gap-3">
 
-                                                        <div className="rounded-xl bg-gradient-to-br from-blue-50 to-cyan-100 p-2 text-blue-600 shadow-sm transition-transform duration-200 group-hover:scale-105">
+                                                        <div className="rounded-xl bg-gradient-to-br from-blue-500/15 to-cyan-500/10 p-2 text-blue-300 shadow-sm transition-transform duration-200 group-hover:scale-105">
                                                             <Globe2
                                                                 size={18}
                                                             />
                                                         </div>
 
                                                         <div>
-                                                            <p className="font-bold text-slate-900">
+                                                            <p className="font-bold text-white">
                                                                 {
                                                                     rule.country
                                                                 }
                                                             </p>
 
-                                                            <p className="text-xs text-slate-500">
+                                                            <p className="text-xs text-slate-400">
                                                                 {
                                                                     rule.source
                                                                 }
@@ -1643,13 +1584,13 @@ export default function ImmigrationRulesPage() {
 
                                                 </td>
 
-                                                <td className="px-5 py-4 font-semibold text-slate-800">
+                                                <td className="px-5 py-4 font-semibold text-slate-200">
                                                     {
                                                         rule.visaType
                                                     }
                                                 </td>
 
-                                                <td className="px-5 py-4 text-sm text-slate-700">
+                                                <td className="px-5 py-4 text-sm text-slate-300">
                                                     {
                                                         rule.category
                                                     }
@@ -1665,7 +1606,7 @@ export default function ImmigrationRulesPage() {
 
                                                 <td className="px-5 py-4">
 
-                                                    <p className="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 font-semibold text-slate-800">
+                                                    <p className="inline-flex rounded-lg bg-white/10 px-2.5 py-1 font-semibold text-slate-200">
                                                         {
                                                             rule.version
                                                         }
@@ -1675,7 +1616,7 @@ export default function ImmigrationRulesPage() {
 
                                                 <td className="px-5 py-4">
 
-                                                    <p className="text-sm font-medium text-slate-700">
+                                                    <p className="text-sm font-medium text-slate-300">
                                                         {rule.updatedAt
                                                             ? new Date(
                                                                 rule.updatedAt
@@ -1690,7 +1631,7 @@ export default function ImmigrationRulesPage() {
                                                             : "—"}
                                                     </p>
 
-                                                    <p className="mt-1 text-xs text-slate-500">
+                                                    <p className="mt-1 text-xs text-slate-400">
                                                         {
                                                             rule.updatedBy
                                                         }
@@ -1714,7 +1655,7 @@ export default function ImmigrationRulesPage() {
                                                                 actionId ===
                                                                 rule.id
                                                             }
-                                                            className="rounded-xl bg-blue-50 p-2 text-blue-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 hover:shadow-md disabled:opacity-50"
+                                                            className="rounded-xl bg-blue-500/10 p-2 text-blue-300 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-500/20 hover:text-blue-200 hover:shadow-md disabled:opacity-50"
                                                         >
                                                             {actionId ===
                                                             rule.id ? (
@@ -1741,7 +1682,7 @@ export default function ImmigrationRulesPage() {
                                                                 actionId ===
                                                                 rule.id
                                                             }
-                                                            className="rounded-xl bg-amber-50 p-2 text-amber-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-100 hover:text-amber-700 hover:shadow-md disabled:opacity-50"
+                                                            className="rounded-xl bg-amber-500/10 p-2 text-amber-300 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-amber-500/20 hover:text-amber-200 hover:shadow-md disabled:opacity-50"
                                                         >
                                                             <Edit3
                                                                 size={18}
@@ -1760,7 +1701,7 @@ export default function ImmigrationRulesPage() {
                                                                 deletingId ===
                                                                 rule.id
                                                             }
-                                                            className="rounded-xl bg-red-50 p-2 text-red-600 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-700 hover:shadow-md disabled:opacity-50"
+                                                            className="rounded-xl bg-red-500/10 p-2 text-red-300 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-500/20 hover:text-red-200 hover:shadow-md disabled:opacity-50"
                                                         >
                                                             {deletingId ===
                                                             rule.id ? (
@@ -1797,7 +1738,7 @@ export default function ImmigrationRulesPage() {
                    ========================================================= */}
 
                 {totalPages > 1 && (
-                    <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 shadow-sm">
 
                         <button
                             type="button"
@@ -1813,18 +1754,18 @@ export default function ImmigrationRulesPage() {
                                         )
                                 )
                             }
-                            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-slate-200 transition-all hover:border-blue-400/40 hover:bg-blue-500/10 hover:text-blue-300 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Previous
                         </button>
 
-                        <span className="rounded-full bg-blue-50 px-4 py-2 text-sm text-slate-600">
+                        <span className="rounded-full bg-blue-500/10 px-4 py-2 text-sm text-slate-300">
                             Page{" "}
-                            <strong className="text-blue-700">
+                            <strong className="text-blue-300">
                                 {page + 1}
                             </strong>{" "}
                             of{" "}
-                            <strong className="text-[#0B1736]">
+                            <strong className="text-white">
                                 {totalPages}
                             </strong>
                         </span>
@@ -1844,7 +1785,7 @@ export default function ImmigrationRulesPage() {
                                         )
                                 )
                             }
-                            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-slate-200 transition-all hover:border-blue-400/40 hover:bg-blue-500/10 hover:text-blue-300 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Next
                         </button>
@@ -1856,7 +1797,7 @@ export default function ImmigrationRulesPage() {
                     AI INFORMATION
                    ========================================================= */}
 
-                <div className="relative mt-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#071330] via-[#102C54] to-[#164E8A] p-7 text-white shadow-2xl shadow-blue-950/20">
+                <div className="relative mt-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#071426] via-[#102C54] to-[#164E8A] p-7 text-white shadow-2xl shadow-blue-950/20">
 
                     <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-400/10" />
                     <div className="absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-cyan-400/10" />
@@ -1865,7 +1806,7 @@ export default function ImmigrationRulesPage() {
 
                         <div className="rounded-2xl bg-white/10 p-3 backdrop-blur-sm">
                             <ShieldCheck
-                                className="text-[#F4B81A]"
+                                className="text-[#C6A15B]"
                                 size={32}
                             />
                         </div>
@@ -1916,9 +1857,9 @@ export default function ImmigrationRulesPage() {
                 modal === "edit") && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md">
 
-                    <div className="max-h-[95vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/20 bg-white shadow-2xl">
+                    <div className="max-h-[95vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#1F314A] backdrop-blur-xl shadow-2xl shadow-black/40">
 
-                        <div className="flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-blue-50/60 px-6 py-5">
+                        <div className="flex items-center justify-between border-b border-white/10 bg-gradient-to-r from-white/5 via-transparent to-blue-500/10 px-6 py-5">
 
                             <div>
 
@@ -1932,14 +1873,14 @@ export default function ImmigrationRulesPage() {
                                     </div>
 
                                     <div>
-                                        <h2 className="text-xl font-black text-slate-900">
+                                        <h2 className="text-xl font-black text-white">
                                             {modal ===
                                             "create"
                                                 ? "Create Immigration Rule"
                                                 : "Edit Immigration Rule"}
                                         </h2>
 
-                                        <p className="mt-1 text-sm text-slate-500">
+                                        <p className="mt-1 text-sm text-slate-400">
                                             Manage regulatory information
                                             used by the immigration
                                             compliance engine.
@@ -1957,7 +1898,7 @@ export default function ImmigrationRulesPage() {
                                 disabled={
                                     formLoading
                                 }
-                                className="rounded-xl p-2 text-slate-500 transition-all hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                                className="rounded-xl p-2 text-slate-400 transition-all hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50"
                             >
                                 <X
                                     size={22}
@@ -1977,9 +1918,9 @@ export default function ImmigrationRulesPage() {
 
                                 {/* Basic information */}
 
-                                <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-white p-5">
+                                <div className="rounded-2xl border border-blue-500/15 bg-blue-500/5 p-5">
 
-                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-blue-700">
+                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-blue-300">
                                         <Database size={16} />
                                         Basic Information
                                     </h3>
@@ -2107,9 +2048,9 @@ export default function ImmigrationRulesPage() {
 
                                 {/* Rule information */}
 
-                                <div className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50/40 to-white p-5">
+                                <div className="rounded-2xl border border-violet-500/15 bg-violet-500/5 p-5">
 
-                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-violet-700">
+                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-violet-300">
                                         <Scale size={16} />
                                         Rule Information
                                     </h3>
@@ -2177,9 +2118,9 @@ export default function ImmigrationRulesPage() {
 
                                 {/* Processing */}
 
-                                <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50/40 to-white p-5">
+                                <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-5">
 
-                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-emerald-700">
+                                    <h3 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-wide text-emerald-300">
                                         <Clock3 size={16} />
                                         Processing Information
                                     </h3>
@@ -2249,7 +2190,7 @@ export default function ImmigrationRulesPage() {
 
                             {/* Footer */}
 
-                            <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-slate-200 bg-white/95 px-6 py-4 shadow-[0_-8px_20px_rgba(15,23,42,0.06)] backdrop-blur">
+                            <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-white/10 bg-[#1F314A]/95 px-6 py-4 shadow-[0_-8px_20px_rgba(0,0,0,0.25)] backdrop-blur-xl">
 
                                 <button
                                     type="button"
@@ -2259,7 +2200,7 @@ export default function ImmigrationRulesPage() {
                                     disabled={
                                         formLoading
                                     }
-                                    className="rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-100 disabled:opacity-50"
+                                    className="rounded-xl border border-white/15 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all hover:border-white/25 hover:bg-white/10 disabled:opacity-50"
                                 >
                                     Cancel
                                 </button>
@@ -2269,7 +2210,7 @@ export default function ImmigrationRulesPage() {
                                     disabled={
                                         formLoading
                                     }
-                                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#F4B81A] to-[#FFD45A] px-5 py-2.5 text-sm font-bold text-[#071330] shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#C6A15B] to-[#FFD45A] px-5 py-2.5 text-sm font-bold text-[#071426] shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {formLoading && (
                                         <Loader2
@@ -2300,9 +2241,9 @@ export default function ImmigrationRulesPage() {
                 selectedRule && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md">
 
-                        <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-3xl border border-white/20 bg-white shadow-2xl">
+                        <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-[#1F314A] backdrop-blur-xl shadow-2xl shadow-black/40">
 
-                            <div className="flex items-center justify-between border-b border-slate-200 bg-gradient-to-r from-slate-50 via-white to-blue-50/60 px-6 py-5">
+                            <div className="flex items-center justify-between border-b border-white/10 bg-gradient-to-r from-white/5 via-transparent to-blue-500/10 px-6 py-5">
 
                                 <div>
 
@@ -2314,7 +2255,7 @@ export default function ImmigrationRulesPage() {
                                             />
                                         </div>
 
-                                        <h2 className="text-xl font-black text-slate-900">
+                                        <h2 className="text-xl font-black text-white">
                                             {
                                                 selectedRule.visaType
                                             }
@@ -2322,7 +2263,7 @@ export default function ImmigrationRulesPage() {
 
                                     </div>
 
-                                    <p className="mt-1 text-sm text-slate-500">
+                                    <p className="mt-1 text-sm text-slate-400">
                                         {
                                             selectedRule.country
                                         }
@@ -2339,7 +2280,7 @@ export default function ImmigrationRulesPage() {
                                     onClick={
                                         closeModal
                                     }
-                                    className="rounded-xl p-2 text-slate-500 transition-all hover:bg-red-50 hover:text-red-600"
+                                    className="rounded-xl p-2 text-slate-400 transition-all hover:bg-red-500/10 hover:text-red-300"
                                 >
                                     <X
                                         size={22}
@@ -2352,8 +2293,8 @@ export default function ImmigrationRulesPage() {
 
                                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-                                    <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-4">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+                                    <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-4">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
                                             Status
                                         </p>
 
@@ -2366,24 +2307,24 @@ export default function ImmigrationRulesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-4">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                                    <div className="rounded-2xl border border-blue-500/15 bg-blue-500/5 p-4">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-300">
                                             Version
                                         </p>
 
-                                        <p className="mt-2 font-bold text-slate-900">
+                                        <p className="mt-2 font-bold text-white">
                                             {
                                                 selectedRule.version
                                             }
                                         </p>
                                     </div>
 
-                                    <div className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-white p-4">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">
+                                    <div className="rounded-2xl border border-violet-500/15 bg-violet-500/5 p-4">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-violet-300">
                                             AI Indexed
                                         </p>
 
-                                        <p className="mt-2 font-bold text-slate-900">
+                                        <p className="mt-2 font-bold text-white">
                                             {
                                                 selectedRule.aiIndexed
                                                     ? "Yes"
@@ -2392,12 +2333,12 @@ export default function ImmigrationRulesPage() {
                                         </p>
                                     </div>
 
-                                    <div className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-4">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">
+                                    <div className="rounded-2xl border border-amber-500/15 bg-amber-500/5 p-4">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-amber-300">
                                             Source
                                         </p>
 
-                                        <p className="mt-2 font-bold text-slate-900">
+                                        <p className="mt-2 font-bold text-white">
                                             {
                                                 selectedRule.source
                                             }
@@ -2440,15 +2381,15 @@ export default function ImmigrationRulesPage() {
                                                     key={
                                                         title
                                                     }
-                                                    className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5"
+                                                    className="rounded-2xl border border-white/10 bg-white/5 p-5"
                                                 >
-                                                    <h3 className="font-bold text-slate-900">
+                                                    <h3 className="font-bold text-white">
                                                         {
                                                             title
                                                         }
                                                     </h3>
 
-                                                    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-600">
+                                                    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-300">
                                                         {
                                                             content
                                                         }
@@ -2459,11 +2400,11 @@ export default function ImmigrationRulesPage() {
 
                                 </div>
 
-                                <div className="mt-8 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 p-4">
+                                <div className="mt-8 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4">
 
                                     <div className="flex items-start gap-3">
 
-                                        <div className="rounded-xl bg-blue-100 p-2 text-blue-600">
+                                        <div className="rounded-xl bg-blue-500/10 p-2 text-blue-300">
                                             <FileText
                                                 size={20}
                                             />
@@ -2471,7 +2412,7 @@ export default function ImmigrationRulesPage() {
 
                                         <div>
 
-                                            <p className="font-semibold text-blue-900">
+                                            <p className="font-semibold text-white">
                                                 Source
                                             </p>
 
@@ -2482,14 +2423,14 @@ export default function ImmigrationRulesPage() {
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="mt-1 block break-all text-sm font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 transition-colors hover:text-blue-900"
+                                                    className="mt-1 block break-all text-sm font-medium text-blue-300 underline decoration-blue-400/50 underline-offset-2 transition-colors hover:text-blue-100"
                                                 >
                                                     {
                                                         selectedRule.sourceUrl
                                                     }
                                                 </a>
                                             ) : (
-                                                <p className="mt-1 text-sm text-blue-700">
+                                                <p className="mt-1 text-sm text-blue-200">
                                                     {
                                                         selectedRule.source
                                                     }

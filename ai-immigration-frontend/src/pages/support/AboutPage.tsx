@@ -52,11 +52,10 @@ export default function AboutPage() {
     <main
       className="
         min-h-screen
-        bg-[#F8F6F1]
         px-6
         pt-32
         pb-20
-        text-[#0B1736]
+        text-slate-100
       "
     >
 
@@ -102,7 +101,7 @@ export default function AboutPage() {
               inline-flex
               items-center
               rounded-full
-              bg-[#071330]
+              bg-[#071426]
               px-5
               py-2
               text-sm
@@ -132,7 +131,7 @@ export default function AboutPage() {
             <span
               className="
                 block
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             >
               Artificial Intelligence
@@ -149,7 +148,7 @@ export default function AboutPage() {
               max-w-3xl
               text-lg
               leading-relaxed
-              text-gray-600
+              text-slate-300
             "
           >
 
@@ -199,8 +198,9 @@ export default function AboutPage() {
             className="
               rounded-3xl
               border
-              border-[#E5E7EB]
-              bg-white
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
               p-8
               shadow-sm
             "
@@ -224,7 +224,7 @@ export default function AboutPage() {
               className="
                 mt-4
                 leading-relaxed
-                text-gray-600
+                text-slate-300
               "
             >
 
@@ -259,8 +259,9 @@ export default function AboutPage() {
             className="
               rounded-3xl
               border
-              border-[#E5E7EB]
-              bg-white
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
               p-8
               shadow-sm
             "
@@ -284,7 +285,7 @@ export default function AboutPage() {
               className="
                 mt-4
                 leading-relaxed
-                text-gray-600
+                text-slate-300
               "
             >
 
@@ -338,7 +339,7 @@ export default function AboutPage() {
             <p
               className="
                 mt-3
-                text-gray-600
+                text-slate-300
               "
             >
 
@@ -388,8 +389,9 @@ export default function AboutPage() {
                       className="
                         rounded-3xl
                         border
-                        border-[#E5E7EB]
-                        bg-white
+                        border-white/10
+                        bg-white/5
+                        backdrop-blur-xl
                         p-6
                         shadow-sm
                       "
@@ -405,14 +407,14 @@ export default function AboutPage() {
                           items-center
                           justify-center
                           rounded-2xl
-                          bg-[#FFF4CC]
+                          bg-[#C6A15B]/15
                         "
                       >
 
                         <Icon
                           size={24}
                           className="
-                            text-[#F4B81A]
+                            text-[#C6A15B]
                           "
                         />
 
@@ -441,7 +443,7 @@ export default function AboutPage() {
                           mt-3
                           text-sm
                           leading-relaxed
-                          text-gray-600
+                          text-slate-300
                         "
                       >
 

@@ -242,4 +242,76 @@ class FactAuthorizationServiceTest {
         verify(caseAssignmentRepository, never())
                 .existsByCaseWorkerUserIdAndSubjectUserIdAndActiveTrue(anyLong(), anyLong());
     }
+
+    // =========================================================================
+    // APPLICANT CONFLICT CONFIRMATION - A DISTINCT GRANT FROM VERIFY/RESOLVE
+    // =========================================================================
+
+    @Test
+    void applicantCanConfirmTheirOwnConflict() {
+
+        AuthenticatedUser subject = user(SUBJECT_ID, Role.USER);
+
+        authorizationService.assertCanApplicantConfirmConflict(
+                subject, SUBJECT_ID, FactSensitivityTier.T2_STANDARD_PERSONAL, 1L, "applicant confirm conflict"
+        );
+
+        verify(accessAuditService).recordAccess(
+                eq(SUBJECT_ID), eq(1L), eq(SUBJECT_ID), any(), eq("applicant confirm conflict"),
+                eq(FactSensitivityTier.T2_STANDARD_PERSONAL), eq(true), isNull()
+        );
+    }
+
+    @Test
+    void strangerCannotConfirmAnotherSubjectsConflict() {
+
+        AuthenticatedUser stranger = user(STRANGER_ID, Role.USER);
+
+        assertThatThrownBy(() ->
+                authorizationService.assertCanApplicantConfirmConflict(stranger, SUBJECT_ID, null, 1L, "applicant confirm conflict")
+        ).isInstanceOf(AccessDeniedException.class);
+
+        verify(accessAuditService).recordAccess(
+                eq(SUBJECT_ID), eq(1L), eq(STRANGER_ID), any(), eq("applicant confirm conflict"),
+                isNull(), eq(false), anyString()
+        );
+    }
+
+    @Test
+    void assignedCaseWorkerCannotUseTheApplicantConfirmationGrant() {
+
+        // A case worker is denied by this subject-only grant regardless of
+        // any active CaseAssignment - the two authorities are never
+        // interchangeable, and this grant never even consults assignment
+        // status, unlike assertCanVerifyOrResolve.
+        AuthenticatedUser caseWorker = user(CASE_WORKER_ID, Role.CASE_WORKER);
+
+        assertThatThrownBy(() ->
+                authorizationService.assertCanApplicantConfirmConflict(caseWorker, SUBJECT_ID, null, 1L, "applicant confirm conflict")
+        ).isInstanceOf(AccessDeniedException.class);
+
+        verify(caseAssignmentRepository, never())
+                .existsByCaseWorkerUserIdAndSubjectUserIdAndActiveTrue(anyLong(), anyLong());
+    }
+
+    @Test
+    void adminCannotUseTheApplicantConfirmationGrant() {
+
+        AuthenticatedUser admin = user(ADMIN_ID, Role.ADMIN);
+
+        assertThatThrownBy(() ->
+                authorizationService.assertCanApplicantConfirmConflict(admin, SUBJECT_ID, null, 1L, "applicant confirm conflict")
+        ).isInstanceOf(AccessDeniedException.class);
+
+        verify(caseAssignmentRepository, never())
+                .existsByCaseWorkerUserIdAndSubjectUserIdAndActiveTrue(anyLong(), anyLong());
+    }
+
+    @Test
+    void nullActorIsDeniedApplicantConfirmation() {
+
+        assertThatThrownBy(() ->
+                authorizationService.assertCanApplicantConfirmConflict(null, SUBJECT_ID, null, 1L, "applicant confirm conflict")
+        ).isInstanceOf(AccessDeniedException.class);
+    }
 }

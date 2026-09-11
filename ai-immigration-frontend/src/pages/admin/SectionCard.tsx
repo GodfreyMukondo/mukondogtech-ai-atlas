@@ -1,4 +1,4 @@
-import React, { memo, ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 export interface SectionCardProps {
   title: string;
@@ -18,13 +18,15 @@ function SectionCardComponent({
       className={`
         rounded-3xl
         border
-        border-slate-800
-        bg-[#111827]
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-xl
+        shadow-black/20
         transition-all
         duration-300
-        hover:border-slate-700
+        hover:border-white/20
         ${className}
       `}
     >

@@ -181,6 +181,82 @@ const isDocument = (
 
 /**
  * ============================================================================
+ * UPLOAD RESPONSE NORMALIZATION
+ * ============================================================================
+ *
+ * POST /api/documents/upload does NOT return the same shape as
+ * GET /api/documents and GET /api/documents/{id}.
+ *
+ * Backend contract:
+ *
+ *     GET  /api/documents        -> DocumentResponse   { id, ..., status }
+ *     GET  /api/documents/{id}   -> DocumentResponse   { id, ..., status }
+ *     POST /api/documents/upload -> DocumentUploadResponse
+ *                                    { documentId, ..., uploadStatus }
+ *
+ * DocumentUploadResponse intentionally excludes fields such as fileSize,
+ * mimeType, and updatedAt (see the Java DTO for why).
+ *
+ * The frontend Document type mirrors DocumentResponse (id, status), so the
+ * upload response must be translated into that shape before it can be
+ * validated with isDocument() or merged into application state.
+ * ============================================================================
+ */
+
+const normalizeUploadResponse = (
+  value: unknown,
+): unknown => {
+
+  if (
+    value === null ||
+    typeof value !== "object"
+  ) {
+
+    return value;
+  }
+
+
+  const record =
+    value as UnknownRecord;
+
+
+  /**
+   * Already shaped like a Document (id/status present).
+   *
+   * Nothing to translate.
+   */
+  if (
+    typeof record.id === "number"
+  ) {
+
+    return record;
+  }
+
+
+  /**
+   * Translate DocumentUploadResponse -> Document.
+   */
+  if (
+    typeof record.documentId === "number"
+  ) {
+
+    return {
+      ...record,
+      id: record.documentId,
+      status:
+        typeof record.uploadStatus === "string"
+          ? record.uploadStatus
+          : record.status,
+    };
+  }
+
+
+  return record;
+};
+
+
+/**
+ * ============================================================================
  * DOCUMENT ARRAY VALIDATION
  * ============================================================================
  */
@@ -430,7 +506,7 @@ const calculateUploadProgress = (
 
 const notifyUploadProgress = (
   onProgress: (
-    progress: number,
+    (progress: number) => void
   ) | undefined,
   progress: number,
 ): void => {
@@ -581,12 +657,34 @@ export const uploadDocumentApi = async (
         /**
          * IMPORTANT:
          *
-         * Do not manually set multipart/form-data.
+         * The shared `API` axios instance (./axios.ts) sets a hard
+         * "Content-Type: application/json" default header for every
+         * request.
          *
-         * The browser must add the boundary:
+         * Axios's own transformRequest only skips JSON-encoding a
+         * FormData payload when it does NOT see a JSON content type
+         * already present. Since our instance always has one, axios
+         * would otherwise silently JSON.stringify() this FormData
+         * (discarding the file) while still sending
+         * "Content-Type: application/json" — which is exactly what
+         * produced:
          *
-         * multipart/form-data; boundary=----...
+         *     HttpMediaTypeNotSupportedException:
+         *     Content-Type 'application/json' is not supported
+         *
+         * Explicitly clearing it here (not deleting the key, but
+         * setting it to undefined) removes the instance default for
+         * this request only, so axios/the browser can set the correct
+         * multipart/form-data boundary automatically.
+         *
+         * Do NOT manually set "multipart/form-data" as the value —
+         * only the browser can generate a valid boundary.
          */
+        headers: {
+          ...config?.headers,
+          "Content-Type": undefined,
+        },
+
         onUploadProgress: (
           event: AxiosProgressEvent,
         ) => {
@@ -612,8 +710,10 @@ export const uploadDocumentApi = async (
 
 
   const document =
-    unwrapApiResponse<Document>(
-      response.data,
+    normalizeUploadResponse(
+      unwrapApiResponse<unknown>(
+        response.data,
+      ),
     );
 
 

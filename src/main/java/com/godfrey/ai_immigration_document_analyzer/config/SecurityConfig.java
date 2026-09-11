@@ -157,6 +157,25 @@ public class SecurityConfig {
 
                         /*
                          * -----------------------------------------------------
+                         * SIGNED REPORT DOWNLOAD LINK
+                         * -----------------------------------------------------
+                         *
+                         * Reached via a plain browser navigation
+                         * (window.open), which cannot carry the app's JWT
+                         * bearer token - so it cannot sit behind the usual
+                         * role-based filter. ReportDownloadController
+                         * performs its own authorization instead, via a
+                         * short-lived single-use token that only
+                         * POST /api/admin/reports/generate (ADMIN-only) can
+                         * mint. See AdminReportService for the full design.
+                         */
+                        .requestMatchers(
+                                "/api/reports/download"
+                        )
+                        .permitAll()
+
+                        /*
+                         * -----------------------------------------------------
                          * CORS PREFLIGHT
                          * -----------------------------------------------------
                          */
@@ -193,6 +212,16 @@ public class SecurityConfig {
                          */
                         .requestMatchers(
                                 "/api/documents/**"
+                        )
+                        .authenticated()
+
+                        /*
+                         * -----------------------------------------------------
+                         * APPLICATIONS
+                         * -----------------------------------------------------
+                         */
+                        .requestMatchers(
+                                "/api/applications/**"
                         )
                         .authenticated()
 
@@ -335,7 +364,8 @@ public class SecurityConfig {
          */
         configuration.setExposedHeaders(
                 List.of(
-                        "Authorization"
+                        "Authorization",
+                        "Content-Disposition"
                 )
         );
 

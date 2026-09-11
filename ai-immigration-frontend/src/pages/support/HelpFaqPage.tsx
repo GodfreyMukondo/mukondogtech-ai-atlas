@@ -135,11 +135,10 @@ export default function HelpFaqPage(){
     <main
       className="
         min-h-screen
-        bg-[#F8F6F1]
         px-6
         pt-32
         pb-20
-        text-[#0B1736]
+        text-slate-100
       "
     >
 
@@ -187,7 +186,7 @@ export default function HelpFaqPage(){
               items-center
               gap-2
               rounded-full
-              bg-[#071330]
+              bg-[#071426]
               px-5
               py-2
               text-sm
@@ -198,7 +197,7 @@ export default function HelpFaqPage(){
 
             <HelpCircle
               size={16}
-              className="text-[#F4B81A]"
+              className="text-[#C6A15B]"
             />
 
             Help Center
@@ -227,7 +226,7 @@ export default function HelpFaqPage(){
               mt-5
               text-lg
               leading-relaxed
-              text-gray-600
+              text-slate-300
             "
           >
 
@@ -279,8 +278,9 @@ export default function HelpFaqPage(){
                     className="
                       rounded-3xl
                       border
-                      border-[#E5E7EB]
-                      bg-white
+                      border-white/10
+                      bg-white/5
+                      backdrop-blur-xl
                       p-6
                       shadow-sm
                       transition
@@ -297,13 +297,13 @@ export default function HelpFaqPage(){
                         items-center
                         justify-center
                         rounded-2xl
-                        bg-[#FFF4CC]
+                        bg-[#C6A15B]/15
                       "
                     >
 
                       <Icon
                         size={24}
-                        className="text-[#F4B81A]"
+                        className="text-[#C6A15B]"
                       />
 
                     </div>
@@ -315,6 +315,7 @@ export default function HelpFaqPage(){
                         mt-5
                         font-bold
                         text-lg
+                        text-white
                       "
                     >
 
@@ -329,7 +330,7 @@ export default function HelpFaqPage(){
                         mt-2
                         text-sm
                         leading-relaxed
-                        text-gray-600
+                        text-slate-300
                       "
                     >
 
@@ -397,8 +398,9 @@ export default function HelpFaqPage(){
                     overflow-hidden
                     rounded-3xl
                     border
-                    border-[#E5E7EB]
-                    bg-white
+                    border-white/10
+                    bg-white/5
+                    backdrop-blur-xl
                   "
 
                 >
@@ -424,7 +426,7 @@ export default function HelpFaqPage(){
                       p-6
                       text-left
                       font-semibold
-                      text-[#0B1736]
+                      text-white
                     "
 
                   >
@@ -483,7 +485,7 @@ export default function HelpFaqPage(){
                         px-6
                         pb-6
                         leading-relaxed
-                        text-gray-600
+                        text-slate-300
                       "
                     >
 

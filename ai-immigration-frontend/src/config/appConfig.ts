@@ -230,6 +230,26 @@ export const appConfig = {
 
 
 
+
+  branding:{
+
+
+    platformName:
+      env.APP_NAME,
+
+
+    dashboardHeadline:
+      "Immigration Command Center",
+
+
+    dashboardDescription:
+      "Enterprise administration dashboard for immigration workflows, artificial intelligence operations, security monitoring and global platform management.",
+
+
+  },
+
+
+
 } as const;
 
 

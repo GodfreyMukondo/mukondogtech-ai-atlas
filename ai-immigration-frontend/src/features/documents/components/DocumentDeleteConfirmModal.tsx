@@ -148,11 +148,15 @@ opacity:0
 }}
 
 className="
-bg-white
+border
+border-white/10
+bg-[#1F314A]
 w-full
 max-w-md
 rounded-2xl
-shadow-xl
+shadow-2xl
+shadow-black/40
+backdrop-blur-xl
 p-6
 "
 
@@ -177,12 +181,12 @@ items-center
 <div className="
 p-3
 rounded-full
-bg-red-100
+bg-red-400/10
 ">
 
 <Trash2
 className="
-text-red-600
+text-red-400
 "
 />
 
@@ -194,7 +198,7 @@ text-red-600
 <h2 className="
 text-lg
 font-semibold
-text-[#0B1736]
+text-white
 ">
 
 Delete Document
@@ -204,7 +208,7 @@ Delete Document
 
 <p className="
 text-sm
-text-gray-500
+text-slate-400
 mt-1
 ">
 
@@ -227,8 +231,8 @@ onClick={onCancel}
 disabled={loading}
 
 className="
-text-gray-400
-hover:text-gray-700
+text-slate-400
+hover:text-white
 "
 
 >
@@ -247,7 +251,9 @@ hover:text-gray-700
 mt-5
 flex
 gap-3
-bg-red-50
+bg-red-400/10
+border
+border-red-400/20
 rounded-xl
 p-4
 ">
@@ -255,7 +261,7 @@ p-4
 
 <AlertTriangle
 className="
-text-red-500
+text-red-400
 shrink-0
 "
 />
@@ -263,7 +269,7 @@ shrink-0
 
 <p className="
 text-sm
-text-red-700
+text-red-300
 ">
 
 You are about to permanently delete:
@@ -303,7 +309,9 @@ px-4
 py-2
 rounded-lg
 border
-hover:bg-gray-100
+border-white/15
+text-slate-200
+hover:bg-white/10
 "
 
 >

@@ -194,22 +194,22 @@ const UI = {
     "w-full space-y-8 p-4 sm:p-6 lg:p-8 xl:p-10",
 
   panel:
-    "rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_20px_60px_-35px_rgba(15,23,42,0.35)]",
+    "rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl shadow-black/20",
 
   darkPanel:
-    "rounded-[2rem] border border-slate-800/80 bg-slate-950 shadow-[0_25px_80px_-35px_rgba(15,23,42,0.8)]",
+    "rounded-[2rem] border border-white/10 bg-[#1F314A] shadow-2xl shadow-black/40 backdrop-blur-xl",
 
   metricCard:
-    "group rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-100/50",
+    "group rounded-2xl border border-white/10 bg-white/5 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[#C6A15B]/30 hover:bg-white/[0.08]",
 
   primaryButton:
-    "inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 px-5 py-3 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-violet-500/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-2xl bg-[#C6A15B] px-5 py-3 font-bold text-black shadow-lg shadow-black/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#A8894D] focus:outline-none focus:ring-2 focus:ring-[#C6A15B] focus:ring-offset-2 focus:ring-offset-[#0B1F3A] disabled:cursor-not-allowed disabled:opacity-50",
 
   secondaryButton:
-    "inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-bold text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-bold text-slate-200 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-[#0B1F3A] disabled:cursor-not-allowed disabled:opacity-50",
 
   darkButton:
-    "inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3 font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-500/60 hover:bg-slate-800 hover:shadow-lg hover:shadow-violet-950/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-[#0B1F3A] disabled:cursor-not-allowed disabled:opacity-50",
 } as const;
 
 /* ============================================================================
@@ -921,18 +921,18 @@ function EmptyState({
   description: string;
 }) {
   return (
-    <div className="flex min-h-56 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+    <div className="flex min-h-56 flex-col items-center justify-center rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-slate-400 shadow-sm">
         <Icon
           size={30}
         />
       </div>
 
-      <h3 className="mt-4 font-bold text-slate-700">
+      <h3 className="mt-4 font-bold text-slate-200">
         {title}
       </h3>
 
-      <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+      <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
         {description}
       </p>
     </div>
@@ -951,13 +951,13 @@ function MetricList({
 }) {
   const accentClasses = {
     indigo:
-      "text-indigo-700 bg-indigo-50 border-indigo-100",
+      "text-indigo-300 bg-indigo-400/10 border-indigo-400/20",
 
     violet:
-      "text-violet-700 bg-violet-50 border-violet-100",
+      "text-violet-300 bg-violet-400/10 border-violet-400/20",
 
     emerald:
-      "text-emerald-700 bg-emerald-50 border-emerald-100",
+      "text-emerald-300 bg-emerald-400/10 border-emerald-400/20",
   };
 
   if (
@@ -986,7 +986,7 @@ function MetricList({
             className={`${UI.metricCard} flex items-center justify-between gap-4`}
           >
             <div className="min-w-0">
-              <p className="truncate font-bold text-slate-800">
+              <p className="truncate font-bold text-slate-200">
                 {
                   metric.label
                 }
@@ -1682,8 +1682,8 @@ export default function AdminDashboardPage() {
           <div
             className={`mx-auto flex h-20 w-20 items-center justify-center rounded-3xl ${
               isForbidden
-                ? "bg-amber-50 text-amber-600"
-                : "bg-rose-50 text-rose-600"
+                ? "bg-amber-400/10 text-amber-300"
+                : "bg-rose-400/10 text-rose-300"
             }`}
           >
             {isForbidden ? (
@@ -1697,25 +1697,25 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
-          <h1 className="mt-7 text-3xl font-black text-slate-900">
+          <h1 className="mt-7 text-3xl font-black text-white">
             {isForbidden
               ? "Administrator access required"
               : "Dashboard unavailable"}
           </h1>
 
-          <p className="mt-4 text-sm leading-7 text-slate-500">
+          <p className="mt-4 text-sm leading-7 text-slate-400">
             {isForbidden
               ? "The backend rejected this request. Make sure the authenticated account has the ADMIN role and that the JWT Bearer token is being sent with the request."
               : errorMessage}
           </p>
 
           {isForbidden && (
-            <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-amber-200 bg-amber-50 p-5 text-left">
-              <p className="text-sm font-black text-amber-800">
+            <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-amber-400/20 bg-amber-400/10 p-5 text-left">
+              <p className="text-sm font-black text-amber-300">
                 Authorization check
               </p>
 
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-amber-700">
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-amber-200/90">
                 <li>
                   • The administrator
                   must be authenticated.
@@ -1724,7 +1724,7 @@ export default function AdminDashboardPage() {
                 <li>
                   • The JWT must be sent
                   as{" "}
-                  <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">
+                  <code className="rounded bg-black/20 px-1.5 py-0.5 font-mono text-xs">
                     Authorization: Bearer &lt;token&gt;
                   </code>
                 </li>
@@ -1792,21 +1792,21 @@ export default function AdminDashboardPage() {
         aria-label="Dashboard actions"
         className="sticky top-4 z-30"
       >
-        <div className="rounded-3xl border border-slate-200/80 bg-white/95 p-3 shadow-xl shadow-slate-200/40 backdrop-blur-xl">
+        <div className="rounded-3xl border border-white/10 bg-[#1F314A]/95 p-3 shadow-2xl shadow-black/40 backdrop-blur-xl">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3 px-2">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-lg shadow-indigo-500/20">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#C6A15B]/15 text-[#C6A15B] shadow-lg shadow-black/20">
                 <Sparkles
                   size={20}
                 />
               </div>
 
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-600">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#C6A15B]">
                   Quick Actions
                 </p>
 
-                <p className="text-sm font-semibold text-slate-500">
+                <p className="text-sm font-semibold text-slate-400">
                   Manage your enterprise platform
                 </p>
               </div>
@@ -1909,7 +1909,7 @@ export default function AdminDashboardPage() {
                   handleRefresh
                 }
                 aria-label="Refresh dashboard"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 font-bold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-bold text-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-2 focus:ring-offset-[#0B1F3A]"
               >
                 <RefreshCw
                   size={18}
@@ -2015,16 +2015,16 @@ export default function AdminDashboardPage() {
       <section aria-label="Executive metrics">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-300">
               Executive overview
             </p>
 
-            <h2 className="mt-1 text-2xl font-black text-slate-900">
+            <h2 className="mt-1 text-2xl font-black text-white">
               Platform performance
             </h2>
           </div>
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             Real-time enterprise indicators
           </p>
         </div>
@@ -2062,11 +2062,11 @@ export default function AdminDashboardPage() {
 
       <section>
         <div className="mb-5">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-500">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-violet-300">
             Intelligence centers
           </p>
 
-          <h2 className="mt-1 text-2xl font-black text-slate-900">
+          <h2 className="mt-1 text-2xl font-black text-white">
             Operational command
           </h2>
         </div>
@@ -2141,10 +2141,10 @@ export default function AdminDashboardPage() {
                         FileSearch,
 
                       wrapper:
-                        "bg-cyan-50 text-cyan-600",
+                        "bg-cyan-400/10 text-cyan-300",
 
                       border:
-                        "hover:border-cyan-200",
+                        "hover:border-cyan-400/30",
                     },
 
                     {
@@ -2152,10 +2152,10 @@ export default function AdminDashboardPage() {
                         ShieldAlert,
 
                       wrapper:
-                        "bg-rose-50 text-rose-600",
+                        "bg-rose-400/10 text-rose-300",
 
                       border:
-                        "hover:border-rose-200",
+                        "hover:border-rose-400/30",
                     },
 
                     {
@@ -2163,10 +2163,10 @@ export default function AdminDashboardPage() {
                         Clock3,
 
                       wrapper:
-                        "bg-amber-50 text-amber-600",
+                        "bg-amber-400/10 text-amber-300",
 
                       border:
-                        "hover:border-amber-200",
+                        "hover:border-amber-400/30",
                     },
 
                     {
@@ -2174,10 +2174,10 @@ export default function AdminDashboardPage() {
                         CheckCircle2,
 
                       wrapper:
-                        "bg-emerald-50 text-emerald-600",
+                        "bg-emerald-400/10 text-emerald-300",
 
                       border:
-                        "hover:border-emerald-200",
+                        "hover:border-emerald-400/30",
                     },
                   ];
 
@@ -2202,7 +2202,7 @@ export default function AdminDashboardPage() {
                         duration:
                           0.2,
                       }}
-                      className={`rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm transition ${config.border}`}
+                      className={`rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 backdrop-blur-xl transition ${config.border}`}
                     >
                       <div
                         className={`flex h-12 w-12 items-center justify-center rounded-2xl ${config.wrapper}`}
@@ -2212,13 +2212,13 @@ export default function AdminDashboardPage() {
                         />
                       </div>
 
-                      <p className="mt-5 text-sm font-semibold text-slate-500">
+                      <p className="mt-5 text-sm font-semibold text-slate-400">
                         {
                           metric.label
                         }
                       </p>
 
-                      <h3 className="mt-2 break-words text-3xl font-black tracking-tight text-slate-900">
+                      <h3 className="mt-2 break-words text-3xl font-black tracking-tight text-white">
                         {formatMetricValue(
                           metric.value,
                         )}
@@ -2250,21 +2250,21 @@ export default function AdminDashboardPage() {
           subtitle="Production artificial intelligence health, accuracy and availability"
         >
           <div className="grid gap-5 md:grid-cols-3">
-            <div className="group relative overflow-hidden rounded-3xl border border-violet-100 bg-gradient-to-br from-violet-50 via-white to-indigo-50 p-6">
-              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-violet-200/40 blur-2xl" />
+            <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-violet-500/20 blur-2xl" />
 
               <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-600">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300">
                   <Bot
                     size={27}
                   />
                 </div>
 
-                <p className="mt-5 text-sm font-semibold text-slate-500">
+                <p className="mt-5 text-sm font-semibold text-slate-400">
                   Model Accuracy
                 </p>
 
-                <h3 className="mt-2 text-4xl font-black tracking-tight text-slate-900">
+                <h3 className="mt-2 text-4xl font-black tracking-tight text-white">
                   {formatPercentage(
                     executive
                       ?.aiAccuracy,
@@ -2272,7 +2272,7 @@ export default function AdminDashboardPage() {
                 </h3>
 
                 <div
-                  className="mt-5 h-2 overflow-hidden rounded-full bg-violet-100"
+                  className="mt-5 h-2 overflow-hidden rounded-full bg-white/10"
                   aria-label={`AI accuracy ${formatPercentage(executive?.aiAccuracy)}`}
                 >
                   <motion.div
@@ -2301,25 +2301,25 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-6">
-              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-amber-200/40 blur-2xl" />
+            <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#C6A15B]/20 blur-2xl" />
 
               <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#C6A15B]/10 text-[#C6A15B]">
                   <Sparkles
                     size={27}
                   />
                 </div>
 
-                <p className="mt-5 text-sm font-semibold text-slate-500">
+                <p className="mt-5 text-sm font-semibold text-slate-400">
                   Active AI Models
                 </p>
 
-                <h3 className="mt-2 text-4xl font-black tracking-tight text-slate-900">
+                <h3 className="mt-2 text-4xl font-black tracking-tight text-white">
                   {aiModels}
                 </h3>
 
-                <p className="mt-4 flex items-center gap-2 text-xs font-bold text-amber-600">
+                <p className="mt-4 flex items-center gap-2 text-xs font-bold text-[#C6A15B]">
                   <Zap
                     size={14}
                   />
@@ -2329,25 +2329,25 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6">
-              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-emerald-200/40 blur-2xl" />
+            <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+              <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-emerald-500/20 blur-2xl" />
 
               <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
                   <Activity
                     size={27}
                   />
                 </div>
 
-                <p className="mt-5 text-sm font-semibold text-slate-500">
+                <p className="mt-5 text-sm font-semibold text-slate-400">
                   AI Service Availability
                 </p>
 
-                <h3 className="mt-2 text-4xl font-black tracking-tight text-slate-900">
+                <h3 className="mt-2 text-4xl font-black tracking-tight text-white">
                   {platformUptime}
                 </h3>
 
-                <p className="mt-4 flex items-center gap-2 text-xs font-bold text-emerald-600">
+                <p className="mt-4 flex items-center gap-2 text-xs font-bold text-emerald-300">
                   <CheckCircle2
                     size={14}
                   />
@@ -2368,11 +2368,11 @@ export default function AdminDashboardPage() {
         0 && (
         <section>
           <div className="mb-5">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-500">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
               Infrastructure
             </p>
 
-            <h2 className="mt-1 text-2xl font-black text-slate-900">
+            <h2 className="mt-1 text-2xl font-black text-white">
               Platform health
             </h2>
           </div>
@@ -2411,11 +2411,11 @@ export default function AdminDashboardPage() {
 
       <section>
         <div className="mb-5">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-500">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-300">
             Governance
           </p>
 
-          <h2 className="mt-1 text-2xl font-black text-slate-900">
+          <h2 className="mt-1 text-2xl font-black text-white">
             Security & activity
           </h2>
         </div>
@@ -2444,10 +2444,10 @@ export default function AdminDashboardPage() {
                       key={
                         log.id
                       }
-                      className="group rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-indigo-200 hover:bg-white hover:shadow-md"
+                      className="group rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-indigo-400/30 hover:bg-white/[0.08]"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-400/10 text-indigo-300">
                           <Fingerprint
                             size={
                               19
@@ -2456,7 +2456,7 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold leading-6 text-slate-700">
+                          <p className="text-sm font-semibold leading-6 text-slate-200">
                             {
                               log.message
                             }
@@ -2473,7 +2473,7 @@ export default function AdminDashboardPage() {
 
                         <ChevronRight
                           size={17}
-                          className="mt-1 shrink-0 text-slate-300 transition group-hover:translate-x-1 group-hover:text-indigo-500"
+                          className="mt-1 shrink-0 text-slate-500 transition group-hover:translate-x-1 group-hover:text-indigo-300"
                         />
                       </div>
                     </div>
@@ -2490,9 +2490,9 @@ export default function AdminDashboardPage() {
             <div className="space-y-3">
               {alerts.length ===
               0 ? (
-                <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 p-6">
+                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-6">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
                       <ShieldCheck
                         size={
                           22
@@ -2501,11 +2501,11 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <p className="font-bold text-emerald-700">
+                      <p className="font-bold text-emerald-300">
                         No active system alerts
                       </p>
 
-                      <p className="mt-1 text-xs text-emerald-600/80">
+                      <p className="mt-1 text-xs text-emerald-300/70">
                         Your platform is currently operating normally.
                       </p>
                     </div>
@@ -2520,10 +2520,10 @@ export default function AdminDashboardPage() {
                       key={
                         alert.id
                       }
-                      className="rounded-2xl border border-rose-100 bg-gradient-to-r from-rose-50 to-orange-50 p-5"
+                      className="rounded-2xl border border-rose-400/20 bg-rose-400/10 p-5"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-400/10 text-rose-300">
                           <AlertTriangle
                             size={
                               21
@@ -2532,14 +2532,14 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div>
-                          <p className="text-sm font-bold leading-6 text-rose-700">
+                          <p className="text-sm font-bold leading-6 text-rose-300">
                             {
                               alert.message
                             }
                           </p>
 
                           {alert.time && (
-                            <p className="mt-2 text-xs font-medium text-rose-500">
+                            <p className="mt-2 text-xs font-medium text-rose-300/80">
                               {
                                 alert.time
                               }
@@ -2567,18 +2567,18 @@ export default function AdminDashboardPage() {
         >
           {regions.length ===
           0 ? (
-            <div className="flex min-h-72 flex-col items-center justify-center rounded-3xl bg-gradient-to-br from-slate-50 to-indigo-50/50 p-8 text-center">
-              <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-100 text-indigo-500 shadow-lg shadow-indigo-100">
+            <div className="flex min-h-72 flex-col items-center justify-center rounded-3xl bg-white/[0.03] border border-dashed border-white/15 p-8 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-indigo-400/10 text-indigo-300 shadow-lg shadow-black/20">
                 <Globe
                   size={40}
                 />
               </div>
 
-              <p className="mt-5 font-black text-slate-700">
+              <p className="mt-5 font-black text-slate-200">
                 No regional data available
               </p>
 
-              <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+              <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
                 Regional immigration analytics will appear here when the backend provides reporting data.
               </p>
             </div>
@@ -2595,11 +2595,11 @@ export default function AdminDashboardPage() {
                     whileHover={{
                       y: -4,
                     }}
-                    className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm transition hover:border-indigo-200 hover:shadow-lg"
+                    className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/20 backdrop-blur-xl transition hover:border-indigo-400/30"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-400/10 text-indigo-300">
                           <MapPinned
                             size={
                               20
@@ -2607,7 +2607,7 @@ export default function AdminDashboardPage() {
                           />
                         </div>
 
-                        <span className="truncate font-bold text-slate-800">
+                        <span className="truncate font-bold text-slate-200">
                           {
                             region.region
                           }
@@ -2616,7 +2616,7 @@ export default function AdminDashboardPage() {
 
                       <Globe
                         size={17}
-                        className="shrink-0 text-slate-300"
+                        className="shrink-0 text-slate-500"
                       />
                     </div>
 
@@ -2626,7 +2626,7 @@ export default function AdminDashboardPage() {
                           Applications
                         </p>
 
-                        <strong className="mt-1 block text-3xl font-black text-slate-900">
+                        <strong className="mt-1 block text-3xl font-black text-white">
                           {formatMetricValue(
                             region.value,
                           )}
@@ -2634,7 +2634,7 @@ export default function AdminDashboardPage() {
                       </div>
 
                       {region.trend && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-600">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/10 px-3 py-1.5 text-xs font-black text-emerald-300">
                           <TrendingUp
                             size={13}
                           />
@@ -2662,16 +2662,16 @@ export default function AdminDashboardPage() {
           title={`${platformName} Status`}
           subtitle="Enterprise infrastructure monitoring"
         >
-          <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 via-white to-indigo-50/60 p-6 sm:p-7">
-            <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-indigo-100/60 blur-3xl" />
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 sm:p-7">
+            <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl" />
 
             <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center gap-4">
                 <div
                   className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
                     platformOnline
-                      ? "bg-emerald-100 text-emerald-600"
-                      : "bg-amber-100 text-amber-600"
+                      ? "bg-emerald-400/10 text-emerald-300"
+                      : "bg-amber-400/10 text-amber-300"
                   }`}
                 >
                   {platformOnline ? (
@@ -2686,15 +2686,15 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold text-slate-500">
+                  <p className="text-sm font-semibold text-slate-400">
                     Infrastructure Status
                   </p>
 
                   <span
                     className={`mt-1 block text-lg font-black ${
                       platformOnline
-                        ? "text-emerald-600"
-                        : "text-amber-600"
+                        ? "text-emerald-300"
+                        : "text-amber-300"
                     }`}
                   >
                     {platformOnline
@@ -2705,7 +2705,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
                   <div className="flex items-center gap-2 text-slate-400">
                     <ServerCog
                       size={15}
@@ -2716,14 +2716,14 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
 
-                  <p className="mt-1 font-black text-slate-900">
+                  <p className="mt-1 font-black text-white">
                     {
                       platformStatus
                     }
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
                   <div className="flex items-center gap-2 text-slate-400">
                     <Bot
                       size={15}
@@ -2734,14 +2734,14 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
 
-                  <p className="mt-1 font-black text-slate-900">
+                  <p className="mt-1 font-black text-white">
                     {
                       aiModels
                     }
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
                   <div className="flex items-center gap-2 text-slate-400">
                     <Activity
                       size={15}
@@ -2752,7 +2752,7 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
 
-                  <p className="mt-1 font-black text-slate-900">
+                  <p className="mt-1 font-black text-white">
                     {
                       platformUptime
                     }
@@ -2769,21 +2769,21 @@ export default function AdminDashboardPage() {
       ==================================================================== */}
 
       <section>
-        <div className="overflow-hidden rounded-3xl border border-indigo-100 bg-gradient-to-r from-indigo-50 via-violet-50 to-fuchsia-50 p-6 sm:p-8">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 sm:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-400/10 text-indigo-300">
                 <Sparkles
                   size={23}
                 />
               </div>
 
               <div>
-                <h3 className="font-black text-slate-900">
+                <h3 className="font-black text-white">
                   Enterprise AI Command Center
                 </h3>
 
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">
                   Monitor immigration operations,
                   document intelligence, AI performance,
                   security events and global application
@@ -2792,7 +2792,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-white/80 bg-white/70 px-4 py-3 text-sm font-bold text-indigo-700 shadow-sm">
+            <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-bold text-indigo-300">
               <Activity
                 size={16}
               />

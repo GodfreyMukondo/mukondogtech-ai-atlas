@@ -22,12 +22,12 @@ const StatCard = ({
   title: string;
   value: string | number;
 }) => (
-  <div className="rounded-xl border bg-white p-5 shadow-sm">
-    <p className="text-sm text-gray-500">
+  <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl p-5 shadow-lg shadow-black/20">
+    <p className="text-sm text-slate-400">
       {title}
     </p>
 
-    <h3 className="mt-2 text-2xl font-bold">
+    <h3 className="mt-2 text-2xl font-bold text-white">
       {value}
     </h3>
   </div>
@@ -82,14 +82,14 @@ const AdminUsageStats: React.FC<
         />
       </div>
 
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold">
+      <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-lg shadow-black/20">
+        <h2 className="mb-4 text-lg font-semibold text-white">
           Platform Health
         </h2>
 
         <div className="space-y-4">
           <div>
-            <div className="mb-1 flex justify-between text-sm">
+            <div className="mb-1 flex justify-between text-sm text-slate-300">
               <span>User Activity</span>
               <span>
                 {Math.round(
@@ -104,7 +104,7 @@ const AdminUsageStats: React.FC<
               </span>
             </div>
 
-            <div className="h-2 rounded bg-gray-200">
+            <div className="h-2 rounded bg-white/10">
               <div
                 className="h-2 rounded bg-green-500"
                 style={{
@@ -122,7 +122,7 @@ const AdminUsageStats: React.FC<
           </div>
 
           <div>
-            <div className="mb-1 flex justify-between text-sm">
+            <div className="mb-1 flex justify-between text-sm text-slate-300">
               <span>Document Volume</span>
               <span>
                 {
@@ -132,7 +132,7 @@ const AdminUsageStats: React.FC<
               </span>
             </div>
 
-            <div className="h-2 rounded bg-gray-200">
+            <div className="h-2 rounded bg-white/10">
               <div
                 className="h-2 rounded bg-blue-500"
                 style={{
@@ -147,14 +147,14 @@ const AdminUsageStats: React.FC<
           </div>
 
           <div>
-            <div className="mb-1 flex justify-between text-sm">
+            <div className="mb-1 flex justify-between text-sm text-slate-300">
               <span>AI Usage</span>
               <span>
                 {metrics.aiRequestsToday}
               </span>
             </div>
 
-            <div className="h-2 rounded bg-gray-200">
+            <div className="h-2 rounded bg-white/10">
               <div
                 className="h-2 rounded bg-purple-500"
                 style={{

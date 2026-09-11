@@ -60,7 +60,7 @@ public class AdminDashboardResponse {
     */
 
 
-    private AI ai;
+    private AI aiMetrics;
 
 
 
@@ -116,6 +116,17 @@ public class AdminDashboardResponse {
 
 
     private List<AlertItem> alerts;
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REGIONAL IMMIGRATION INTELLIGENCE
+    |--------------------------------------------------------------------------
+    */
+
+
+    private List<RegionMetric> regions;
 
 
 
@@ -397,6 +408,37 @@ public class AdminDashboardResponse {
 
 
         private String message;
+
+
+    }
+
+
+
+
+    /**
+     * =========================================================================
+     * REGIONAL METRIC
+     * =========================================================================
+     *
+     * Application volume for a single destination country, used to render
+     * the admin dashboard's regional immigration breakdown.
+     */
+
+
+    @Data
+    @Builder
+    public static class RegionMetric {
+
+
+        private String id;
+
+
+
+        private String region;
+
+
+
+        private long value;
 
 
     }

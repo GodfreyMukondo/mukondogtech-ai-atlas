@@ -3,6 +3,9 @@ package com.godfrey.ai_immigration_document_analyzer.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
+import org.springframework.ai.chat.metadata.Usage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -13,8 +16,16 @@ public class LlmService {
 
     private final ChatClient chatClient;
 
+    private final AIModelMonitoringService monitoringService;
+
     /**
      * Sends a prompt to the configured AI model.
+     *
+     * Every call is recorded with {@link AIModelMonitoringService} - real
+     * latency, real token usage, and the real model name the provider
+     * reported (from the response metadata, not a guessed config value) -
+     * so the admin AI Model Monitoring page reflects actual usage instead
+     * of staying permanently empty.
      */
     public String ask(String prompt) {
 
@@ -29,14 +40,51 @@ public class LlmService {
                 prompt.length()
         );
 
+        final long startTimeMillis =
+                System.currentTimeMillis();
+
         try {
 
-            String response =
+            ChatResponse chatResponse =
                     chatClient
                             .prompt()
                             .user(prompt)
                             .call()
-                            .content();
+                            .chatResponse();
+
+            long latencyMs =
+                    System.currentTimeMillis() - startTimeMillis;
+
+            if (chatResponse == null ||
+                    chatResponse.getResult() == null ||
+                    chatResponse.getResult().getOutput() == null) {
+
+                log.warn(
+                        "AI model returned no result"
+                );
+
+                monitoringService.recordRequest(
+                        resolveModelName(chatResponse),
+                        latencyMs,
+                        resolveTokenUsage(chatResponse),
+                        false
+                );
+
+                return "";
+            }
+
+            String response =
+                    chatResponse
+                            .getResult()
+                            .getOutput()
+                            .getText();
+
+            monitoringService.recordRequest(
+                    resolveModelName(chatResponse),
+                    latencyMs,
+                    resolveTokenUsage(chatResponse),
+                    true
+            );
 
             if (!StringUtils.hasText(response)) {
 
@@ -51,6 +99,16 @@ public class LlmService {
 
         } catch (Exception ex) {
 
+            long latencyMs =
+                    System.currentTimeMillis() - startTimeMillis;
+
+            monitoringService.recordRequest(
+                    null,
+                    latencyMs,
+                    0,
+                    false
+            );
+
             log.error(
                     "AI model request failed",
                     ex
@@ -61,6 +119,55 @@ public class LlmService {
                     ex
             );
         }
+    }
+
+    /**
+     * The real model that produced the response, as reported by the
+     * provider's own response metadata - not the configured model name,
+     * which can differ (aliases, fallback routing, etc.).
+     */
+    private String resolveModelName(
+            ChatResponse chatResponse
+    ) {
+
+        if (chatResponse == null) {
+            return null;
+        }
+
+        ChatResponseMetadata metadata =
+                chatResponse.getMetadata();
+
+        return metadata != null
+                ? metadata.getModel()
+                : null;
+    }
+
+    /**
+     * Real total token usage as reported by the provider, when available.
+     */
+    private long resolveTokenUsage(
+            ChatResponse chatResponse
+    ) {
+
+        if (chatResponse == null) {
+            return 0;
+        }
+
+        ChatResponseMetadata metadata =
+                chatResponse.getMetadata();
+
+        if (metadata == null) {
+            return 0;
+        }
+
+        Usage usage =
+                metadata.getUsage();
+
+        if (usage == null || usage.getTotalTokens() == null) {
+            return 0;
+        }
+
+        return usage.getTotalTokens();
     }
 
     /**

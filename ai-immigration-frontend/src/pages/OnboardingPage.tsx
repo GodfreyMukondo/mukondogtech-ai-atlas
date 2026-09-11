@@ -11,7 +11,6 @@ export default function OnboardingPage() {
     <div
       className="
         min-h-screen
-        bg-[#F8F6F1]
         flex
         items-center
         justify-center
@@ -35,7 +34,7 @@ export default function OnboardingPage() {
           size={60}
           className="
             mx-auto
-            text-[#F4B81A]
+            text-[#C6A15B]
           "
         />
 
@@ -85,7 +84,7 @@ export default function OnboardingPage() {
           type="button"
           className="
             mt-8
-            bg-[#F4B81A]
+            bg-[#C6A15B]
             px-8
             py-3
             rounded-xl

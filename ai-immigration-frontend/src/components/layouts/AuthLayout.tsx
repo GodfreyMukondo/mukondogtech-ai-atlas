@@ -1,4 +1,4 @@
-import {
+import type {
 ReactNode
 } from "react";
 
@@ -35,7 +35,6 @@ return (
 
 className="
 min-h-screen
-bg-[#F8F6F1]
 flex
 items-center
 justify-center
@@ -77,7 +76,7 @@ w-12
 h-12
 rounded-xl
 border
-border-[#F4B81A]
+border-[#C6A15B]
 flex
 items-center
 justify-center
@@ -88,7 +87,7 @@ justify-center
 <ScanSearch
 
 className="
-text-[#F4B81A]
+text-[#C6A15B]
 "
 
 />
@@ -102,7 +101,7 @@ text-[#F4B81A]
 className="
 text-2xl
 font-bold
-text-[#0B1736]
+text-white
 "
 
 >
@@ -111,7 +110,7 @@ MukondoGTech
 
 <span
 className="
-text-[#F4B81A]
+text-[#C6A15B]
 "
 >
 AI

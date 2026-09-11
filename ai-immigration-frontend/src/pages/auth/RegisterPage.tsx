@@ -124,9 +124,9 @@ password:string
 )=>{
 
 
-if(password.length < 8){
+if(password.length < 12){
 
-return "Password must contain at least 8 characters.";
+return "Password must contain at least 12 characters.";
 
 }
 
@@ -391,46 +391,21 @@ return (
 
 className="
 
-min-h-screen
+bg-white/5
 
-flex
-
-items-center
-
-justify-center
-
-bg-[#F8F6F1]
-
-px-4
-
-"
-
-
->
-
-
-
-
-<div
-
-
-className="
-
-w-full
-
-max-w-md
-
-bg-white
+backdrop-blur-xl
 
 border
 
-border-[#E5DED1]
+border-white/10
 
 rounded-3xl
 
 p-8
 
-shadow-sm
+shadow-2xl
+
+shadow-black/40
 
 "
 
@@ -453,7 +428,7 @@ text-3xl
 
 font-bold
 
-text-[#0B1736]
+text-white
 
 "
 
@@ -479,7 +454,7 @@ className="
 
 mt-2
 
-text-[#7D8CA3]
+text-slate-300
 
 "
 
@@ -521,13 +496,13 @@ mt-5
 
 rounded-xl
 
-bg-red-50
+bg-red-500/10
 
 border
 
-border-red-200
+border-red-500/30
 
-text-red-600
+text-red-300
 
 px-4
 
@@ -595,7 +570,7 @@ mb-2
 
 font-medium
 
-text-[#0B1736]
+text-slate-200
 
 "
 
@@ -660,13 +635,19 @@ rounded-xl
 
 border
 
-border-[#D9DDE5]
+border-white/15
+
+bg-white/5
+
+text-white
+
+placeholder:text-slate-500
 
 focus:outline-none
 
 focus:ring-2
 
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 
 "
 
@@ -698,7 +679,7 @@ mb-2
 
 font-medium
 
-text-[#0B1736]
+text-slate-200
 
 "
 
@@ -765,13 +746,19 @@ rounded-xl
 
 border
 
-border-[#D9DDE5]
+border-white/15
+
+bg-white/5
+
+text-white
+
+placeholder:text-slate-500
 
 focus:outline-none
 
 focus:ring-2
 
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 
 "
 
@@ -803,7 +790,7 @@ mb-2
 
 font-medium
 
-text-[#0B1736]
+text-slate-200
 
 "
 
@@ -878,13 +865,19 @@ rounded-xl
 
 border
 
-border-[#D9DDE5]
+border-white/15
+
+bg-white/5
+
+text-white
+
+placeholder:text-slate-500
 
 focus:outline-none
 
 focus:ring-2
 
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 
 "
 
@@ -930,7 +923,7 @@ top-1/2
 
 -translate-y-1/2
 
-text-[#7D8CA3]
+text-slate-400
 
 "
 
@@ -988,7 +981,7 @@ mb-2
 
 font-medium
 
-text-[#0B1736]
+text-slate-200
 
 "
 
@@ -1063,13 +1056,19 @@ rounded-xl
 
 border
 
-border-[#D9DDE5]
+border-white/15
+
+bg-white/5
+
+text-white
+
+placeholder:text-slate-500
 
 focus:outline-none
 
 focus:ring-2
 
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 
 "
 
@@ -1117,7 +1116,7 @@ top-1/2
 
 -translate-y-1/2
 
-text-[#7D8CA3]
+text-slate-400
 
 "
 
@@ -1181,9 +1180,9 @@ py-4
 
 rounded-xl
 
-bg-[#F4B81A]
+bg-[#C6A15B]
 
-hover:bg-[#e6ab12]
+hover:bg-[#A8894D]
 
 text-black
 
@@ -1261,7 +1260,7 @@ mt-6
 
 text-center
 
-text-[#7D8CA3]
+text-slate-300
 
 "
 
@@ -1281,11 +1280,11 @@ to="/login"
 
 className="
 
-text-[#0B1736]
+text-white
 
 font-semibold
 
-hover:text-[#F4B81A]
+hover:text-[#C6A15B]
 
 transition
 
@@ -1307,10 +1306,6 @@ Sign in
 
 
 
-
-
-
-</div>
 
 
 

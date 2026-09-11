@@ -2,6 +2,9 @@ import {
 createContext,
 useContext,
 useState,
+} from "react";
+
+import type {
 ReactNode
 } from "react";
 
@@ -136,9 +139,12 @@ flex
 items-center
 gap-3
 rounded-xl
-bg-white
-shadow-lg
 border
+border-white/10
+bg-[#1F314A]
+shadow-2xl
+shadow-black/40
+backdrop-blur-xl
 px-4
 py-3
 "
@@ -169,6 +175,7 @@ toast.type==="error"
 <span className="
 text-sm
 font-medium
+text-white
 ">
 
 {toast.message}

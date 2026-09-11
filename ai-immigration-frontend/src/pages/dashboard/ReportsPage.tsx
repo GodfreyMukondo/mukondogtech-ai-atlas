@@ -206,7 +206,7 @@ function normalizeReport(
         item.document_name ??
         item.fileName ??
         item.filename ??
-        item.document?.name ??
+        (item.document as Record<string, unknown> | undefined)?.name ??
         ""
     ).trim();
 
@@ -511,8 +511,8 @@ function StatCard({
       className="
         rounded-[28px]
         border
-        border-white/70
-        bg-white/80
+        border-white/10
+        bg-white/5
         p-6
         shadow-lg
         backdrop-blur-xl
@@ -527,19 +527,19 @@ function StatCard({
           justify-center
           rounded-2xl
           bg-gradient-to-br
-          from-[#071330]
-          to-[#183B6B]
-          text-[#F4B81A]
+          from-[#071426]
+          to-[#3C4C61]
+          text-[#C6A15B]
         "
       >
         {icon}
       </div>
 
-      <p className="mt-5 text-sm font-medium text-slate-500">
+      <p className="mt-5 text-sm font-medium text-slate-400">
         {title}
       </p>
 
-      <p className="mt-1 text-4xl font-black text-[#071330]">
+      <p className="mt-1 text-4xl font-black text-white">
         {value}
       </p>
     </div>
@@ -565,19 +565,19 @@ function StatusBadge({
     Completed: {
       icon: CheckCircle,
       className:
-        "bg-green-50 text-green-700 border-green-200",
+        "bg-green-500/10 text-green-300 border-green-500/30",
     },
 
     Processing: {
       icon: Clock,
       className:
-        "bg-blue-50 text-blue-700 border-blue-200",
+        "bg-blue-500/10 text-blue-300 border-blue-500/30",
     },
 
     "Needs Review": {
       icon: AlertTriangle,
       className:
-        "bg-amber-50 text-amber-700 border-amber-200",
+        "bg-amber-500/10 text-amber-300 border-amber-500/30",
     },
   };
 
@@ -932,8 +932,8 @@ export default function ReportsPage() {
      ======================================================================== */
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <div className="mx-auto max-w-7xl px-6 py-8">
+    <main className="min-h-screen">
+      <div className="w-full px-6 py-8">
         {/* ==================================================================
             HERO
         =================================================================== */}
@@ -952,15 +952,15 @@ export default function ReportsPage() {
             overflow-hidden
             rounded-[32px]
             bg-gradient-to-br
-            from-[#071330]
-            via-[#0B1736]
-            to-[#183B6B]
+            from-[#071426]
+            via-[#0B1F3A]
+            to-[#3C4C61]
             p-8
             shadow-2xl
             lg:p-10
           "
         >
-          <div className="absolute right-0 top-0 h-96 w-96 rounded-full bg-[#F4B81A]/10 blur-3xl" />
+          <div className="absolute right-0 top-0 h-96 w-96 rounded-full bg-[#C6A15B]/10 blur-3xl" />
 
           <div className="relative z-10">
             <div
@@ -970,11 +970,11 @@ export default function ReportsPage() {
                 gap-2
                 rounded-full
                 border
-                border-[#F4B81A]/20
-                bg-[#F4B81A]/10
+                border-[#C6A15B]/20
+                bg-[#C6A15B]/10
                 px-4
                 py-2
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             >
               <Sparkles
@@ -1057,18 +1057,18 @@ export default function ReportsPage() {
                     gap-2
                     rounded-2xl
                     bg-gradient-to-r
-                    from-[#F4B81A]
-                    to-[#FFD96A]
+                    from-[#C6A15B]
+                    to-[#D4B984]
                     px-6
                     py-4
                     font-bold
-                    text-[#071330]
+                    text-[#071426]
                     shadow-lg
                     transition
                     hover:scale-[1.02]
                     focus:outline-none
                     focus:ring-2
-                    focus:ring-[#F4B81A]
+                    focus:ring-[#C6A15B]
                   "
                 >
                   New Analysis
@@ -1097,10 +1097,10 @@ export default function ReportsPage() {
               gap-4
               rounded-3xl
               border
-              border-red-200
-              bg-red-50
+              border-red-500/30
+              bg-red-500/10
               p-5
-              text-red-800
+              text-red-300
               sm:flex-row
               sm:items-center
               sm:justify-between
@@ -1108,7 +1108,7 @@ export default function ReportsPage() {
           >
             <div className="flex items-start gap-3">
               <AlertTriangle
-                className="mt-0.5 shrink-0 text-red-600"
+                className="mt-0.5 shrink-0 text-red-400"
                 aria-hidden="true"
               />
 
@@ -1227,8 +1227,8 @@ export default function ReportsPage() {
             mt-8
             rounded-[28px]
             border
-            border-white/70
-            bg-white/80
+            border-white/10
+            bg-white/5
             p-6
             shadow-lg
             backdrop-blur-xl
@@ -1243,8 +1243,8 @@ export default function ReportsPage() {
                 gap-3
                 rounded-2xl
                 border
-                border-slate-200
-                bg-slate-50
+                border-white/15
+                bg-white/5
                 px-4
               "
             >
@@ -1288,8 +1288,8 @@ export default function ReportsPage() {
                 gap-2
                 rounded-2xl
                 border
-                border-slate-200
-                bg-white
+                border-white/15
+                bg-white/5
                 px-4
               "
             >
@@ -1350,23 +1350,23 @@ export default function ReportsPage() {
             overflow-hidden
             rounded-[32px]
             border
-            border-white/70
-            bg-white/80
+            border-white/10
+            bg-white/5
             shadow-xl
             backdrop-blur-xl
           "
         >
-          <div className="border-b border-slate-200 p-6">
+          <div className="border-b border-white/10 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2
                   id="reports-heading"
-                  className="text-2xl font-bold text-[#071330]"
+                  className="text-2xl font-bold text-white"
                 >
                   Generated Reports
                 </h2>
 
-                <p className="mt-1 text-slate-500">
+                <p className="mt-1 text-slate-400">
                   {loading
                     ? "Loading reports..."
                     : `${filteredReports.length} report${
@@ -1380,7 +1380,7 @@ export default function ReportsPage() {
 
               <BarChart3
                 size={24}
-                className="text-[#F4B81A]"
+                className="text-[#C6A15B]"
                 aria-hidden="true"
               />
             </div>
@@ -1391,7 +1391,7 @@ export default function ReportsPage() {
               className="flex min-h-[300px] items-center justify-center"
               aria-live="polite"
             >
-              <div className="flex items-center gap-3 text-slate-500">
+              <div className="flex items-center gap-3 text-slate-400">
                 <RefreshCw
                   size={20}
                   className="animate-spin"
@@ -1406,15 +1406,15 @@ export default function ReportsPage() {
             <div className="p-16 text-center">
               <ScanSearch
                 size={48}
-                className="mx-auto text-slate-300"
+                className="mx-auto text-slate-500"
                 aria-hidden="true"
               />
 
-              <h3 className="mt-6 text-xl font-bold text-[#071330]">
+              <h3 className="mt-6 text-xl font-bold text-white">
                 No Reports Found
               </h3>
 
-              <p className="mt-2 text-slate-500">
+              <p className="mt-2 text-slate-400">
                 {reports.length ===
                 0
                   ? "No analysis reports are currently available."
@@ -1429,45 +1429,45 @@ export default function ReportsPage() {
                 </caption>
 
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
+                  <tr className="border-b border-white/10 bg-white/5">
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-slate-500"
+                      className="px-6 py-4 text-left text-sm font-semibold text-slate-400"
                     >
                       Document
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-slate-500"
+                      className="px-6 py-4 text-left text-sm font-semibold text-slate-400"
                     >
                       Analysis Type
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-slate-500"
+                      className="px-6 py-4 text-left text-sm font-semibold text-slate-400"
                     >
                       Date
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-slate-500"
+                      className="px-6 py-4 text-left text-sm font-semibold text-slate-400"
                     >
                       Score
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-sm font-semibold text-slate-500"
+                      className="px-6 py-4 text-left text-sm font-semibold text-slate-400"
                     >
                       Status
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-right text-sm font-semibold text-slate-500"
+                      className="px-6 py-4 text-right text-sm font-semibold text-slate-400"
                     >
                       Actions
                     </th>
@@ -1510,9 +1510,9 @@ export default function ReportsPage() {
                           }}
                           className="
                             border-b
-                            border-slate-100
+                            border-white/10
                             transition
-                            hover:bg-slate-50/60
+                            hover:bg-white/5
                           "
                         >
                           <td className="px-6 py-5">
@@ -1527,27 +1527,27 @@ export default function ReportsPage() {
                                   justify-center
                                   rounded-2xl
                                   bg-gradient-to-br
-                                  from-[#071330]
-                                  to-[#183B6B]
+                                  from-[#071426]
+                                  to-[#3C4C61]
                                 "
                               >
                                 <FileCheck
                                   size={
                                     20
                                   }
-                                  className="text-[#F4B81A]"
+                                  className="text-[#C6A15B]"
                                   aria-hidden="true"
                                 />
                               </div>
 
                               <div className="min-w-0">
-                                <p className="truncate font-semibold text-[#071330]">
+                                <p className="truncate font-semibold text-white">
                                   {
                                     report.documentName
                                   }
                                 </p>
 
-                                <p className="text-xs text-slate-500">
+                                <p className="text-xs text-slate-400">
                                   {
                                     report.id
                                   }
@@ -1556,14 +1556,14 @@ export default function ReportsPage() {
                             </div>
                           </td>
 
-                          <td className="px-6 py-5 font-medium text-[#071330]">
+                          <td className="px-6 py-5 font-medium text-white">
                             {
                               report.type
                             }
                           </td>
 
                           <td className="px-6 py-5">
-                            <div className="flex items-center gap-2 whitespace-nowrap text-slate-600">
+                            <div className="flex items-center gap-2 whitespace-nowrap text-slate-300">
                               <Calendar
                                 size={
                                   14
@@ -1587,7 +1587,7 @@ export default function ReportsPage() {
                                     w-24
                                     overflow-hidden
                                     rounded-full
-                                    bg-slate-200
+                                    bg-white/10
                                   "
                                   role="progressbar"
                                   aria-valuenow={
@@ -1608,7 +1608,7 @@ export default function ReportsPage() {
                                       h-full
                                       rounded-full
                                       bg-gradient-to-r
-                                      from-[#F4B81A]
+                                      from-[#C6A15B]
                                       to-green-500
                                     "
                                     style={{
@@ -1617,7 +1617,7 @@ export default function ReportsPage() {
                                   />
                                 </div>
 
-                                <span className="font-bold text-[#071330]">
+                                <span className="font-bold text-white">
                                   {Math.round(
                                     report.score
                                   )}
@@ -1625,7 +1625,7 @@ export default function ReportsPage() {
                                 </span>
                               </div>
                             ) : (
-                              <span className="text-slate-400">
+                              <span className="text-slate-500">
                                 —
                               </span>
                             )}
@@ -1655,12 +1655,12 @@ export default function ReportsPage() {
                                     justify-center
                                     rounded-xl
                                     border
-                                    border-slate-200
+                                    border-white/15
                                     transition
-                                    hover:bg-slate-100
+                                    hover:bg-white/10
                                     focus:outline-none
                                     focus:ring-2
-                                    focus:ring-[#F4B81A]
+                                    focus:ring-[#C6A15B]
                                   "
                                 >
                                   <Eye
@@ -1684,8 +1684,8 @@ export default function ReportsPage() {
                                     justify-center
                                     rounded-xl
                                     border
-                                    border-slate-200
-                                    text-slate-300
+                                    border-white/10
+                                    text-slate-600
                                   "
                                 >
                                   <Eye
@@ -1712,12 +1712,12 @@ export default function ReportsPage() {
                                     justify-center
                                     rounded-xl
                                     border
-                                    border-slate-200
+                                    border-white/15
                                     transition
-                                    hover:bg-slate-100
+                                    hover:bg-white/10
                                     focus:outline-none
                                     focus:ring-2
-                                    focus:ring-[#F4B81A]
+                                    focus:ring-[#C6A15B]
                                   "
                                 >
                                   <Download
@@ -1741,8 +1741,8 @@ export default function ReportsPage() {
                                     justify-center
                                     rounded-xl
                                     border
-                                    border-slate-200
-                                    text-slate-300
+                                    border-white/10
+                                    text-slate-600
                                   "
                                 >
                                   <Download

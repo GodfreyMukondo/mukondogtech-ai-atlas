@@ -112,14 +112,14 @@ function StatCard({
     color: string;
 }) {
     return (
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm transition hover:shadow-md">
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-sm font-medium text-slate-500">
+                    <p className="text-sm font-medium text-slate-400">
                         {title}
                     </p>
 
-                    <h3 className="mt-2 text-3xl font-black text-slate-900">
+                    <h3 className="mt-2 text-3xl font-black text-white">
                         {value.toLocaleString()}
                     </h3>
                 </div>
@@ -148,18 +148,18 @@ function StatusBadge({
         string
     > = {
         PUBLISHED:
-            "bg-emerald-100 text-emerald-700",
+            "bg-emerald-500/10 text-emerald-300",
 
         DRAFT:
-            "bg-slate-100 text-slate-700",
+            "bg-white/10 text-slate-300",
 
         REVIEW:
-            "bg-amber-100 text-amber-700",
+            "bg-amber-500/10 text-amber-300",
     };
 
     return (
         <span
-            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${styles[status] ?? "bg-slate-100 text-slate-700"}`}
+            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${styles[status] ?? "bg-white/10 text-slate-300"}`}
         >
             {status}
         </span>
@@ -215,11 +215,11 @@ function FormInput({
 }) {
     return (
         <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
+            <label className="mb-2 block text-sm font-semibold text-slate-300">
                 {label}
 
                 {required && (
-                    <span className="ml-1 text-red-500">
+                    <span className="ml-1 text-red-400">
                         *
                     </span>
                 )}
@@ -231,7 +231,7 @@ function FormInput({
                 onChange={onChange}
                 placeholder={placeholder}
                 required={required}
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
             />
         </div>
     );
@@ -258,14 +258,14 @@ function FormSelect({
 }) {
     return (
         <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
+            <label className="mb-2 block text-sm font-semibold text-slate-300">
                 {label}
             </label>
 
             <select
                 value={value}
                 onChange={onChange}
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
             >
                 {children}
             </select>
@@ -326,19 +326,19 @@ function Modal({
                 }
             }}
         >
-            <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-                <div className="flex items-start justify-between border-b border-slate-200 p-6">
+            <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[#1F314A] backdrop-blur-xl shadow-2xl shadow-black/40">
+                <div className="flex items-start justify-between border-b border-white/10 p-6">
                     <div className="flex items-start gap-4">
-                        <div className="rounded-2xl bg-blue-100 p-3 text-blue-700">
+                        <div className="rounded-2xl bg-blue-500/10 p-3 text-blue-300">
                             <Icon size={24} />
                         </div>
 
                         <div>
-                            <h2 className="text-xl font-black text-slate-900">
+                            <h2 className="text-xl font-black text-white">
                                 {title}
                             </h2>
 
-                            <p className="mt-1 max-w-xl text-sm leading-6 text-slate-500">
+                            <p className="mt-1 max-w-xl text-sm leading-6 text-slate-400">
                                 {description}
                             </p>
                         </div>
@@ -348,7 +348,7 @@ function Modal({
                         type="button"
                         onClick={onClose}
                         disabled={submitting}
-                        className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-40"
+                        className="rounded-xl p-2 text-slate-400 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
                         aria-label="Close"
                     >
                         <X size={20} />
@@ -1022,8 +1022,8 @@ export default function KnowledgeBasePage() {
      */
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            <div className="mx-auto max-w-[1800px] px-4 py-8 sm:px-6 lg:px-8">
+        <div className="min-h-screen">
+            <div className="w-full px-4 py-8 sm:px-6 lg:px-8">
 
                 {/* ============================================================
                     HEADER
@@ -1033,16 +1033,16 @@ export default function KnowledgeBasePage() {
 
                     <div>
                         <div className="flex items-center gap-3">
-                            <div className="rounded-2xl bg-blue-100 p-3 text-blue-700">
+                            <div className="rounded-2xl bg-blue-500/10 p-3 text-blue-300">
                                 <BookOpen size={28} />
                             </div>
 
                             <div>
-                                <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+                                <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
                                     Knowledge Base Center
                                 </h1>
 
-                                <p className="mt-1 text-slate-600">
+                                <p className="mt-1 text-slate-300">
                                     Manage immigration regulations,
                                     visa policies, compliance
                                     documentation and AI knowledge
@@ -1071,7 +1071,7 @@ export default function KnowledgeBasePage() {
                         <button
                             type="button"
                             onClick={openUploadKnowledge}
-                            className="flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-[0.98]"
+                            className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-slate-200 transition hover:bg-white/10 active:scale-[0.98]"
                         >
                             <Upload size={18} />
 
@@ -1086,7 +1086,7 @@ export default function KnowledgeBasePage() {
                                 void handleRefresh()
                             }
                             disabled={refreshing}
-                            className="flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                             title="Refresh"
                         >
                             <RefreshCw
@@ -1116,7 +1116,7 @@ export default function KnowledgeBasePage() {
                             0
                         }
                         icon={BookOpen}
-                        color="bg-blue-100 text-blue-700"
+                        color="bg-blue-500/10 text-blue-300"
                     />
 
                     <StatCard
@@ -1126,7 +1126,7 @@ export default function KnowledgeBasePage() {
                             0
                         }
                         icon={BrainCircuit}
-                        color="bg-violet-100 text-violet-700"
+                        color="bg-violet-500/10 text-violet-300"
                     />
 
                     <StatCard
@@ -1136,7 +1136,7 @@ export default function KnowledgeBasePage() {
                             0
                         }
                         icon={Globe2}
-                        color="bg-emerald-100 text-emerald-700"
+                        color="bg-emerald-500/10 text-emerald-300"
                     />
 
                     <StatCard
@@ -1146,7 +1146,7 @@ export default function KnowledgeBasePage() {
                             0
                         }
                         icon={ShieldCheck}
-                        color="bg-amber-100 text-amber-700"
+                        color="bg-amber-500/10 text-amber-300"
                     />
                 </div>
 
@@ -1156,34 +1156,34 @@ export default function KnowledgeBasePage() {
 
                 <div className="mt-6 grid gap-4 sm:grid-cols-3">
 
-                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-                        <p className="text-sm font-medium text-emerald-700">
+                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-5">
+                        <p className="text-sm font-medium text-emerald-300">
                             Published
                         </p>
 
-                        <p className="mt-1 text-2xl font-black text-emerald-900">
+                        <p className="mt-1 text-2xl font-black text-white">
                             {statistics?.publishedDocuments ??
                                 0}
                         </p>
                     </div>
 
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                        <p className="text-sm font-medium text-amber-700">
+                    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-5">
+                        <p className="text-sm font-medium text-amber-300">
                             Under Review
                         </p>
 
-                        <p className="mt-1 text-2xl font-black text-amber-900">
+                        <p className="mt-1 text-2xl font-black text-white">
                             {statistics?.reviewDocuments ??
                                 0}
                         </p>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                        <p className="text-sm font-medium text-slate-600">
+                    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-5">
+                        <p className="text-sm font-medium text-slate-300">
                             Pending AI Index
                         </p>
 
-                        <p className="mt-1 text-2xl font-black text-slate-900">
+                        <p className="mt-1 text-2xl font-black text-white">
                             {statistics?.pendingAiIndexDocuments ??
                                 0}
                         </p>
@@ -1194,7 +1194,7 @@ export default function KnowledgeBasePage() {
                     FILTERS
                     ============================================================ */}
 
-                <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-5 shadow-sm">
 
                     <div className="grid gap-4 xl:grid-cols-[2fr_1fr_1fr_auto]">
 
@@ -1214,7 +1214,7 @@ export default function KnowledgeBasePage() {
                                     setPage(0);
                                 }}
                                 placeholder="Search title, country or category..."
-                                className="w-full rounded-2xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                className="w-full rounded-2xl border border-white/15 bg-white/5 text-white placeholder:text-slate-500 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
                             />
                         </div>
 
@@ -1227,7 +1227,7 @@ export default function KnowledgeBasePage() {
 
                                 setPage(0);
                             }}
-                            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="rounded-2xl border border-white/15 bg-white/5 text-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
                         >
                             <option value="">
                                 All Categories
@@ -1256,7 +1256,7 @@ export default function KnowledgeBasePage() {
 
                                 setPage(0);
                             }}
-                            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="rounded-2xl border border-white/15 bg-white/5 text-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
                         >
                             <option value="">
                                 All Statuses
@@ -1279,7 +1279,7 @@ export default function KnowledgeBasePage() {
                             type="button"
                             onClick={clearFilters}
                             disabled={!hasFilters}
-                            className="flex items-center justify-center gap-2 rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             <Filter size={18} />
 
@@ -1294,20 +1294,20 @@ export default function KnowledgeBasePage() {
 
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-slate-300">
                         Showing{" "}
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold text-white">
                             {documents.length}
                         </span>{" "}
                         of{" "}
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold text-white">
                             {totalElements.toLocaleString()}
                         </span>{" "}
                         documents
                     </p>
 
                     {statsLoading && (
-                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <div className="flex items-center gap-2 text-sm text-slate-400">
                             <Loader2
                                 size={15}
                                 className="animate-spin"
@@ -1322,43 +1322,43 @@ export default function KnowledgeBasePage() {
                     TABLE
                     ============================================================ */}
 
-                <div className="mt-4 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <div className="mt-4 overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-sm">
 
                     <div className="overflow-x-auto">
 
                         <table className="w-full min-w-[1100px]">
 
-                            <thead className="bg-slate-100">
+                            <thead className="bg-white/5">
                                 <tr>
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         Article
                                     </th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         Category
                                     </th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         Country
                                     </th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         Version
                                     </th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         Status
                                     </th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         AI Indexed
                                     </th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         Updated
                                     </th>
 
-                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+                                    <th className="px-5 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400">
                                         Actions
                                     </th>
                                 </tr>
@@ -1377,7 +1377,7 @@ export default function KnowledgeBasePage() {
                                                 className="mx-auto animate-spin text-blue-600"
                                             />
 
-                                            <p className="mt-3 text-sm text-slate-500">
+                                            <p className="mt-3 text-sm text-slate-400">
                                                 Loading knowledge base...
                                             </p>
                                         </td>
@@ -1394,11 +1394,11 @@ export default function KnowledgeBasePage() {
                                                     className="mx-auto text-slate-400"
                                                 />
 
-                                                <h3 className="mt-4 font-bold text-slate-900">
+                                                <h3 className="mt-4 font-bold text-white">
                                                     No knowledge documents found
                                                 </h3>
 
-                                                <p className="mt-2 text-sm text-slate-500">
+                                                <p className="mt-2 text-sm text-slate-400">
                                                     Try changing your
                                                     search or filter
                                                     criteria, or create
@@ -1426,17 +1426,17 @@ export default function KnowledgeBasePage() {
                                                 key={
                                                     document.id
                                                 }
-                                                className="border-t border-slate-100 transition hover:bg-slate-50"
+                                                className="border-t border-white/10 transition hover:bg-white/5"
                                             >
                                                 <td className="px-5 py-4">
                                                     <div>
-                                                        <p className="font-semibold text-slate-900">
+                                                        <p className="font-semibold text-white">
                                                             {
                                                                 document.title
                                                             }
                                                         </p>
 
-                                                        <p className="mt-1 text-xs text-slate-500">
+                                                        <p className="mt-1 text-xs text-slate-400">
                                                             ID #
                                                             {
                                                                 document.id
@@ -1445,19 +1445,19 @@ export default function KnowledgeBasePage() {
                                                     </div>
                                                 </td>
 
-                                                <td className="px-5 py-4 text-sm text-slate-700">
+                                                <td className="px-5 py-4 text-sm text-slate-300">
                                                     {
                                                         document.category
                                                     }
                                                 </td>
 
-                                                <td className="px-5 py-4 text-sm text-slate-700">
+                                                <td className="px-5 py-4 text-sm text-slate-300">
                                                     {
                                                         document.country
                                                     }
                                                 </td>
 
-                                                <td className="px-5 py-4 text-sm font-semibold text-slate-800">
+                                                <td className="px-5 py-4 text-sm font-semibold text-slate-200">
                                                     {
                                                         document.version
                                                     }
@@ -1473,7 +1473,7 @@ export default function KnowledgeBasePage() {
 
                                                 <td className="px-5 py-4">
                                                     {document.aiIndexed ? (
-                                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
                                                             <CheckCircle2
                                                                 size={
                                                                     13
@@ -1494,7 +1494,7 @@ export default function KnowledgeBasePage() {
                                                                     document
                                                                 )
                                                             }
-                                                            className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 disabled:opacity-50"
+                                                            className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20 disabled:opacity-50"
                                                         >
                                                             {indexingId ===
                                                             document.id ? (
@@ -1519,13 +1519,13 @@ export default function KnowledgeBasePage() {
 
                                                 <td className="px-5 py-4">
                                                     <div className="text-sm">
-                                                        <p className="text-slate-700">
+                                                        <p className="text-slate-300">
                                                             {formatDate(
                                                                 document.updatedAt
                                                             )}
                                                         </p>
 
-                                                        <p className="mt-1 text-xs text-slate-500">
+                                                        <p className="mt-1 text-xs text-slate-400">
                                                             {
                                                                 document.updatedBy
                                                             }
@@ -1539,7 +1539,7 @@ export default function KnowledgeBasePage() {
                                                         <button
                                                             type="button"
                                                             title="View document"
-                                                            className="rounded-xl bg-blue-50 p-2 text-blue-600 transition hover:bg-blue-100"
+                                                            className="rounded-xl bg-blue-500/10 p-2 text-blue-300 transition hover:bg-blue-500/20"
                                                         >
                                                             <Eye
                                                                 size={
@@ -1551,7 +1551,7 @@ export default function KnowledgeBasePage() {
                                                         <button
                                                             type="button"
                                                             title="Edit document"
-                                                            className="rounded-xl bg-amber-50 p-2 text-amber-600 transition hover:bg-amber-100"
+                                                            className="rounded-xl bg-amber-500/10 p-2 text-amber-300 transition hover:bg-amber-500/20"
                                                         >
                                                             <FileText
                                                                 size={
@@ -1573,7 +1573,7 @@ export default function KnowledgeBasePage() {
                                                                     document
                                                                 )
                                                             }
-                                                            className="rounded-xl bg-violet-50 p-2 text-violet-600 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                                            className="rounded-xl bg-violet-500/10 p-2 text-violet-300 transition hover:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-40"
                                                         >
                                                             <Database
                                                                 size={
@@ -1594,7 +1594,7 @@ export default function KnowledgeBasePage() {
                                                                     document
                                                                 )
                                                             }
-                                                            className="rounded-xl bg-red-50 p-2 text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+                                                            className="rounded-xl bg-red-500/10 p-2 text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
                                                         >
                                                             {deletingId ===
                                                             document.id ? (
@@ -1629,7 +1629,7 @@ export default function KnowledgeBasePage() {
                     ============================================================ */}
 
                 {totalPages > 1 && (
-                    <div className="mt-5 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-4">
 
                         <button
                             type="button"
@@ -1643,18 +1643,18 @@ export default function KnowledgeBasePage() {
                                         )
                                 )
                             }
-                            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Previous
                         </button>
 
-                        <span className="text-sm text-slate-600">
+                        <span className="text-sm text-slate-300">
                             Page{" "}
-                            <strong className="text-slate-900">
+                            <strong className="text-white">
                                 {page + 1}
                             </strong>{" "}
                             of{" "}
-                            <strong className="text-slate-900">
+                            <strong className="text-white">
                                 {totalPages}
                             </strong>
                         </span>
@@ -1674,7 +1674,7 @@ export default function KnowledgeBasePage() {
                                         )
                                 )
                             }
-                            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Next
                         </button>
@@ -1687,50 +1687,50 @@ export default function KnowledgeBasePage() {
 
                 <div className="mt-8 grid gap-6 lg:grid-cols-3">
 
-                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm">
                         <BrainCircuit
-                            className="mb-4 text-violet-600"
+                            className="mb-4 text-violet-400"
                             size={28}
                         />
 
-                        <h3 className="font-bold text-slate-900">
+                        <h3 className="font-bold text-white">
                             AI Knowledge Index
                         </h3>
 
-                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                        <p className="mt-2 text-sm leading-6 text-slate-300">
                             Knowledge documents can be indexed for
                             retrieval-augmented AI workflows after
                             they have been reviewed and published.
                         </p>
                     </div>
 
-                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm">
                         <Users
-                            className="mb-4 text-blue-600"
+                            className="mb-4 text-blue-400"
                             size={28}
                         />
 
-                        <h3 className="font-bold text-slate-900">
+                        <h3 className="font-bold text-white">
                             Contributor Tracking
                         </h3>
 
-                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                        <p className="mt-2 text-sm leading-6 text-slate-300">
                             Every document records its creator,
                             latest contributor and update timestamp.
                         </p>
                     </div>
 
-                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm">
                         <ShieldCheck
-                            className="mb-4 text-emerald-600"
+                            className="mb-4 text-emerald-400"
                             size={28}
                         />
 
-                        <h3 className="font-bold text-slate-900">
+                        <h3 className="font-bold text-white">
                             Compliance Management
                         </h3>
 
-                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                        <p className="mt-2 text-sm leading-6 text-slate-300">
                             Documents can move through draft,
                             review and published states before
                             becoming available to AI systems.
@@ -1742,20 +1742,20 @@ export default function KnowledgeBasePage() {
                     CONNECTION STATUS
                     ============================================================ */}
 
-                <div className="mt-8 rounded-3xl border border-blue-200 bg-blue-50 p-5">
+                <div className="mt-8 rounded-3xl border border-blue-500/20 bg-blue-500/10 p-5">
 
                     <div className="flex items-start gap-3">
 
                         <CheckCircle2
-                            className="mt-0.5 shrink-0 text-blue-700"
+                            className="mt-0.5 shrink-0 text-blue-300"
                         />
 
                         <div>
-                            <p className="font-semibold text-blue-800">
+                            <p className="font-semibold text-white">
                                 Knowledge Base Connected
                             </p>
 
-                            <p className="mt-1 text-sm leading-6 text-blue-700">
+                            <p className="mt-1 text-sm leading-6 text-blue-200">
                                 Knowledge documents and statistics are
                                 loaded directly from the Spring Boot
                                 API and Oracle database.
@@ -1897,9 +1897,9 @@ export default function KnowledgeBasePage() {
                         </div>
 
                         <div>
-                            <label className="mb-2 block text-sm font-semibold text-slate-700">
+                            <label className="mb-2 block text-sm font-semibold text-slate-300">
                                 Article content
-                                <span className="ml-1 text-red-500">
+                                <span className="ml-1 text-red-400">
                                     *
                                 </span>
                             </label>
@@ -1922,16 +1922,16 @@ export default function KnowledgeBasePage() {
                                 placeholder="Write the immigration policy, requirements, procedures, eligibility criteria or other authoritative knowledge here..."
                                 rows={12}
                                 required
-                                className="w-full resize-y rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                                className="w-full resize-y rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20"
                             />
 
-                            <p className="mt-2 text-xs text-slate-500">
+                            <p className="mt-2 text-xs text-slate-400">
                                 {articleForm.content.length.toLocaleString()}{" "}
                                 characters
                             </p>
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-slate-200 pt-5">
+                        <div className="flex justify-end gap-3 border-t border-white/10 pt-5">
 
                             <button
                                 type="button"
@@ -1939,7 +1939,7 @@ export default function KnowledgeBasePage() {
                                 disabled={
                                     submittingArticle
                                 }
-                                className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                                className="rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:opacity-50"
                             >
                                 Cancel
                             </button>
@@ -2051,7 +2051,7 @@ export default function KnowledgeBasePage() {
                                     })
                                 );
                             }}
-                            className="cursor-pointer rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center transition hover:border-blue-400 hover:bg-blue-50"
+                            className="cursor-pointer rounded-3xl border-2 border-dashed border-white/15 bg-white/5 p-8 text-center transition hover:border-blue-400/50 hover:bg-blue-500/10"
                         >
                             <input
                                 ref={
@@ -2067,7 +2067,7 @@ export default function KnowledgeBasePage() {
                                 className="hidden"
                             />
 
-                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
+                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-300">
                                 <Upload
                                     size={26}
                                 />
@@ -2075,7 +2075,7 @@ export default function KnowledgeBasePage() {
 
                             {uploadForm.file ? (
                                 <>
-                                    <h3 className="mt-4 font-bold text-slate-900">
+                                    <h3 className="mt-4 font-bold text-white">
                                         {
                                             uploadForm
                                                 .file
@@ -2083,7 +2083,7 @@ export default function KnowledgeBasePage() {
                                         }
                                     </h3>
 
-                                    <p className="mt-1 text-sm text-slate-500">
+                                    <p className="mt-1 text-sm text-slate-400">
                                         {(
                                             uploadForm
                                                 .file
@@ -2096,24 +2096,24 @@ export default function KnowledgeBasePage() {
                                         MB
                                     </p>
 
-                                    <p className="mt-3 text-sm font-semibold text-blue-600">
+                                    <p className="mt-3 text-sm font-semibold text-blue-300">
                                         Click to choose
                                         another file
                                     </p>
                                 </>
                             ) : (
                                 <>
-                                    <h3 className="mt-4 font-bold text-slate-900">
+                                    <h3 className="mt-4 font-bold text-white">
                                         Select knowledge document
                                     </h3>
 
-                                    <p className="mt-2 text-sm text-slate-500">
+                                    <p className="mt-2 text-sm text-slate-400">
                                         Drag and drop a file
                                         here, or click to
                                         browse.
                                     </p>
 
-                                    <p className="mt-3 text-xs text-slate-400">
+                                    <p className="mt-3 text-xs text-slate-500">
                                         PDF, DOC, DOCX or TXT
                                         • Maximum 25 MB
                                     </p>
@@ -2233,7 +2233,7 @@ export default function KnowledgeBasePage() {
                             </FormSelect>
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-slate-200 pt-5">
+                        <div className="flex justify-end gap-3 border-t border-white/10 pt-5">
 
                             <button
                                 type="button"
@@ -2241,7 +2241,7 @@ export default function KnowledgeBasePage() {
                                 disabled={
                                     uploadingKnowledge
                                 }
-                                className="rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                                className="rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:opacity-50"
                             >
                                 Cancel
                             </button>

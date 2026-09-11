@@ -47,6 +47,8 @@ interface BackendErrorResponse {
   timestamp?: string;
 
   status?: number;
+
+  fieldErrors?: Record<string, string>;
 }
 
 
@@ -79,7 +81,15 @@ class ErrorService {
         axiosError.response?.data;
 
 
+      const fieldErrorMessages =
+        responseData?.fieldErrors &&
+        Object.keys(responseData.fieldErrors).length > 0
+          ? Object.values(responseData.fieldErrors).join(" ")
+          : undefined;
+
+
       const message =
+        fieldErrorMessages ??
         responseData?.message ??
         responseData?.detail ??
         responseData?.error ??

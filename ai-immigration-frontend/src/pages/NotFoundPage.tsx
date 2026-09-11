@@ -28,7 +28,6 @@ export default function NotFoundPage() {
     <main
       className="
         min-h-screen
-        bg-[#F8F6F1]
         flex
         items-center
         justify-center
@@ -78,18 +77,19 @@ export default function NotFoundPage() {
               h-14
               rounded-2xl
               border
-              border-[#F4B81A]
+              border-[#C6A15B]/40
               flex
               items-center
               justify-center
-              bg-white
+              bg-white/5
+              backdrop-blur-sm
             "
           >
 
             <ScanSearch
               size={30}
               className="
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             />
 
@@ -101,7 +101,7 @@ export default function NotFoundPage() {
             className="
               text-3xl
               font-bold
-              text-[#0B1736]
+              text-slate-100
             "
           >
 
@@ -109,7 +109,7 @@ export default function NotFoundPage() {
 
             <span
               className="
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             >
               AI
@@ -128,9 +128,10 @@ export default function NotFoundPage() {
 
         <div
           className="
-            bg-white
+            bg-white/5
+            backdrop-blur-xl
             border
-            border-[#E5DED1]
+            border-white/10
             rounded-3xl
             shadow-sm
             p-10
@@ -167,7 +168,7 @@ export default function NotFoundPage() {
                 w-24
                 h-24
                 rounded-full
-                bg-[#F8F6F1]
+                bg-[#C6A15B]/15
                 flex
                 items-center
                 justify-center
@@ -177,7 +178,7 @@ export default function NotFoundPage() {
               <SearchX
                 size={48}
                 className="
-                  text-[#F4B81A]
+                  text-[#C6A15B]
                 "
               />
 
@@ -193,7 +194,7 @@ export default function NotFoundPage() {
             className="
               text-7xl
               font-extrabold
-              text-[#0B1736]
+              text-white
               tracking-tight
             "
           >
@@ -211,7 +212,7 @@ export default function NotFoundPage() {
               mt-4
               text-2xl
               font-bold
-              text-[#0B1736]
+              text-white
             "
           >
 
@@ -226,7 +227,7 @@ export default function NotFoundPage() {
           <p
             className="
               mt-4
-              text-[#7D8CA3]
+              text-slate-300
               leading-relaxed
             "
           >
@@ -267,10 +268,10 @@ export default function NotFoundPage() {
                 py-3
                 rounded-xl
                 border
-                border-[#E5DED1]
-                text-[#0B1736]
+                border-white/15
+                text-white
                 font-semibold
-                hover:bg-[#F8F6F1]
+                hover:bg-white/10
                 transition
               "
             >
@@ -297,10 +298,12 @@ export default function NotFoundPage() {
                 px-6
                 py-3
                 rounded-xl
-                bg-[#0B1736]
-                text-white
+                bg-gradient-to-r
+                from-[#C6A15B]
+                to-[#A8894D]
+                text-[#071426]
                 font-semibold
-                hover:bg-[#152650]
+                hover:opacity-90
                 transition
               "
             >
@@ -326,7 +329,7 @@ export default function NotFoundPage() {
           className="
             mt-8
             text-sm
-            text-[#7D8CA3]
+            text-slate-400
           "
         >
 

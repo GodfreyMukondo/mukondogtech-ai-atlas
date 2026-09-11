@@ -11,7 +11,7 @@ import {
 
 import {
   useAuth,
-} from "@/hooks/useAuth";
+} from "@/features/auth/hooks/useAuth";
 
 
 
@@ -48,14 +48,13 @@ min-h-screen
 flex
 items-center
 justify-center
-bg-[#F8F6F1]
 "
 >
 
 <Loader2
 className="
 animate-spin
-text-[#F4B81A]
+text-[#C6A15B]
 "
 size={40}
 />
@@ -100,8 +99,11 @@ if(
 
 allowedRoles.length > 0 &&
 
+(
+!user.role ||
 !allowedRoles.includes(
 user.role
+)
 )
 
 ){

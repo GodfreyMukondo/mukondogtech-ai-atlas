@@ -12,6 +12,7 @@ import {
   Gauge,
   RefreshCw,
   Sparkles,
+  Waypoints,
 } from "lucide-react";
 
 import { getPathwayAssessmentApi } from "../../api/pathwayApi";
@@ -29,6 +30,7 @@ import Loader from "../../components/common/Loader";
 import ErrorAlert from "../../components/common/ErrorAlert";
 import EmptyState from "../../components/common/EmptyState";
 import ExplainRequirementPanel from "../../components/agent/ExplainRequirementPanel";
+import PathwayAssessmentExplanationPanel from "../../components/agent/PathwayAssessmentExplanationPanel";
 
 /**
  * ============================================================================
@@ -59,6 +61,7 @@ export default function PathwayAssessmentResultsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [explainingRequirementId, setExplainingRequirementId] = useState<number | null>(null);
+  const [explainingPathway, setExplainingPathway] = useState(false);
 
   const numericAssessmentId = assessmentId ? Number(assessmentId) : null;
 
@@ -200,6 +203,11 @@ export default function PathwayAssessmentResultsPage() {
               Case Intelligence
             </Button>
           </Link>
+
+          <Button variant="outline" onClick={() => setExplainingPathway(true)}>
+            <Bot size={16} />
+            Explain This Pathway
+          </Button>
         </div>
       </header>
 
@@ -274,6 +282,14 @@ export default function PathwayAssessmentResultsPage() {
                       <Bot size={12} />
                       Explain this requirement
                     </button>
+
+                    <Link
+                      to={`/dashboard/evidence-graph?evaluation=${evaluation.id}`}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#C6A15B] transition hover:text-[#dbb877]"
+                    >
+                      <Waypoints size={12} />
+                      Trace evidence
+                    </Link>
                   </div>
                 </li>
               );
@@ -288,6 +304,15 @@ export default function PathwayAssessmentResultsPage() {
             pathwayAssessmentId={assessment.id}
             requirementId={explainingRequirementId}
             onClose={() => setExplainingRequirementId(null)}
+          />
+        </div>
+      )}
+
+      {explainingPathway && (
+        <div className="fixed inset-y-0 right-0 z-40 h-full">
+          <PathwayAssessmentExplanationPanel
+            pathwayAssessmentId={assessment.id}
+            onClose={() => setExplainingPathway(false)}
           />
         </div>
       )}

@@ -1,4 +1,4 @@
-import {
+import type {
 ReactNode
 } from "react";
 
@@ -49,7 +49,7 @@ icon && (
 <div
 className="
 mb-5
-text-[#F4B81A]
+text-[#C6A15B]
 "
 >
 
@@ -67,7 +67,7 @@ text-[#F4B81A]
 className="
 text-xl
 font-bold
-text-[#0B1736]
+text-white
 "
 
 >
@@ -84,7 +84,7 @@ description && (
 <p
 className="
 mt-2
-text-gray-500
+text-slate-400
 max-w-md
 "
 >

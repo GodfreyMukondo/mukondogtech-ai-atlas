@@ -1,4 +1,8 @@
 spring:
+  # ==========================================================================
+  # DATABASE / HIKARI DEVELOPMENT OVERRIDES
+  # ==========================================================================
+
   datasource:
     hikari:
       pool-name: ImmigrationHikariPoolDev
@@ -12,9 +16,16 @@ spring:
       idle-timeout: 30000
       max-lifetime: 1800000
 
+      # Detect connections that are held for too long during development.
       leak-detection-threshold: 20000
 
       connection-test-query: SELECT 1 FROM DUAL
+
+      auto-commit: false
+
+  # ==========================================================================
+  # JPA / HIBERNATE DEVELOPMENT
+  # ==========================================================================
 
   jpa:
     show-sql: true
@@ -25,14 +36,47 @@ spring:
 
         jdbc:
           batch_size: 25
+          batch_versioned_data: true
 
         order_inserts: true
         order_updates: true
 
+  # ==========================================================================
+  # FLYWAY DEVELOPMENT
+  # ==========================================================================
+
+  flyway:
+    enabled: true
+
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+    # V2 already exists physically in the current database but is recorded
+    # as ignored because V3 was previously applied.
+    #
+    # This allows the application to start without Flyway attempting to
+    # execute V2 again.
+    ignore-migration-patterns: "*:ignored"
+
+    # Keep false by default. Do not enable this just to resolve the current
+    # V2/V3 migration ordering because V2 objects already exist in the DB.
+    out-of-order: ${FLYWAY_OUT_OF_ORDER:false}
+
+    # Never allow Flyway clean.
+    clean-disabled: true
+
+    locations: classpath:db/migration
+
+  # ==========================================================================
+  # FILE UPLOAD DEVELOPMENT OVERRIDES
+  # ==========================================================================
+
   servlet:
     multipart:
+      enabled: true
       max-file-size: 20MB
-      max-request-size: 25MB
+      max-request-size: 20MB
+      file-size-threshold: 2KB
 
 
 # ============================================================================
@@ -80,14 +124,20 @@ logging:
   level:
     root: INFO
 
+    # Application debugging
     com.godfrey.ai_immigration_document_analyzer: DEBUG
 
+    # Hibernate SQL debugging
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
 
+    # Security debugging
     org.springframework.security: DEBUG
+
+    # Web request debugging
     org.springframework.web: INFO
 
+    # Connection-pool logging
     com.zaxxer.hikari: INFO
 
   pattern:

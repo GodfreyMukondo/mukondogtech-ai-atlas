@@ -28,12 +28,12 @@ flex
 gap-3
 items-start
 rounded-xl
-bg-red-50
+bg-red-400/10
 border
-border-red-200
+border-red-400/20
 px-4
 py-3
-text-red-600
+text-red-300
 "
 
 >

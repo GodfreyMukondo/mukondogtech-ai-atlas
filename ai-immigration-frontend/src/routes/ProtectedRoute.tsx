@@ -36,8 +36,8 @@ export default function ProtectedRoute({
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl">
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 text-center shadow-2xl shadow-black/40">
 
           <div
             className="
@@ -48,17 +48,17 @@ export default function ProtectedRoute({
               animate-spin
               rounded-full
               border-4
-              border-slate-200
-              border-t-[#F4B81A]
+              border-white/10
+              border-t-[#C6A15B]
             "
             aria-hidden="true"
           />
 
-          <h1 className="text-lg font-black text-[#0B1736]">
+          <h1 className="text-lg font-black text-white">
             Restoring your session
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-400">
             Please wait while we verify your authentication.
           </p>
 

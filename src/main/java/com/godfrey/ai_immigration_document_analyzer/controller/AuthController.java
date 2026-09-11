@@ -2,12 +2,15 @@ package com.godfrey.ai_immigration_document_analyzer.controller;
 
 import com.godfrey.ai_immigration_document_analyzer.dto.request.AuthRequest;
 import com.godfrey.ai_immigration_document_analyzer.dto.request.ChangePasswordRequest;
+import com.godfrey.ai_immigration_document_analyzer.dto.request.ForgotPasswordRequest;
 import com.godfrey.ai_immigration_document_analyzer.dto.request.RegisterRequest;
+import com.godfrey.ai_immigration_document_analyzer.dto.request.ResetPasswordRequest;
 
 import com.godfrey.ai_immigration_document_analyzer.dto.response.AuthResponse;
 import com.godfrey.ai_immigration_document_analyzer.dto.response.UserResponse;
 
 import com.godfrey.ai_immigration_document_analyzer.service.AuthService;
+import com.godfrey.ai_immigration_document_analyzer.service.PasswordResetService;
 
 import jakarta.validation.Valid;
 
@@ -28,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+
+    private final PasswordResetService passwordResetService;
 
     /**
      * Register a new user.
@@ -94,6 +99,48 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 "Password changed successfully."
+        );
+    }
+
+    /**
+     * Begin the forgot-password flow.
+     *
+     * Always returns a generic success response so the endpoint never
+     * reveals whether an account exists for the supplied email.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(
+            @Valid
+            @RequestBody
+            ForgotPasswordRequest request
+    ) {
+
+        passwordResetService.forgotPassword(
+                request.getEmail()
+        );
+
+        return ResponseEntity.ok(
+                "If an account exists for that email, password reset instructions have been sent."
+        );
+    }
+
+    /**
+     * Complete the forgot-password flow using a reset token.
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @Valid
+            @RequestBody
+            ResetPasswordRequest request
+    ) {
+
+        passwordResetService.resetPassword(
+                request.getToken(),
+                request.getPassword()
+        );
+
+        return ResponseEntity.ok(
+                "Password has been reset successfully."
         );
     }
 

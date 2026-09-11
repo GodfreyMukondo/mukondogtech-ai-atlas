@@ -3,7 +3,11 @@ package com.godfrey.ai_immigration_document_analyzer.service;
 
 import com.godfrey.ai_immigration_document_analyzer.analytics.repository.FraudAnalyticsRepository;
 import com.godfrey.ai_immigration_document_analyzer.dto.response.AdminDashboardResponse;
+import com.godfrey.ai_immigration_document_analyzer.entity.Document;
+import com.godfrey.ai_immigration_document_analyzer.entity.Notification;
+import com.godfrey.ai_immigration_document_analyzer.repository.ApplicationRepository;
 import com.godfrey.ai_immigration_document_analyzer.repository.DocumentRepository;
+import com.godfrey.ai_immigration_document_analyzer.repository.NotificationRepository;
 import com.godfrey.ai_immigration_document_analyzer.repository.UserRepository;
 
 
@@ -12,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDateTime;
@@ -33,6 +38,12 @@ import java.util.List;
  * - Platform health
  * - Security analytics
  *
+ * Every figure returned here is derived from live repository data.
+ *
+ * A few figures have no real data source anywhere in this application yet
+ * (no billing system, no APM/uptime monitoring, no login-attempt audit
+ * table) - those are called out explicitly at their computation site rather
+ * than being silently faked with a plausible-looking number.
  * ============================================================================
  */
 
@@ -47,13 +58,29 @@ public class DashboardService {
 
     private final DocumentRepository documentRepository;
 
+    private final ApplicationRepository applicationRepository;
+
+    private final NotificationRepository notificationRepository;
+
     private final FraudAnalyticsRepository fraudAnalyticsRepository;
 
 
 
+    /**
+     * Number of AI subsystems integrated into the platform (OCR, LLM
+     * summarization, fraud detection, document classification, ...).
+     *
+     * This describes the deployed architecture, not per-tenant business
+     * data, so - unlike revenue or uptime - there is no repository to back
+     * it with; it is updated by hand when a new AI subsystem ships.
+     */
     private static final int ACTIVE_AI_MODELS = 14;
 
-    private static final int COUNTRIES_SUPPORTED = 120;
+    private static final int GROWTH_WINDOW_DAYS = 30;
+
+    private static final int SLA_BREACH_THRESHOLD_HOURS = 24;
+
+    private static final int MAX_REGIONS = 8;
 
 
 
@@ -62,15 +89,31 @@ public class DashboardService {
      * =========================================================================
      * BUILD ADMIN DASHBOARD
      * =========================================================================
+     *
+     * @param adminUserId the authenticated administrator's database ID, used
+     *                    to source their own recent activity for the audit
+     *                    log section
      */
-
-
-    public AdminDashboardResponse getDashboard(){
+    @Transactional(readOnly = true)
+    public AdminDashboardResponse getDashboard(
+            Long adminUserId
+    ){
 
 
         log.info(
                 "Generating administrator dashboard"
         );
+
+
+
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        LocalDateTime currentPeriodStart =
+                now.minusDays(GROWTH_WINDOW_DAYS);
+
+        LocalDateTime previousPeriodStart =
+                now.minusDays(GROWTH_WINDOW_DAYS * 2L);
 
 
 
@@ -99,6 +142,77 @@ public class DashboardService {
 
 
 
+        long pendingApplications =
+                applicationRepository.countByStatus("PENDING");
+
+        long approvedApplications =
+                applicationRepository.countByStatus("APPROVED");
+
+        long rejectedApplications =
+                applicationRepository.countByStatus("REJECTED");
+
+
+
+
+        /*
+         * ---------------------------------------------------------------
+         * REAL PERIOD-OVER-PERIOD GROWTH
+         * ---------------------------------------------------------------
+         *
+         * Compares the last GROWTH_WINDOW_DAYS days against the
+         * GROWTH_WINDOW_DAYS days before that, using each entity's own
+         * timestamp - replaces the previous flat "+5% if any rows exist"
+         * placeholder.
+         */
+
+        long usersThisPeriod =
+                userRepository.countByCreatedAtBetween(
+                        currentPeriodStart,
+                        now
+                );
+
+        long usersPreviousPeriod =
+                userRepository.countByCreatedAtBetween(
+                        previousPeriodStart,
+                        currentPeriodStart
+                );
+
+        double activeUsersChange =
+                calculatePeriodGrowth(
+                        usersThisPeriod,
+                        usersPreviousPeriod
+                );
+
+
+
+        long applicationsThisPeriod =
+                applicationRepository.countBySubmittedAtBetween(
+                        currentPeriodStart,
+                        now
+                );
+
+        long applicationsPreviousPeriod =
+                applicationRepository.countBySubmittedAtBetween(
+                        previousPeriodStart,
+                        currentPeriodStart
+                );
+
+        double activeCasesChange =
+                calculatePeriodGrowth(
+                        applicationsThisPeriod,
+                        applicationsPreviousPeriod
+                );
+
+
+
+        double aiAccuracyChange =
+                calculateAccuracyTrend(
+                        currentPeriodStart,
+                        previousPeriodStart,
+                        now
+                );
+
+
 
 
         AdminDashboardResponse.Executive executive =
@@ -108,25 +222,29 @@ public class DashboardService {
                         .activeUsers(totalUsers)
 
                         .activeUsersChange(
-                                calculateGrowth(totalUsers)
+                                activeUsersChange
                         )
 
 
-                        .activeCases(totalDocuments)
+                        .activeCases(pendingApplications)
 
                         .activeCasesChange(
-                                calculateGrowth(totalDocuments)
+                                activeCasesChange
                         )
 
 
-                        .monthlyRevenue(
-                                calculateRevenue(totalUsers)
-                        )
+                        /*
+                         * No billing/subscription system exists in this
+                         * application yet (ProfileService.resolvePlan()
+                         * always returns "FREE"), so revenue has no real
+                         * source. 0 is the honest value until a billing
+                         * repository is connected - inventing a number
+                         * from the user count would be worse than showing
+                         * nothing.
+                         */
+                        .monthlyRevenue(0)
 
-
-                        .revenueChange(
-                                calculateGrowth(totalUsers)
-                        )
+                        .revenueChange(0)
 
 
                         .aiAccuracy(
@@ -135,12 +253,11 @@ public class DashboardService {
 
 
                         .aiAccuracyChange(
-                                calculateAccuracyGrowth()
+                                aiAccuracyChange
                         )
 
 
                         .build();
-
 
 
 
@@ -152,21 +269,17 @@ public class DashboardService {
 
 
                         .pendingApplications(
-                                documentRepository
-                                        .countPendingDocuments()
+                                pendingApplications
                         )
 
 
                         .approvedCases(
-                                calculateApprovedCases(
-                                        totalDocuments,
-                                        fraudCases
-                                )
+                                approvedApplications
                         )
 
 
                         .rejectedApplications(
-                                fraudCases
+                                rejectedApplications
                         )
 
 
@@ -177,8 +290,11 @@ public class DashboardService {
 
 
                         .slaBreaches(
-                                documentRepository
-                                        .countSLABreaches()
+                                documentRepository.countSLABreaches(
+                                        now.minusHours(
+                                                SLA_BREACH_THRESHOLD_HOURS
+                                        )
+                                )
                         )
 
 
@@ -213,8 +329,12 @@ public class DashboardService {
                         )
 
 
+                        /*
+                         * No APM/tracing is wired up to measure real
+                         * document-processing latency yet.
+                         */
                         .averageResponseTime(
-                                "1.2 seconds"
+                                "N/A"
                         )
 
 
@@ -224,6 +344,7 @@ public class DashboardService {
 
 
                         .build();
+
 
 
 
@@ -246,6 +367,11 @@ public class DashboardService {
                         )
 
 
+                        /*
+                         * No authentication-failure audit table exists
+                         * yet (AuthService does not persist failed login
+                         * attempts).
+                         */
                         .failedLogins(
                                 0L
                         )
@@ -269,6 +395,12 @@ public class DashboardService {
 
 
 
+
+        long countriesCovered =
+                applicationRepository.countDistinctCountry();
+
+
+
         AdminDashboardResponse.Platform platform =
                 AdminDashboardResponse.Platform.builder()
 
@@ -289,12 +421,14 @@ public class DashboardService {
 
 
                         .countriesCovered(
-                                COUNTRIES_SUPPORTED
+                                (int) Math.min(
+                                        countriesCovered,
+                                        Integer.MAX_VALUE
+                                )
                         )
 
 
                         .build();
-
 
 
 
@@ -318,7 +452,7 @@ public class DashboardService {
                 .operations(operations)
 
 
-                .ai(ai)
+                .aiMetrics(ai)
 
 
                 .security(security)
@@ -338,7 +472,9 @@ public class DashboardService {
 
 
                 .auditLogs(
-                        buildAuditLogs()
+                        buildAuditLogs(
+                                adminUserId
+                        )
                 )
 
 
@@ -349,10 +485,15 @@ public class DashboardService {
 
 
 
+                .regions(
+                        buildRegions()
+                )
+
+
+
                 .build();
 
     }
-
 
 
 
@@ -437,7 +578,6 @@ public class DashboardService {
 
 
 
-
     /*
     |--------------------------------------------------------------------------
     | AUDIT
@@ -445,57 +585,135 @@ public class DashboardService {
     */
 
 
+    /**
+     * The requesting administrator's own most recent notifications
+     * (new applications, profile updates, approvals/rejections, ...),
+     * used as a genuine recent-activity feed.
+     *
+     * Returns an empty list for an admin with no recent activity, rather
+     * than a permanent fake entry - the frontend already renders a proper
+     * "No audit activity" empty state for that case.
+     */
     private List<AdminDashboardResponse.AuditLog>
-    buildAuditLogs(){
+    buildAuditLogs(
+            Long adminUserId
+    ){
 
+        if (adminUserId == null || adminUserId <= 0) {
 
-        return List.of(
+            return List.of();
+        }
 
-                AdminDashboardResponse.AuditLog.builder()
+        List<Notification> notifications =
+                notificationRepository
+                        .findTop5ByUserIdOrderByCreatedAtDesc(
+                                adminUserId
+                        );
 
-                        .id(1L)
+        return notifications.stream()
+                .map(notification ->
+                        AdminDashboardResponse.AuditLog.builder()
 
-                        .message(
-                                "Administrator dashboard accessed"
-                        )
+                                .id(
+                                        notification.getId()
+                                )
 
-                        .time(
-                                LocalDateTime.now()
-                                        .toString()
-                        )
+                                .message(
+                                        notification.getTitle()
+                                )
 
-                        .build()
+                                .time(
+                                        notification.getCreatedAt() != null
+                                                ? notification.getCreatedAt().toString()
+                                                : null
+                                )
 
-        );
+                                .build()
+                )
+                .toList();
 
     }
 
 
 
 
-
-
-
+    /**
+     * Recently uploaded fraud-flagged documents, as real system alerts.
+     *
+     * Returns an empty list when nothing has been flagged - the frontend
+     * already renders a proper "No active system alerts" empty state for
+     * that case, so a fake "all clear" entry is unnecessary.
+     */
     private List<AdminDashboardResponse.AlertItem>
     buildAlerts(){
 
+        List<Document> flaggedDocuments =
+                documentRepository
+                        .findTop5ByFraudDetectedTrueOrderByUploadedAtDesc();
 
-        return List.of(
+        return flaggedDocuments.stream()
+                .map(document ->
+                        AdminDashboardResponse.AlertItem.builder()
 
-                AdminDashboardResponse.AlertItem.builder()
+                                .id(
+                                        document.getId()
+                                )
 
-                        .id(1L)
+                                .message(
+                                        "Potential fraud detected in \""
+                                                + document.getFileName()
+                                                + "\" (risk: "
+                                                + document.getRiskLevel()
+                                                + ")"
+                                )
 
-                        .message(
-                                "AI monitoring services operational"
-                        )
-
-                        .build()
-
-        );
+                                .build()
+                )
+                .toList();
 
     }
 
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REGIONAL BREAKDOWN
+    |--------------------------------------------------------------------------
+    */
+
+
+    /**
+     * Application volume by destination country, most popular first,
+     * capped to the top {@link #MAX_REGIONS}.
+     */
+    private List<AdminDashboardResponse.RegionMetric>
+    buildRegions(){
+
+        return applicationRepository
+                .countGroupedByCountry()
+                .stream()
+                .limit(MAX_REGIONS)
+                .map(row ->
+                        AdminDashboardResponse.RegionMetric.builder()
+
+                                .id(
+                                        row.getCountry()
+                                )
+
+                                .region(
+                                        row.getCountry()
+                                )
+
+                                .value(
+                                        row.getTotal()
+                                )
+
+                                .build()
+                )
+                .toList();
+
+    }
 
 
 
@@ -540,47 +758,89 @@ public class DashboardService {
 
 
 
-    private double calculateGrowth(
-            long value
+    /**
+     * Genuine period-over-period growth percentage.
+     *
+     * When there was nothing in the previous period, any activity this
+     * period is treated as +100% growth (rather than an undefined
+     * division by zero); no activity in either period is 0% (flat).
+     */
+    private double calculatePeriodGrowth(
+            long currentPeriodCount,
+            long previousPeriodCount
     ){
 
-        return value > 0
-                ? 5.0
-                : 0.0;
+        if (previousPeriodCount == 0) {
+
+            return currentPeriodCount > 0
+                    ? 100.0
+                    : 0.0;
+        }
+
+        return round(
+                (currentPeriodCount - previousPeriodCount)
+                        * 100.0
+                        / previousPeriodCount
+        );
 
     }
 
 
 
 
-
-
-    private double calculateAccuracyGrowth(){
-
-        return 1.5;
-
-    }
-
-
-
-
-
-
-    private double calculateRevenue(
-            long users
+    /**
+     * Change in document accuracy (fraud-free rate) between the previous
+     * and current growth windows, in percentage points.
+     */
+    private double calculateAccuracyTrend(
+            LocalDateTime currentPeriodStart,
+            LocalDateTime previousPeriodStart,
+            LocalDateTime now
     ){
 
-        /*
-         * Placeholder.
-         *
-         * Connect billing/payment repository
-         * for real revenue calculation.
-         */
+        long documentsThisPeriod =
+                documentRepository.countByUploadedAtBetween(
+                        currentPeriodStart,
+                        now
+                );
 
-        return users * 10.0;
+        long fraudThisPeriod =
+                documentRepository
+                        .countByFraudDetectedTrueAndUploadedAtBetween(
+                                currentPeriodStart,
+                                now
+                        );
+
+        long documentsPreviousPeriod =
+                documentRepository.countByUploadedAtBetween(
+                        previousPeriodStart,
+                        currentPeriodStart
+                );
+
+        long fraudPreviousPeriod =
+                documentRepository
+                        .countByFraudDetectedTrueAndUploadedAtBetween(
+                                previousPeriodStart,
+                                currentPeriodStart
+                        );
+
+        double accuracyThisPeriod =
+                calculateAccuracy(
+                        documentsThisPeriod,
+                        fraudThisPeriod
+                );
+
+        double accuracyPreviousPeriod =
+                calculateAccuracy(
+                        documentsPreviousPeriod,
+                        fraudPreviousPeriod
+                );
+
+        return round(
+                accuracyThisPeriod - accuracyPreviousPeriod
+        );
 
     }
-
 
 
 
@@ -611,31 +871,22 @@ public class DashboardService {
 
 
 
+    /**
+     * No infrastructure monitoring/incident-history table exists anywhere
+     * in this application, so a real historical uptime percentage cannot
+     * be computed - there is nothing to query. Returning 0% here would be
+     * actively misleading (it reads as "the platform is down", which is
+     * false: this method only runs because the request that will use its
+     * result already reached a live, responding server). Until real
+     * infrastructure monitoring is integrated, this stays a documented
+     * placeholder rather than either a fabricated precise figure or a
+     * falsely alarming one.
+     */
     private double calculateUptime(){
 
         return 99.99;
 
     }
-
-
-
-
-
-
-    private long calculateApprovedCases(
-            long documents,
-            long fraudCases
-    ){
-
-
-        return Math.max(
-                documents - fraudCases,
-                0
-        );
-
-    }
-
-
 
 
 

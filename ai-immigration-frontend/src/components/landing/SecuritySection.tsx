@@ -23,10 +23,6 @@ export default function SecuritySection() {
         relative
         overflow-hidden
         py-28
-        bg-gradient-to-b
-        from-[#F8FAFF]
-        via-[#F5F8FF]
-        to-[#EEF4FF]
       "
     >
       {/* Top Right Glow */}
@@ -52,7 +48,7 @@ export default function SecuritySection() {
           h-[450px]
           w-[450px]
           rounded-full
-          bg-[#FFD978]/15
+          bg-[#D4B984]/15
           blur-3xl
         "
       />
@@ -63,7 +59,7 @@ export default function SecuritySection() {
           absolute
           inset-0
           opacity-[0.03]
-          [background-image:linear-gradient(#0B1736_1px,transparent_1px),linear-gradient(to_right,#0B1736_1px,transparent_1px)]
+          [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(to_right,#fff_1px,transparent_1px)]
           [background-size:48px_48px]
         "
       />
@@ -75,13 +71,13 @@ export default function SecuritySection() {
             overflow-hidden
             rounded-[32px]
             border
-            border-[#E7ECF5]
-            bg-white/80
-            backdrop-blur-xl
+            border-white/10
+            bg-[#16283F]
             p-12
             md:p-16
             text-center
-            shadow-[0_20px_60px_rgba(15,23,42,0.08)]
+            shadow-2xl
+            shadow-black/30
           "
         >
           {/* Card Glow */}
@@ -93,7 +89,7 @@ export default function SecuritySection() {
               h-72
               w-72
               rounded-full
-              bg-[#FFD978]/10
+              bg-[#D4B984]/10
               blur-3xl
             "
           />
@@ -120,13 +116,13 @@ export default function SecuritySection() {
                 gap-2
                 rounded-full
                 border
-                border-[#F4D27A]/40
-                bg-[#FFF8E6]
+                border-[#C6A15B]/30
+                bg-[#C6A15B]/10
                 px-5
                 py-2
                 text-sm
                 font-semibold
-                text-[#B8860B]
+                text-[#C6A15B]
               "
             >
               <ShieldCheck size={16} />
@@ -144,15 +140,15 @@ export default function SecuritySection() {
                 w-24
                 rounded-3xl
                 bg-gradient-to-br
-                from-[#F7C948]
-                via-[#FFD978]
-                to-[#F4B81A]
-                shadow-[0_15px_40px_rgba(244,184,26,0.30)]
+                from-[#D4B984]
+                via-[#D4B984]
+                to-[#C6A15B]
+                shadow-[0_15px_40px_rgba(198,161,91,0.30)]
               "
             >
               <ShieldCheck
                 size={42}
-                className="text-[#071330]"
+                className="text-[#071426]"
               />
             </div>
 
@@ -162,12 +158,7 @@ export default function SecuritySection() {
                 mt-10
                 text-5xl
                 font-bold
-                bg-gradient-to-r
-                from-[#071330]
-                via-[#12306D]
-                to-[#1A4EA1]
-                bg-clip-text
-                text-transparent
+                text-white
               "
             >
               Enterprise Grade Security
@@ -181,7 +172,7 @@ export default function SecuritySection() {
                 mx-auto
                 text-xl
                 leading-relaxed
-                text-[#66758F]
+                text-slate-200
               "
             >
               Your documents are protected by modern security
@@ -207,14 +198,14 @@ export default function SecuritySection() {
                     group
                     rounded-2xl
                     border
-                    border-[#E7ECF5]
-                    bg-white/70
+                    border-white/10
+                    bg-[#1F314A]
                     p-6
-                    backdrop-blur-sm
                     transition-all
                     duration-300
                     hover:-translate-y-1
-                    hover:shadow-lg
+                    hover:border-white/20
+                    hover:bg-[#28395A]
                   "
                 >
                   <div
@@ -226,16 +217,16 @@ export default function SecuritySection() {
                       items-center
                       justify-center
                       rounded-2xl
-                      bg-gradient-to-br
-                      from-[#EEF4FF]
-                      to-[#F5F8FF]
+                      bg-[#4F7DF3]/20
+                      border
+                      border-[#7EA5FF]/30
                     "
                   >
                     <feature.icon
                       className="
                         h-6
                         w-6
-                        text-[#1A4EA1]
+                        text-[#9DBBFF]
                       "
                     />
                   </div>
@@ -244,7 +235,7 @@ export default function SecuritySection() {
                     className="
                       mt-4
                       font-semibold
-                      text-[#071330]
+                      text-white
                     "
                   >
                     {feature.title}
@@ -261,13 +252,13 @@ export default function SecuritySection() {
                 items-center
                 rounded-full
                 border
-                border-[#E7ECF5]
-                bg-white/70
+                border-white/10
+                bg-[#1F314A]
                 px-6
                 py-3
                 text-sm
                 font-medium
-                text-[#66758F]
+                text-slate-200
               "
             >
               Trusted security practices for sensitive immigration
@@ -285,8 +276,8 @@ export default function SecuritySection() {
                 gap-4
                 rounded-2xl
                 border
-                border-[#E7ECF5]
-                bg-white/70
+                border-white/10
+                bg-[#1F314A]
                 px-6
                 py-5
                 sm:flex-row
@@ -304,11 +295,11 @@ export default function SecuritySection() {
                       justify-center
                       rounded-full
                       border-2
-                      border-white
+                      border-[#1F314A]
                       bg-gradient-to-br
-                      from-[#F7C948]
-                      to-[#F4B81A]
-                      text-[#071330]
+                      from-[#D4B984]
+                      to-[#C6A15B]
+                      text-[#071426]
                       shadow
                     "
                   >
@@ -317,12 +308,12 @@ export default function SecuritySection() {
                 ))}
               </div>
 
-              <p className="text-sm text-[#66758F]">
+              <p className="text-sm text-slate-200">
                 Our security and compliance team reviews how documents are
                 handled —{" "}
                 <Link
                   to="/contact"
-                  className="font-semibold text-[#1A4EA1] underline-offset-4 hover:underline"
+                  className="font-semibold text-[#C6A15B] underline-offset-4 hover:underline"
                 >
                   talk to someone
                 </Link>{" "}

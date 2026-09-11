@@ -1,10 +1,10 @@
 
 import {
-  KeyboardEvent,
   useEffect,
   useMemo,
   useRef,
   useState,
+  type KeyboardEvent,
 } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
@@ -102,7 +102,7 @@ export default function AIChatPage() {
         role: "assistant",
         timestamp: new Date().toLocaleTimeString(),
         content:
-          response.message ||
+          response.answer ||
           "I could not generate a response at this time.",
       };
 
@@ -157,8 +157,8 @@ export default function AIChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/60 text-slate-900">
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <div className="min-h-screen">
+      <main className="w-full px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
 
         {/* =========================================================
             PAGE INTRODUCTION
@@ -184,11 +184,11 @@ export default function AIChatPage() {
               overflow-hidden
               rounded-3xl
               border
-              border-[#183B6B]/30
+              border-[#3C4C61]/30
               bg-gradient-to-br
-              from-[#071330]
-              via-[#0B1736]
-              to-[#183B6B]
+              from-[#071426]
+              via-[#0B1F3A]
+              to-[#3C4C61]
               shadow-xl
             "
           >
@@ -203,7 +203,7 @@ export default function AIChatPage() {
                 h-80
                 w-80
                 rounded-full
-                bg-[#F4B81A]/10
+                bg-[#C6A15B]/10
                 blur-3xl
               "
             />
@@ -235,15 +235,15 @@ export default function AIChatPage() {
                     gap-2
                     rounded-full
                     border
-                    border-[#F4B81A]/25
-                    bg-[#F4B81A]/10
+                    border-[#C6A15B]/25
+                    bg-[#C6A15B]/10
                     px-3.5
                     py-1.5
                     text-xs
                     font-bold
                     uppercase
                     tracking-[0.16em]
-                    text-[#F4B81A]
+                    text-[#C6A15B]
                   "
                 >
                   <Sparkles size={14} />
@@ -432,8 +432,9 @@ export default function AIChatPage() {
             overflow-hidden
             rounded-3xl
             border
-            border-slate-200
-            bg-white
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             shadow-xl
           "
         >
@@ -448,7 +449,7 @@ export default function AIChatPage() {
               flex-col
               gap-5
               border-b
-              border-slate-200
+              border-white/10
               px-5
               py-5
               sm:px-6
@@ -468,9 +469,9 @@ export default function AIChatPage() {
                   justify-center
                   rounded-2xl
                   bg-gradient-to-br
-                  from-[#071330]
-                  to-[#183B6B]
-                  text-[#F4B81A]
+                  from-[#071426]
+                  to-[#3C4C61]
+                  text-[#C6A15B]
                   shadow-md
                 "
               >
@@ -479,7 +480,7 @@ export default function AIChatPage() {
 
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-lg font-bold text-slate-900">
+                  <h2 className="text-lg font-bold text-white">
                     Immigration AI Assistant
                   </h2>
 
@@ -490,15 +491,15 @@ export default function AIChatPage() {
                       gap-1.5
                       rounded-full
                       border
-                      border-emerald-200
-                      bg-emerald-50
+                      border-emerald-500/30
+                      bg-emerald-500/10
                       px-2
                       py-0.5
                       text-[10px]
                       font-bold
                       uppercase
                       tracking-wide
-                      text-emerald-700
+                      text-emerald-300
                     "
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -506,7 +507,7 @@ export default function AIChatPage() {
                   </span>
                 </div>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-400">
                   Ask a question to receive immigration guidance.
                 </p>
               </div>
@@ -524,18 +525,18 @@ export default function AIChatPage() {
                 gap-2
                 rounded-xl
                 border
-                border-slate-200
-                bg-white
+                border-white/15
+                bg-white/5
                 px-4
                 text-sm
                 font-semibold
-                text-slate-600
+                text-slate-300
                 shadow-sm
                 transition
                 duration-200
-                hover:border-red-200
-                hover:bg-red-50
-                hover:text-red-600
+                hover:border-red-500/30
+                hover:bg-red-500/10
+                hover:text-red-300
                 focus:outline-none
                 focus:ring-2
                 focus:ring-red-500/20
@@ -556,10 +557,8 @@ export default function AIChatPage() {
             <section
               className="
                 border-b
-                border-slate-200
-                bg-gradient-to-r
-                from-slate-50
-                to-blue-50/40
+                border-white/10
+                bg-white/[0.03]
                 px-5
                 py-6
                 sm:px-6
@@ -575,19 +574,19 @@ export default function AIChatPage() {
                       items-center
                       justify-center
                       rounded-lg
-                      bg-[#071330]
-                      text-[#F4B81A]
+                      bg-[#071426]
+                      text-[#C6A15B]
                     "
                   >
                     <Sparkles size={15} />
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="text-sm font-semibold text-slate-200">
                       Start with a question
                     </p>
 
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-400">
                       Choose a common immigration question below.
                     </p>
                   </div>
@@ -609,20 +608,20 @@ export default function AIChatPage() {
                       justify-between
                       rounded-xl
                       border
-                      border-slate-200
-                      bg-white
+                      border-white/10
+                      bg-white/5
                       px-4
                       py-3
                       text-left
                       text-sm
                       font-medium
-                      text-slate-600
+                      text-slate-300
                       shadow-sm
                       transition
                       duration-200
                       hover:-translate-y-0.5
-                      hover:border-[#183B6B]/40
-                      hover:bg-[#071330]
+                      hover:border-[#3C4C61]/40
+                      hover:bg-[#071426]
                       hover:text-white
                       hover:shadow-md
                       disabled:cursor-not-allowed
@@ -636,10 +635,10 @@ export default function AIChatPage() {
                         ml-4
                         shrink-0
                         text-lg
-                        text-slate-300
+                        text-slate-500
                         transition
                         group-hover:translate-x-1
-                        group-hover:text-[#F4B81A]
+                        group-hover:text-[#C6A15B]
                       "
                     >
                       →
@@ -658,7 +657,7 @@ export default function AIChatPage() {
             className="
               h-[560px]
               overflow-y-auto
-              bg-white
+              bg-transparent
               px-4
               py-7
               sm:px-6
@@ -702,9 +701,9 @@ export default function AIChatPage() {
                           justify-center
                           rounded-xl
                           bg-gradient-to-br
-                          from-[#071330]
-                          to-[#183B6B]
-                          text-[#F4B81A]
+                          from-[#071426]
+                          to-[#3C4C61]
+                          text-[#C6A15B]
                           shadow-sm
                           sm:h-11
                           sm:w-11
@@ -737,16 +736,16 @@ export default function AIChatPage() {
                               ? `
                                 rounded-br-md
                                 bg-gradient-to-br
-                                from-[#071330]
-                                to-[#183B6B]
+                                from-[#071426]
+                                to-[#3C4C61]
                                 text-white
                               `
                               : `
                                 rounded-bl-md
                                 border
-                                border-slate-200
-                                bg-slate-50
-                                text-slate-700
+                                border-white/10
+                                bg-white/5
+                                text-slate-200
                               `
                           }
                         `}
@@ -787,9 +786,9 @@ export default function AIChatPage() {
                           justify-center
                           rounded-xl
                           bg-gradient-to-br
-                          from-[#F4B81A]
+                          from-[#C6A15B]
                           to-[#F7C94A]
-                          text-[#071330]
+                          text-[#071426]
                           shadow-sm
                           sm:h-11
                           sm:w-11
@@ -826,9 +825,9 @@ export default function AIChatPage() {
                       justify-center
                       rounded-xl
                       bg-gradient-to-br
-                      from-[#071330]
-                      to-[#183B6B]
-                      text-[#F4B81A]
+                      from-[#071426]
+                      to-[#3C4C61]
+                      text-[#C6A15B]
                       shadow-sm
                       sm:h-11
                       sm:w-11
@@ -845,12 +844,12 @@ export default function AIChatPage() {
                       rounded-2xl
                       rounded-bl-md
                       border
-                      border-slate-200
-                      bg-slate-50
+                      border-white/10
+                      bg-white/5
                       px-4
                       py-3.5
                       text-sm
-                      text-slate-600
+                      text-slate-300
                       shadow-sm
                       sm:px-5
                     "
@@ -859,7 +858,7 @@ export default function AIChatPage() {
                       size={17}
                       className="
                         animate-spin
-                        text-[#183B6B]
+                        text-blue-300
                       "
                     />
 
@@ -895,8 +894,8 @@ export default function AIChatPage() {
                 }}
                 className="
                   border-t
-                  border-red-200
-                  bg-red-50
+                  border-red-500/30
+                  bg-red-500/10
                   px-5
                   py-3.5
                   sm:px-6
@@ -913,14 +912,14 @@ export default function AIChatPage() {
                       items-center
                       justify-center
                       rounded-full
-                      bg-red-100
-                      text-red-600
+                      bg-red-500/15
+                      text-red-300
                     "
                   >
                     !
                   </div>
 
-                  <div className="text-sm leading-6 text-red-700">
+                  <div className="text-sm leading-6 text-red-300">
                     <span className="font-semibold">
                       Unable to process request.
                     </span>{" "}
@@ -938,10 +937,8 @@ export default function AIChatPage() {
           <footer
             className="
               border-t
-              border-slate-200
-              bg-gradient-to-b
-              from-slate-50
-              to-white
+              border-white/10
+              bg-transparent
               px-4
               py-5
               sm:px-6
@@ -950,40 +947,59 @@ export default function AIChatPage() {
             <div className="mx-auto max-w-4xl">
 
               <div className="flex gap-2 sm:gap-3">
-                <div className="relative flex-1">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={input}
-                    onChange={(event) =>
-                      setInput(event.target.value)
-                    }
-                    onKeyDown={handleKeyDown}
-                    disabled={loading}
-                    placeholder="Ask about visas, permits, residency, compliance..."
+                <div
+                  className="
+                    group
+                    relative
+                    flex-1
+                    rounded-2xl
+                    bg-gradient-to-r
+                    from-[#2563EB]/50
+                    via-[#7C5CFF]/40
+                    to-[#C6A15B]/50
+                    p-[1.5px]
+                    shadow-[0_8px_30px_-8px_rgba(37,99,235,0.35)]
+                    transition
+                    duration-300
+                    focus-within:shadow-[0_8px_36px_-6px_rgba(37,99,235,0.55)]
+                  "
+                >
+                  <div
                     className="
-                      h-12
-                      w-full
-                      rounded-xl
-                      border
-                      border-slate-300
-                      bg-white
-                      px-4
-                      text-sm
-                      text-slate-900
-                      shadow-sm
-                      outline-none
-                      transition
-                      duration-200
-                      placeholder:text-slate-400
-                      hover:border-slate-400
-                      focus:border-[#183B6B]
-                      focus:ring-4
-                      focus:ring-[#183B6B]/10
-                      disabled:cursor-not-allowed
-                      disabled:bg-slate-100
+                      relative
+                      flex
+                      items-center
+                      rounded-[15px]
+                      bg-[#0B1F3A]/90
+                      backdrop-blur-xl
                     "
-                  />
+                  >
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(event) =>
+                        setInput(event.target.value)
+                      }
+                      onKeyDown={handleKeyDown}
+                      disabled={loading}
+                      placeholder="Ask about visas, permits, residency, compliance..."
+                      className="
+                        h-12
+                        w-full
+                        rounded-[15px]
+                        bg-transparent
+                        px-4
+                        text-sm
+                        text-white
+                        outline-none
+                        transition
+                        duration-200
+                        placeholder:text-slate-400
+                        disabled:cursor-not-allowed
+                      "
+                    />
+                  </div>
                 </div>
 
                 <button
@@ -1003,8 +1019,9 @@ export default function AIChatPage() {
                     justify-center
                     rounded-xl
                     bg-gradient-to-br
-                    from-[#071330]
-                    to-[#183B6B]
+                    from-[#2563EB]
+                    via-[#7C5CFF]
+                    to-[#C6A15B]
                     text-white
                     shadow-md
                     transition
@@ -1013,7 +1030,7 @@ export default function AIChatPage() {
                     hover:shadow-lg
                     focus:outline-none
                     focus:ring-4
-                    focus:ring-[#183B6B]/20
+                    focus:ring-[#2563EB]/20
                     disabled:cursor-not-allowed
                     disabled:bg-slate-300
                     disabled:bg-none
@@ -1042,13 +1059,13 @@ export default function AIChatPage() {
                   gap-2.5
                   rounded-xl
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/10
+                  bg-white/5
                   px-3.5
                   py-3
                   text-[11px]
                   leading-5
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 <ShieldCheck
@@ -1056,7 +1073,7 @@ export default function AIChatPage() {
                   className="
                     mt-0.5
                     shrink-0
-                    text-[#183B6B]
+                    text-blue-300
                   "
                 />
 
@@ -1092,12 +1109,12 @@ export default function AIChatPage() {
             gap-3
             rounded-2xl
             border
-            border-slate-200
-            bg-white
+            border-white/10
+            bg-white/5
             px-4
             py-4
             text-xs
-            text-slate-500
+            text-slate-400
             shadow-sm
             sm:flex-row
             sm:items-center
@@ -1107,10 +1124,10 @@ export default function AIChatPage() {
           <div className="flex items-center gap-2">
             <CheckCircle2
               size={14}
-              className="text-[#183B6B]"
+              className="text-blue-300"
             />
 
-            <span className="font-medium text-slate-600">
+            <span className="font-medium text-slate-300">
               MukondoGTech AI Immigration Intelligence
             </span>
           </div>
@@ -1151,8 +1168,8 @@ function StatCard({
         group
         rounded-2xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
         p-5
         shadow-sm
         transition-shadow
@@ -1171,9 +1188,9 @@ function StatCard({
             justify-center
             rounded-xl
             bg-gradient-to-br
-            from-[#071330]
-            to-[#183B6B]
-            text-[#F4B81A]
+            from-[#071426]
+            to-[#3C4C61]
+            text-[#C6A15B]
             shadow-sm
           "
         >
@@ -1184,15 +1201,15 @@ function StatCard({
           className="
             rounded-full
             border
-            border-slate-200
-            bg-slate-50
+            border-white/10
+            bg-white/5
             px-2.5
             py-1
             text-[10px]
             font-bold
             uppercase
             tracking-wide
-            text-slate-500
+            text-slate-400
           "
         >
           {label}
@@ -1205,7 +1222,7 @@ function StatCard({
             text-2xl
             font-bold
             tracking-tight
-            text-[#071330]
+            text-white
           "
         >
           {value}
@@ -1248,7 +1265,7 @@ function StatusBadge({
         backdrop-blur-sm
       "
     >
-      <span className="text-[#F4B81A]">
+      <span className="text-[#C6A15B]">
         {icon}
       </span>
 

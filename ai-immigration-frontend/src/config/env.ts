@@ -173,10 +173,6 @@ interface ImportMetaEnv {
   readonly VITE_AI_MONITORING_REQUEST_TIMEOUT_MS?: string;
 }
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
-
 /**
  * ============================================================================
  * ENVIRONMENT VARIABLE HELPERS

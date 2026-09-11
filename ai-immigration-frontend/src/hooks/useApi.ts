@@ -4,6 +4,10 @@ import {
 
 import api from "../api/axios";
 
+import type {
+  AxiosRequestConfig,
+} from "axios";
+
 
 
 interface ApiState<T>{
@@ -55,7 +59,7 @@ url:string,
 
 body?:unknown,
 
-config?:unknown
+config?:AxiosRequestConfig
 
 ):Promise<T | null>=>{
 
@@ -208,7 +212,7 @@ return {
 
 
 get:
-(url:string,config?:unknown)=>
+(url:string,config?:AxiosRequestConfig)=>
 request(
 "get",
 url,

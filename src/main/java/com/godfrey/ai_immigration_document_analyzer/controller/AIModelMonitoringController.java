@@ -1,30 +1,40 @@
 package com.godfrey.ai_immigration_document_analyzer.controller;
 
+import com.godfrey.ai_immigration_document_analyzer.security.AuthenticatedUser;
 import com.godfrey.ai_immigration_document_analyzer.service.AIModelMonitoringService;
 import com.godfrey.ai_immigration_document_analyzer.service.AIModelMonitoringService.AIModelMetricsResponse;
+import com.godfrey.ai_immigration_document_analyzer.service.AIModelMonitoringService.AIModelMonitoringDashboardResponse;
 import com.godfrey.ai_immigration_document_analyzer.service.AIModelMonitoringService.AIModelMonitoringResponse;
 import com.godfrey.ai_immigration_document_analyzer.service.AIModelMonitoringService.AIModelMonitoringSummary;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.validation.annotation.Validated;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -128,7 +138,7 @@ public class AIModelMonitoringController {
      */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AIModelMonitoringResponse> getMonitoring(
+    public ResponseEntity<AIModelMonitoringDashboardResponse> getMonitoring(
             @RequestParam(
                     name = "windowMinutes",
                     defaultValue = "60"
@@ -156,13 +166,77 @@ public class AIModelMonitoringController {
          * that historical/time-window monitoring can be added
          * later without changing the frontend contract.
          */
-        AIModelMonitoringResponse response =
-                monitoringService.getLiveMetrics();
+        AIModelMonitoringDashboardResponse response =
+                monitoringService.getDashboardView();
 
         return ResponseEntity
                 .ok()
                 .cacheControl(NO_CACHE)
                 .body(response);
+    }
+
+
+    /**
+     * ========================================================
+     * EXECUTE ADMINISTRATION ACTION
+     * ========================================================
+     * <p>
+     * Endpoint:
+     * <p>
+     * POST /api/admin/ai-monitoring/actions
+     * <p>
+     * Backs the "Run AI Audit" / "Reset Metrics" buttons on the AI
+     * Model Monitoring page - see
+     * {@link AIModelMonitoringService#executeAction} for the full list
+     * of real actions this recognizes.
+     *
+     * @param request             the action to execute
+     * @param authenticatedUser   the requesting administrator
+     * @return a confirmation message
+     */
+    @PostMapping("/actions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> executeAction(
+            @Valid
+            @RequestBody
+            AIMonitoringActionRequest request,
+
+            @AuthenticationPrincipal
+            AuthenticatedUser authenticatedUser
+    ) {
+
+        log.info(
+                "AI monitoring action requested. action={} requestedBy={}",
+                request.getAction(),
+                authenticatedUser != null
+                        ? authenticatedUser.getUsername()
+                        : "UNKNOWN"
+        );
+
+        String resultMessage =
+                monitoringService.executeAction(
+                        request.getAction(),
+                        authenticatedUser != null
+                                ? authenticatedUser.getUserId()
+                                : null
+                );
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message", resultMessage
+                )
+        );
+    }
+
+
+    /**
+     * Request body for {@link #executeAction}.
+     */
+    @Data
+    public static class AIMonitoringActionRequest {
+
+        @NotBlank(message = "Action is required")
+        private String action;
     }
 
 

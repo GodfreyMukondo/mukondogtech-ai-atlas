@@ -1,9 +1,12 @@
 package com.godfrey.ai_immigration_document_analyzer.service;
 
 import com.godfrey.ai_immigration_document_analyzer.dto.response.ChatResponse;
+import com.godfrey.ai_immigration_document_analyzer.entity.ChatLog;
+import com.godfrey.ai_immigration_document_analyzer.repository.ChatLogRepository;
 import com.godfrey.ai_immigration_document_analyzer.service.rag.ScoredChunk;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -80,6 +83,7 @@ public class ChatService {
     private final PromptBuilderService promptBuilder;
     private final LlmService llmService;
     private final ConversationService conversationService;
+    private final ChatLogRepository chatLogRepository;
 
     /**
      * Processes a chat request.
@@ -94,6 +98,9 @@ public class ChatService {
     ) {
 
         validateQuestion(question);
+
+        final long startTimeMillis =
+                System.currentTimeMillis();
 
         final String normalizedQuestion =
                 question.trim();
@@ -241,7 +248,45 @@ public class ChatService {
                 confidence
         );
 
+        logInteraction(
+                resolvedSessionId,
+                normalizedQuestion.length(),
+                System.currentTimeMillis() - startTimeMillis
+        );
+
         return response;
+    }
+
+    /**
+     * Records usage metrics for the admin analytics dashboard.
+     *
+     * Best-effort: the chat response has already been generated
+     * successfully, so a logging failure must never fail the request.
+     */
+    private void logInteraction(
+            String sessionId,
+            int questionLength,
+            long responseTimeMs
+    ) {
+
+        try {
+
+            chatLogRepository.save(
+                    ChatLog.builder()
+                            .sessionId(sessionId)
+                            .questionLength(questionLength)
+                            .responseTimeMs(responseTimeMs)
+                            .build()
+            );
+
+        } catch (DataAccessException ex) {
+
+            log.error(
+                    "Failed to persist chat log | sessionId={}",
+                    sessionId,
+                    ex
+            );
+        }
     }
 
     /**

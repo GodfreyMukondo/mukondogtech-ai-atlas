@@ -2,6 +2,8 @@ package com.godfrey.ai_immigration_document_analyzer.controller;
 
 
 import com.godfrey.ai_immigration_document_analyzer.dto.response.AdminDashboardResponse;
+import com.godfrey.ai_immigration_document_analyzer.security.AuthenticatedUser;
+import com.godfrey.ai_immigration_document_analyzer.service.AiAuditService;
 import com.godfrey.ai_immigration_document_analyzer.service.DashboardService;
 
 
@@ -19,9 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 
@@ -67,6 +71,8 @@ public class AdminController {
 
     private final DashboardService dashboardService;
 
+    private final AiAuditService aiAuditService;
+
 
 
 
@@ -107,14 +113,15 @@ public class AdminController {
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminDashboardResponse> getDashboard(
-            Authentication authentication
+            @AuthenticationPrincipal
+            AuthenticatedUser authenticatedUser
     ){
 
 
         String adminUsername =
-                authentication != null
+                authenticatedUser != null
                         ?
-                        authentication.getName()
+                        authenticatedUser.getUsername()
                         :
                         "UNKNOWN";
 
@@ -128,7 +135,11 @@ public class AdminController {
 
 
         AdminDashboardResponse dashboard =
-                dashboardService.getDashboard();
+                dashboardService.getDashboard(
+                        authenticatedUser != null
+                                ? authenticatedUser.getUserId()
+                                : null
+                );
 
 
 
@@ -137,6 +148,65 @@ public class AdminController {
         );
 
 
+    }
+
+
+
+
+    /**
+     * =========================================================================
+     * RUN AI AUDIT
+     * =========================================================================
+     *
+     * Re-scans live document and application data for anything needing
+     * administrator attention (high-risk/fraud-flagged documents, stale
+     * pending applications) and records the result as a notification for
+     * the requesting administrator.
+     *
+     * Endpoint:
+     *
+     * POST /api/admin/audit/run
+     *
+     * Authority:
+     *
+     * ROLE_ADMIN
+     *
+     * =========================================================================
+     */
+    @Operation(
+            summary = "Run AI audit",
+            description =
+                    "Re-scans documents and applications for issues needing administrator attention"
+    )
+    @PostMapping("/audit/run")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> runAiAudit(
+            @AuthenticationPrincipal
+            AuthenticatedUser authenticatedUser
+    ) {
+
+        log.info(
+                "AI audit triggered by {}",
+                authenticatedUser != null
+                        ? authenticatedUser.getUsername()
+                        : "UNKNOWN"
+        );
+
+        AiAuditService.AuditResult result =
+                aiAuditService.runAudit(
+                        authenticatedUser != null
+                                ? authenticatedUser.getUserId()
+                                : null
+                );
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message", result.message(),
+                        "highRiskDocuments", result.highRiskDocuments(),
+                        "fraudFlaggedDocuments", result.fraudFlaggedDocuments(),
+                        "staleApplications", result.staleApplications()
+                )
+        );
     }
 
 

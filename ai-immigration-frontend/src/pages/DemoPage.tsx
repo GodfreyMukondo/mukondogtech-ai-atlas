@@ -27,7 +27,7 @@ export default function DemoPage() {
 
   return (
 
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen">
 
 
       {/* HERO */}
@@ -40,9 +40,9 @@ export default function DemoPage() {
             absolute
             inset-0
             bg-gradient-to-br
-            from-[#E0F2FE]
-            via-[#F8FAFC]
-            to-[#ECFDF5]
+            from-[#0B1F3A]
+            via-[#1F314A]
+            to-[#071426]
           "
         />
 
@@ -55,7 +55,7 @@ export default function DemoPage() {
             h-96
             w-96
             rounded-full
-            bg-sky-200/50
+            bg-sky-500/10
             blur-3xl
           "
         />
@@ -69,7 +69,7 @@ export default function DemoPage() {
             h-96
             w-96
             rounded-full
-            bg-emerald-200/40
+            bg-emerald-500/10
             blur-3xl
           "
         />
@@ -97,13 +97,13 @@ export default function DemoPage() {
                 gap-2
                 rounded-full
                 border
-                border-sky-200
-                bg-white/80
+                border-sky-500/30
+                bg-white/5
                 px-5
                 py-2
                 text-sm
                 font-semibold
-                text-slate-700
+                text-slate-200
                 shadow-sm
                 backdrop-blur
               "
@@ -111,7 +111,7 @@ export default function DemoPage() {
 
               <Sparkles
                 size={16}
-                className="text-amber-500"
+                className="text-amber-400"
               />
 
               MukondoGTech AI Immigration Analysis Demo
@@ -126,7 +126,7 @@ export default function DemoPage() {
                 text-5xl
                 font-black
                 leading-tight
-                text-slate-900
+                text-white
                 md:text-6xl
               "
             >
@@ -158,7 +158,7 @@ export default function DemoPage() {
                 max-w-3xl
                 text-xl
                 leading-relaxed
-                text-slate-600
+                text-slate-300
               "
             >
               Upload passports, visas, permits, certificates,
@@ -189,11 +189,13 @@ export default function DemoPage() {
                   justify-center
                   gap-2
                   rounded-2xl
-                  bg-slate-900
+                  bg-gradient-to-r
+                  from-[#C6A15B]
+                  to-[#A8894D]
                   px-8
                   py-4
                   font-bold
-                  text-white
+                  text-[#071426]
                   shadow-lg
                   transition
                   hover:-translate-y-1
@@ -216,14 +218,14 @@ export default function DemoPage() {
                   justify-center
                   rounded-2xl
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/15
+                  bg-white/5
                   px-8
                   py-4
                   font-semibold
-                  text-slate-800
+                  text-white
                   transition
-                  hover:bg-sky-50
+                  hover:bg-white/10
                 "
               >
 
@@ -309,7 +311,7 @@ export default function DemoPage() {
               className="
                 text-4xl
                 font-black
-                text-slate-900
+                text-white
               "
             >
               How The AI Analysis Works
@@ -322,7 +324,7 @@ export default function DemoPage() {
                 mt-4
                 max-w-2xl
                 text-lg
-                text-slate-600
+                text-slate-300
               "
             >
               A simple three-step workflow designed
@@ -385,9 +387,6 @@ export default function DemoPage() {
 
       <section
         className="
-          bg-gradient-to-br
-          from-sky-50
-          to-white
           py-24
         "
       >
@@ -401,7 +400,7 @@ export default function DemoPage() {
               className="
                 text-4xl
                 font-black
-                text-slate-900
+                text-white
               "
             >
               Powerful AI Features
@@ -430,8 +429,9 @@ export default function DemoPage() {
                   className="
                     rounded-3xl
                     border
-                    border-slate-200
-                    bg-white
+                    border-white/10
+                    bg-white/5
+                    backdrop-blur-xl
                     p-6
                     shadow-sm
                     transition
@@ -441,14 +441,14 @@ export default function DemoPage() {
                 >
 
                   <CheckCircle
-                    className="mb-4 text-emerald-500"
+                    className="mb-4 text-emerald-400"
                   />
 
 
                   <p
                     className="
                       font-semibold
-                      text-slate-800
+                      text-white
                     "
                   >
                     {feature}
@@ -568,21 +568,23 @@ return (
 className="
 rounded-3xl
 border
-bg-white
+border-white/10
+bg-white/5
+backdrop-blur-xl
 p-6
 shadow-sm
 "
 >
 
-<div className="text-sky-600">
+<div className="text-sky-400">
 {icon}
 </div>
 
-<h3 className="mt-4 font-bold text-slate-900">
+<h3 className="mt-4 font-bold text-white">
 {title}
 </h3>
 
-<p className="mt-2 text-slate-600">
+<p className="mt-2 text-slate-300">
 {text}
 </p>
 
@@ -622,8 +624,9 @@ className="
 relative
 rounded-3xl
 border
-border-slate-200
-bg-white
+border-white/10
+bg-white/5
+backdrop-blur-xl
 p-8
 shadow-sm
 transition
@@ -639,7 +642,7 @@ absolute
 right-6
 top-6
 font-bold
-text-amber-500
+text-amber-400
 "
 >
 {step}
@@ -656,8 +659,8 @@ w-14
 items-center
 justify-center
 rounded-2xl
-bg-sky-100
-text-sky-600
+bg-sky-500/15
+text-sky-300
 "
 >
 {icon}
@@ -668,7 +671,7 @@ text-sky-600
 className="
 text-xl
 font-black
-text-slate-900
+text-white
 "
 >
 {title}
@@ -679,7 +682,7 @@ text-slate-900
 className="
 mt-4
 leading-relaxed
-text-slate-600
+text-slate-300
 "
 >
 {description}

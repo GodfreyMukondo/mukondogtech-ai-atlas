@@ -34,15 +34,15 @@ import java.time.LocalDateTime;
  * REQUIREMENT CONTROLLER
  * ============================================================================
  *
- * Minimum API surface for the Requirement layer - no authoring endpoint in
- * this phase (Requirement/RegulatoryVersion rows are seeded, not created via
- * HTTP; see the implementation report's scoping decision). Catalogue reads
- * (GET /{id}) return impersonal, reusable regulatory knowledge and need only
- * authentication. Evaluation reads/writes are personal and delegate their
- * authorization entirely to {@code RequirementEvaluationService}, which
- * never touches a Fact without going through the existing Fact
- * authorization boundary - this controller makes no authorization
- * decisions itself.
+ * Minimum API surface for the Requirement layer. Authoring (create/update/
+ * publish) lives separately on {@code RequirementAdminController}
+ * ({@code /api/admin/requirements}, ROLE_ADMIN only) - this controller
+ * remains read/evaluate only. Catalogue reads (GET /{id}) return
+ * impersonal, reusable regulatory knowledge and need only authentication.
+ * Evaluation reads/writes are personal and delegate their authorization
+ * entirely to {@code RequirementEvaluationService}, which never touches a
+ * Fact without going through the existing Fact authorization boundary -
+ * this controller makes no authorization decisions itself.
  *
  * Endpoints:
  *

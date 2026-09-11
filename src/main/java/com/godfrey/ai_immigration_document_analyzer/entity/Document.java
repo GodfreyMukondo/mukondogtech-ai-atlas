@@ -9,7 +9,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -83,15 +82,7 @@ public class Document {
 
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "document_seq"
-    )
-    @SequenceGenerator(
-            name = "document_seq",
-            sequenceName = "DOCUMENT_SEQ",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     @Column(
             name = "ID",
@@ -105,6 +96,19 @@ public class Document {
             nullable = false
     )
     private Long userId;
+
+
+    /**
+     * Optional link to the immigration application this document was
+     * submitted as supporting evidence for.
+     *
+     * Nullable: documents can still be uploaded independently of any
+     * application (e.g. from the general Documents library).
+     */
+    @Column(
+            name = "APPLICATION_ID"
+    )
+    private Long applicationId;
 
 
     @Column(

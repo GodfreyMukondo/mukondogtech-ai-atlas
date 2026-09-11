@@ -12,6 +12,9 @@ public interface RequirementFactBindingRepository extends JpaRepository<Requirem
 
     List<RequirementFactBinding> findByRequirementId(Long requirementId);
 
+    /** Used by RequirementAdminService.update to replace a DRAFT requirement's bindings wholesale. */
+    void deleteByRequirementId(Long requirementId);
+
     /** Which Requirements declare a dependency on this Fact key - the query surface a future Next-Best-Action reads (not built yet). */
     List<RequirementFactBinding> findByFactKey(String factKey);
 }

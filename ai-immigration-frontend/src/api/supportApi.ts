@@ -114,8 +114,17 @@ class SupportApi {
       `/tickets/${ticketId}/attachments`,
       formData,
       {
+        /**
+         * Manually setting "multipart/form-data" here (without a
+         * boundary) breaks multipart parsing on the server, and it
+         * also stops axios from JSON-encoding the FormData because
+         * `supportClient` defaults to "Content-Type: application/json".
+         *
+         * Clearing the header lets the browser generate the correct
+         * multipart/form-data boundary for this request only.
+         */
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": undefined,
         },
       }
     );

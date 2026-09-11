@@ -31,6 +31,13 @@ import org.springframework.stereotype.Service;
  * active {@link com.godfrey.ai_immigration_document_analyzer.fact.entity.CaseAssignment}
  * for that subject, may view/create/verify/resolve conflicts for a case.
  *
+ * One narrow exception, deliberately kept as its OWN grant rather than
+ * folded into the CASE_WORKER-only resolve path: the subject may confirm
+ * which side of their OWN open conflict they believe is correct (see
+ * {@link #assertCanApplicantConfirmConflict}) - a self-reported provenance
+ * statement, never verification, and never interchangeable with staff
+ * resolution.
+ *
  * Every decision - granted or denied - is recorded via
  * {@link FactAccessAuditService}, satisfying "record security-sensitive
  * Fact access" and providing the evidence base for IDOR testing.
@@ -123,6 +130,40 @@ public class FactAuthorizationService {
 
             throw new AccessDeniedException(
                     "Only an authorized case worker assigned to this case may perform this action."
+            );
+        }
+    }
+
+    // =========================================================================
+    // APPLICANT CONFLICT CONFIRMATION
+    //
+    // A DISTINCT grant from assertCanVerifyOrResolve, never a path into it.
+    // The applicant may confirm which of two competing values they believe
+    // is correct for their OWN case - this is self-reported provenance, not
+    // verification, and it is never available to a CASE_WORKER or ADMIN
+    // through this method. A case worker/administrator's own resolution
+    // authority is entirely unaffected and continues to flow exclusively
+    // through assertCanVerifyOrResolve above.
+    // =========================================================================
+
+    public void assertCanApplicantConfirmConflict(
+            AuthenticatedUser actor,
+            Long subjectUserId,
+            FactSensitivityTier tier,
+            Long factId,
+            String purpose
+    ) {
+
+        AccessorType accessorType = resolveAccessorType(actor, subjectUserId);
+
+        boolean granted = accessorType == AccessorType.SUBJECT;
+
+        audit(subjectUserId, factId, actor, accessorType, purpose, tier, granted);
+
+        if (!granted) {
+
+            throw new AccessDeniedException(
+                    "Only the applicant may confirm their own conflict."
             );
         }
     }

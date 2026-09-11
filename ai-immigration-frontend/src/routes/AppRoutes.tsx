@@ -136,8 +136,24 @@ const ApplicationsPage = lazy(
   () => import("../pages/dashboard/ApplicationsPage")
 );
 
+const SubmitApplicationPage = lazy(
+  () => import("../pages/dashboard/SubmitApplicationPage")
+);
+
 const PathwayDiscoveryPage = lazy(
   () => import("../pages/dashboard/PathwayDiscoveryPage")
+);
+
+const RequestPathwayAssessmentPage = lazy(
+  () => import("../pages/dashboard/RequestPathwayAssessmentPage")
+);
+
+const PathwayAssessmentResultsPage = lazy(
+  () => import("../pages/dashboard/PathwayAssessmentResultsPage")
+);
+
+const PathwayExplanationPage = lazy(
+  () => import("../pages/dashboard/PathwayExplanationPage")
 );
 
 const CaseIntelligencePage = lazy(
@@ -146,6 +162,18 @@ const CaseIntelligencePage = lazy(
 
 const CaseTimelinePage = lazy(
   () => import("../pages/dashboard/CaseTimelinePage")
+);
+
+const DigitalTwinPage = lazy(
+  () => import("../pages/dashboard/DigitalTwinPage")
+);
+
+const FactConflictDetailPage = lazy(
+  () => import("../pages/dashboard/FactConflictDetailPage")
+);
+
+const EvidenceGraphPage = lazy(
+  () => import("../pages/dashboard/EvidenceGraphPage")
 );
 
 // ======================================================
@@ -212,6 +240,10 @@ const CreateUserPage = lazy(
   () => import("../pages/admin/CreateUserPage")
 );
 
+const CreateCasePage = lazy(
+  () => import("../pages/admin/CreateCasePage")
+);
+
 const ApplicationReviewPage = lazy(
   () => import("../pages/admin/ApplicationReviewPage")
 );
@@ -226,6 +258,14 @@ const KnowledgeBasePage = lazy(
 
 const ImmigrationRulesPage = lazy(
   () => import("../pages/admin/ImmigrationRulesPage")
+);
+
+const PathwayManagementPage = lazy(
+  () => import("../pages/admin/PathwayManagementPage")
+);
+
+const RequirementManagementPage = lazy(
+  () => import("../pages/admin/RequirementManagementPage")
 );
 
 const SecurityCenterPage = lazy(
@@ -449,8 +489,51 @@ export default function AppRoutes() {
             />
 
             <Route
+              path="/dashboard/applications/new"
+              element={<SubmitApplicationPage />}
+            />
+
+            {/* ------------------------------------------------
+                IMMIGRATION PROFILE (DIGITAL TWIN)
+            ------------------------------------------------ */}
+
+            <Route
+              path="/dashboard/immigration-profile"
+              element={<DigitalTwinPage />}
+            />
+
+            <Route
+              path="/dashboard/immigration-profile/conflicts/:conflictId"
+              element={<FactConflictDetailPage />}
+            />
+
+            <Route
+              path="/dashboard/evidence-graph"
+              element={<EvidenceGraphPage />}
+            />
+
+            {/* ------------------------------------------------
+                IMMIGRATION PATHWAYS
+            ------------------------------------------------ */}
+
+            <Route
               path="/dashboard/pathways/discovery"
               element={<PathwayDiscoveryPage />}
+            />
+
+            <Route
+              path="/dashboard/pathways/assessments/new"
+              element={<RequestPathwayAssessmentPage />}
+            />
+
+            <Route
+              path="/dashboard/pathways/assessments/:assessmentId"
+              element={<PathwayAssessmentResultsPage />}
+            />
+
+            <Route
+              path="/dashboard/pathways/assessments/:assessmentId/explanation"
+              element={<PathwayExplanationPage />}
             />
 
             <Route
@@ -581,6 +664,11 @@ export default function AppRoutes() {
                 element={<ApplicationReviewPage />}
               />
 
+              <Route
+                path="/admin/cases/create"
+                element={<CreateCasePage />}
+              />
+
               {/* ------------------------------------------------
                   AI
               ------------------------------------------------ */}
@@ -606,6 +694,20 @@ export default function AppRoutes() {
               <Route
                 path="/admin/rules"
                 element={<ImmigrationRulesPage />}
+              />
+
+              {/* ------------------------------------------------
+                  PATHWAY / REQUIREMENT CATALOGUE
+              ------------------------------------------------ */}
+
+              <Route
+                path="/admin/pathways"
+                element={<PathwayManagementPage />}
+              />
+
+              <Route
+                path="/admin/requirements"
+                element={<RequirementManagementPage />}
               />
 
               {/* ------------------------------------------------

@@ -11,8 +11,8 @@ const features = [
     title: "AI Analysis",
     desc: "Advanced AI models understand complex documents.",
     color: {
-      bg: "bg-[#EEF4FF]",
-      icon: "text-[#4F7DF3]",
+      bg: "bg-[#4F7DF3]/20 border border-[#7EA5FF]/30",
+      icon: "text-[#9DBBFF]",
       border: "from-[#4F7DF3] to-[#7EA5FF]"
     }
   },
@@ -21,8 +21,8 @@ const features = [
     title: "Smart Upload",
     desc: "Upload PDFs and images securely.",
     color: {
-      bg: "bg-[#F0FFF7]",
-      icon: "text-[#10B981]",
+      bg: "bg-[#10B981]/20 border border-[#5EEAD4]/30",
+      icon: "text-[#7EF0DE]",
       border: "from-[#10B981] to-[#5EEAD4]"
     }
   },
@@ -31,8 +31,8 @@ const features = [
     title: "Risk Detection",
     desc: "Identify missing information and errors.",
     color: {
-      bg: "bg-[#FFF4F0]",
-      icon: "text-[#F97316]",
+      bg: "bg-[#F97316]/20 border border-[#FDBA74]/30",
+      icon: "text-[#FDC48D]",
       border: "from-[#F97316] to-[#FDBA74]"
     }
   },
@@ -41,8 +41,8 @@ const features = [
     title: "AI Chat",
     desc: "Ask questions about your documents.",
     color: {
-      bg: "bg-[#F5F1FF]",
-      icon: "text-[#8B5CF6]",
+      bg: "bg-[#8B5CF6]/20 border border-[#C4B5FD]/30",
+      icon: "text-[#D2C5FE]",
       border: "from-[#8B5CF6] to-[#C4B5FD]"
     }
   }
@@ -55,10 +55,6 @@ export default function FeaturesSection() {
         relative
         overflow-hidden
         py-24
-        bg-gradient-to-b
-        from-[#FAFBFF]
-        via-[#F7F8FC]
-        to-[#F2F5FB]
       "
     >
       {/* Background Glow */}
@@ -83,7 +79,7 @@ export default function FeaturesSection() {
           h-96
           w-96
           rounded-full
-          bg-[#FFD978]/15
+          bg-[#D4B984]/15
           blur-3xl
         "
       />
@@ -94,12 +90,7 @@ export default function FeaturesSection() {
             text-center
             text-5xl
             font-bold
-            bg-gradient-to-r
-            from-[#071330]
-            via-[#12306D]
-            to-[#1A4EA1]
-            bg-clip-text
-            text-transparent
+            text-[#7EA5FF]
           "
         >
           Powerful AI Features
@@ -108,7 +99,7 @@ export default function FeaturesSection() {
         <p
           className="
             text-center
-            text-[#66758F]
+            text-[#9DBBFF]
             mt-4
             text-lg
           "
@@ -124,15 +115,16 @@ export default function FeaturesSection() {
                 group
                 relative
                 overflow-hidden
-                bg-white/80
-                backdrop-blur-xl
+                bg-[#16283F]
                 rounded-3xl
                 p-8
                 border
-                border-[#E7ECF5]
-                shadow-[0_8px_25px_rgba(15,23,42,0.05)]
-                hover:shadow-[0_25px_60px_rgba(15,23,42,0.12)]
+                border-white/10
+                shadow-2xl
+                shadow-black/30
                 hover:-translate-y-2
+                hover:border-white/20
+                hover:bg-[#1C3350]
                 transition-all
                 duration-300
               "
@@ -195,7 +187,7 @@ export default function FeaturesSection() {
                     mt-6
                     text-xl
                     font-bold
-                    text-[#071330]
+                    text-white
                   "
                 >
                   {f.title}
@@ -204,7 +196,7 @@ export default function FeaturesSection() {
                 <p
                   className="
                     mt-3
-                    text-[#66758F]
+                    text-slate-200
                     leading-relaxed
                   "
                 >

@@ -1,6 +1,6 @@
 "use client";
 
-import React, {
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -10,9 +10,8 @@ import React, {
 } from "react";
 
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
-import { appConfig } from "../../config/appConfig";
+import API from "../../api/axios";
 
 import {
   AlertTriangle,
@@ -85,13 +84,18 @@ export type RiskLevel =
 export interface Application {
   id: string;
   applicantName: string;
+  email?: string | null;
+  phone?: string | null;
+  dateOfBirth?: string | null;
   country: string;
   visaType: string;
+  notes?: string | null;
   submittedAt: string;
   status: ApplicationStatus;
   riskLevel: RiskLevel;
   aiConfidence: number;
   documentCount: number;
+  rejectionReason?: string | null;
 }
 
 export interface ApplicationStatistics {
@@ -103,6 +107,18 @@ export interface ApplicationStatistics {
 
 interface ApiError {
   message: string;
+}
+
+export interface ApplicationDocument {
+  id: number;
+  fileName: string;
+  documentType: string;
+  fileSize?: number | null;
+  mimeType?: string | null;
+  status: string;
+  riskLevel?: string | null;
+  fraudDetected?: boolean | null;
+  uploadedAt: string;
 }
 
 interface ApplicationResponse {
@@ -184,20 +200,20 @@ function statusColor(
 ): string {
   switch (status) {
     case "APPROVED":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+      return "border-emerald-400/20 bg-emerald-400/10 text-emerald-300";
 
     case "REJECTED":
-      return "border-red-200 bg-red-50 text-red-700";
+      return "border-red-400/20 bg-red-400/10 text-red-300";
 
     case "UNDER_REVIEW":
-      return "border-blue-200 bg-blue-50 text-blue-700";
+      return "border-blue-400/20 bg-blue-400/10 text-blue-300";
 
     case "MORE_INFO_REQUIRED":
-      return "border-amber-200 bg-amber-50 text-amber-700";
+      return "border-amber-400/20 bg-amber-400/10 text-amber-300";
 
     case "PENDING":
     default:
-      return "border-slate-200 bg-slate-50 text-slate-700";
+      return "border-white/15 bg-white/10 text-slate-300";
   }
 }
 
@@ -206,16 +222,16 @@ function riskColor(
 ): string {
   switch (risk) {
     case "LOW":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+      return "border-emerald-400/20 bg-emerald-400/10 text-emerald-300";
 
     case "MEDIUM":
-      return "border-amber-200 bg-amber-50 text-amber-700";
+      return "border-amber-400/20 bg-amber-400/10 text-amber-300";
 
     case "HIGH":
-      return "border-red-200 bg-red-50 text-red-700";
+      return "border-red-400/20 bg-red-400/10 text-red-300";
 
     default:
-      return "border-slate-200 bg-slate-50 text-slate-700";
+      return "border-white/15 bg-white/10 text-slate-300";
   }
 }
 
@@ -266,14 +282,14 @@ function getConfidenceColor(
   confidence: number,
 ): string {
   if (confidence >= 85) {
-    return "text-emerald-600";
+    return "text-emerald-300";
   }
 
   if (confidence >= 65) {
-    return "text-amber-600";
+    return "text-amber-300";
   }
 
-  return "text-red-600";
+  return "text-red-300";
 }
 
 function getInitials(
@@ -301,7 +317,7 @@ function StatCard({
   description,
   iconClassName,
   iconBackgroundClassName,
-  valueClassName = "text-[#0B1736]",
+  valueClassName = "text-white",
 }: StatCardProps) {
   return (
     <article
@@ -311,14 +327,16 @@ function StatCard({
         overflow-hidden
         rounded-3xl
         border
-        border-slate-200/80
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-5
-        shadow-[0_12px_40px_rgba(11,23,54,0.06)]
+        shadow-lg
+        shadow-black/20
         transition-all
         duration-300
         hover:-translate-y-1
-        hover:shadow-[0_20px_50px_rgba(11,23,54,0.10)]
+        hover:bg-white/[0.08]
         sm:p-6
       "
     >
@@ -333,7 +351,7 @@ function StatCard({
           h-28
           w-28
           rounded-full
-          bg-slate-50
+          bg-white/5
           opacity-80
           transition-transform
           duration-500
@@ -374,7 +392,7 @@ function StatCard({
               text-xs
               font-medium
               leading-relaxed
-              text-slate-500
+              text-slate-400
             "
           >
             {description}
@@ -409,7 +427,6 @@ function StatCard({
 ============================================================ */
 
 export default function ApplicationReviewPage() {
-  const navigate = useNavigate();
 
   /* ==========================================================
      STATE
@@ -466,6 +483,32 @@ export default function ApplicationReviewPage() {
     setError,
   ] = useState<ApiError | null>(null);
 
+  const [
+    rejectDialog,
+    setRejectDialog,
+  ] = useState<{
+    applicationId: string;
+    reason: string;
+    submitting: boolean;
+    error: string | null;
+  } | null>(null);
+
+  const [
+    documentsDialog,
+    setDocumentsDialog,
+  ] = useState<{
+    applicationId: string;
+    loading: boolean;
+    error: string | null;
+    documents: ApplicationDocument[];
+    openingId: number | null;
+  } | null>(null);
+
+  const [
+    viewDialog,
+    setViewDialog,
+  ] = useState<Application | null>(null);
+
   /* ==========================================================
      LOAD APPLICATIONS
   ========================================================== */
@@ -477,8 +520,8 @@ export default function ApplicationReviewPage() {
         setError(null);
 
         const response =
-          await axios.get<ApplicationResponse>(
-            `${appConfig.apiUrl}/admin/applications`,
+          await API.get<ApplicationResponse>(
+            "/admin/applications",
           );
 
         const data = response.data;
@@ -704,12 +747,18 @@ export default function ApplicationReviewPage() {
 
   const handleViewApplication =
     useCallback(
-      (id: string) => {
-        navigate(
-          `/admin/applications/${encodeURIComponent(id)}`,
-        );
+      (application: Application) => {
+        setViewDialog(application);
       },
-      [navigate],
+      [],
+    );
+
+  const handleCloseViewDialog =
+    useCallback(
+      () => {
+        setViewDialog(null);
+      },
+      [],
     );
 
   /* ==========================================================
@@ -736,8 +785,8 @@ export default function ApplicationReviewPage() {
           setApprovingId(id);
           setError(null);
 
-          await axios.patch(
-            `${appConfig.apiUrl}/admin/applications/${encodeURIComponent(id)}/approve`,
+          await API.patch(
+            `/admin/applications/${encodeURIComponent(id)}/approve`,
           );
 
           await loadApplications();
@@ -771,17 +820,286 @@ export default function ApplicationReviewPage() {
     );
 
   /* ==========================================================
+     REJECT APPLICATION
+  ========================================================== */
+
+  const handleOpenRejectDialog =
+    useCallback(
+      (id: string) => {
+        setRejectDialog({
+          applicationId: id,
+          reason: "",
+          submitting: false,
+          error: null,
+        });
+      },
+      [],
+    );
+
+  const handleCloseRejectDialog =
+    useCallback(
+      () => {
+        setRejectDialog(
+          (previous) =>
+            previous?.submitting
+              ? previous
+              : null,
+        );
+      },
+      [],
+    );
+
+  const handleRejectReasonChange =
+    useCallback(
+      (reason: string) => {
+        setRejectDialog(
+          (previous) =>
+            previous
+              ? { ...previous, reason, error: null }
+              : previous,
+        );
+      },
+      [],
+    );
+
+  const handleConfirmReject =
+    useCallback(
+      async () => {
+        if (!rejectDialog || rejectDialog.submitting) {
+          return;
+        }
+
+        const trimmedReason =
+          rejectDialog.reason.trim();
+
+        if (trimmedReason.length < 5) {
+          setRejectDialog((previous) =>
+            previous
+              ? {
+                  ...previous,
+                  error:
+                    "Please provide a reason of at least 5 characters.",
+                }
+              : previous,
+          );
+
+          return;
+        }
+
+        setRejectDialog((previous) =>
+          previous
+            ? {
+                ...previous,
+                reason: trimmedReason,
+                submitting: true,
+                error: null,
+              }
+            : previous,
+        );
+
+        try {
+          await API.patch(
+            `/admin/applications/${encodeURIComponent(
+              rejectDialog.applicationId,
+            )}/reject`,
+            { reason: trimmedReason },
+          );
+
+          await loadApplications();
+
+          setRejectDialog(null);
+        } catch (requestError: unknown) {
+          console.error(
+            "Failed rejecting application:",
+            requestError,
+          );
+
+          let message =
+            "Failed to reject application. Please try again.";
+
+          if (axios.isAxiosError(requestError)) {
+            message =
+              requestError.response?.data?.message ??
+              requestError.message ??
+              message;
+          }
+
+          setRejectDialog((previous) =>
+            previous
+              ? { ...previous, submitting: false, error: message }
+              : previous,
+          );
+        }
+      },
+      [rejectDialog, loadApplications],
+    );
+
+  /* ==========================================================
      REVIEW DOCUMENTS
   ========================================================== */
 
   const handleReviewDocuments =
     useCallback(
-      (id: string) => {
-        navigate(
-          `/admin/applications/${encodeURIComponent(id)}/documents`,
-        );
+      async (id: string) => {
+        setDocumentsDialog({
+          applicationId: id,
+          loading: true,
+          error: null,
+          documents: [],
+          openingId: null,
+        });
+
+        try {
+          const response =
+            await API.get<ApplicationDocument[]>(
+              `/admin/applications/${encodeURIComponent(id)}/documents`,
+            );
+
+          setDocumentsDialog({
+            applicationId: id,
+            loading: false,
+            error: null,
+            documents: Array.isArray(response.data)
+              ? response.data
+              : [],
+            openingId: null,
+          });
+        } catch (requestError: unknown) {
+          console.error(
+            "Failed loading application documents:",
+            requestError,
+          );
+
+          let message =
+            "Unable to load documents for this application.";
+
+          if (axios.isAxiosError(requestError)) {
+            message =
+              requestError.response?.data?.message ??
+              requestError.message ??
+              message;
+          }
+
+          setDocumentsDialog({
+            applicationId: id,
+            loading: false,
+            error: message,
+            documents: [],
+            openingId: null,
+          });
+        }
       },
-      [navigate],
+      [],
+    );
+
+  const handleCloseDocumentsDialog =
+    useCallback(
+      () => {
+        setDocumentsDialog(null);
+      },
+      [],
+    );
+
+  const handleViewDocument =
+    useCallback(
+      async (documentId: number) => {
+        setDocumentsDialog((previous) =>
+          previous
+            ? { ...previous, error: null, openingId: documentId }
+            : previous,
+        );
+
+        /*
+         * Open the tab synchronously, before the await below, so browsers
+         * do not block it as an unrequested popup. Its location is filled
+         * in once the document has been fetched.
+         *
+         * IMPORTANT: the "noopener"/"noreferrer" window features must NOT
+         * be passed here. Per spec, using them makes window.open() always
+         * return null, so there would be no way to later navigate this tab
+         * to the fetched document - it would stay on about:blank forever
+         * (a blank page), which is exactly the bug this fixes.
+         */
+        const previewWindow =
+          window.open(
+            "",
+            "_blank",
+          );
+
+        if (previewWindow) {
+          previewWindow.opener = null;
+        }
+
+        try {
+          const response =
+            await API.get(
+              `/admin/documents/${documentId}/content`,
+              { responseType: "blob" },
+            );
+
+          const blobUrl =
+            URL.createObjectURL(
+              response.data as Blob,
+            );
+
+          if (previewWindow) {
+            previewWindow.location.href = blobUrl;
+          } else {
+            const fallbackWindow =
+              window.open(
+                blobUrl,
+                "_blank",
+              );
+
+            if (!fallbackWindow) {
+              setDocumentsDialog((previous) =>
+                previous
+                  ? {
+                      ...previous,
+                      error:
+                        "Your browser blocked the document preview. Please allow pop-ups for this site and try again.",
+                    }
+                  : previous,
+              );
+            }
+          }
+
+          window.setTimeout(
+            () => URL.revokeObjectURL(blobUrl),
+            60_000,
+          );
+        } catch (requestError: unknown) {
+          console.error(
+            "Failed opening document:",
+            requestError,
+          );
+
+          previewWindow?.close();
+
+          let message =
+            "Unable to open this document. Please try again.";
+
+          if (axios.isAxiosError(requestError)) {
+            message =
+              requestError.response?.data?.message ??
+              requestError.message ??
+              message;
+          }
+
+          setDocumentsDialog((previous) =>
+            previous
+              ? { ...previous, error: message }
+              : previous,
+          );
+        } finally {
+          setDocumentsDialog((previous) =>
+            previous
+              ? { ...previous, openingId: null }
+              : previous,
+          );
+        }
+      },
+      [],
     );
 
   /* ==========================================================
@@ -809,11 +1127,11 @@ export default function ApplicationReviewPage() {
           border-slate-800/20
           bg-gradient-to-br
           from-[#07152F]
-          via-[#0B1736]
+          via-[#0B1F3A]
           to-[#172554]
           p-6
           text-white
-          shadow-[0_24px_70px_rgba(11,23,54,0.20)]
+          shadow-[0_24px_70px_rgba(11, 31, 58,0.20)]
           sm:p-8
         "
       >
@@ -828,7 +1146,7 @@ export default function ApplicationReviewPage() {
             h-72
             w-72
             rounded-full
-            bg-[#F4B81A]/10
+            bg-[#C6A15B]/10
             blur-2xl
           "
           aria-hidden="true"
@@ -932,24 +1250,24 @@ export default function ApplicationReviewPage() {
                 gap-2
                 rounded-2xl
                 border
-                border-[#F4B81A]/40
-                bg-[#F4B81A]
+                border-[#C6A15B]/40
+                bg-[#C6A15B]
                 px-5
                 text-sm
                 font-black
-                text-[#0B1736]
+                text-[#0B1F3A]
                 shadow-lg
-                shadow-[#F4B81A]/10
+                shadow-[#C6A15B]/10
                 transition-all
                 duration-200
                 hover:bg-[#FFD15A]
                 hover:shadow-xl
-                hover:shadow-[#F4B81A]/20
+                hover:shadow-[#C6A15B]/20
                 focus:outline-none
                 focus:ring-2
-                focus:ring-[#F4B81A]
+                focus:ring-[#C6A15B]
                 focus:ring-offset-2
-                focus:ring-offset-[#0B1736]
+                focus:ring-offset-[#0B1F3A]
                 disabled:cursor-not-allowed
                 disabled:opacity-60
               "
@@ -985,12 +1303,9 @@ export default function ApplicationReviewPage() {
             gap-4
             rounded-2xl
             border
-            border-red-200
-            bg-gradient-to-r
-            from-red-50
-            to-orange-50
+            border-red-400/20
+            bg-red-400/10
             p-4
-            shadow-sm
             sm:flex-row
             sm:items-center
             sm:justify-between
@@ -1013,8 +1328,8 @@ export default function ApplicationReviewPage() {
                 items-center
                 justify-center
                 rounded-xl
-                bg-red-100
-                text-red-600
+                bg-red-400/10
+                text-red-300
               "
             >
               <AlertTriangle
@@ -1028,7 +1343,7 @@ export default function ApplicationReviewPage() {
                 className="
                   text-sm
                   font-black
-                  text-red-800
+                  text-red-300
                 "
               >
                 Unable to complete request
@@ -1038,7 +1353,7 @@ export default function ApplicationReviewPage() {
                 className="
                   mt-0.5
                   text-sm
-                  text-red-700
+                  text-red-300/80
                 "
               >
                 {error.message}
@@ -1059,15 +1374,15 @@ export default function ApplicationReviewPage() {
               gap-2
               rounded-xl
               border
-              border-red-200
-              bg-white
+              border-red-400/20
+              bg-white/5
               px-4
               py-2.5
               text-sm
               font-bold
-              text-red-700
+              text-red-300
               transition
-              hover:bg-red-50
+              hover:bg-red-400/10
               focus:outline-none
               focus:ring-2
               focus:ring-red-400
@@ -1102,8 +1417,8 @@ export default function ApplicationReviewPage() {
           }
           icon={Clock3}
           description="Applications waiting for administrative review."
-          iconClassName="text-blue-600"
-          iconBackgroundClassName="bg-blue-50"
+          iconClassName="text-blue-300"
+          iconBackgroundClassName="bg-blue-400/10"
         />
 
         <StatCard
@@ -1113,9 +1428,9 @@ export default function ApplicationReviewPage() {
           }
           icon={CheckCircle2}
           description="Applications successfully approved by administrators."
-          iconClassName="text-emerald-600"
-          iconBackgroundClassName="bg-emerald-50"
-          valueClassName="text-emerald-700"
+          iconClassName="text-emerald-300"
+          iconBackgroundClassName="bg-emerald-400/10"
+          valueClassName="text-emerald-300"
         />
 
         <StatCard
@@ -1125,9 +1440,9 @@ export default function ApplicationReviewPage() {
           }
           icon={XCircle}
           description="Applications that have been rejected."
-          iconClassName="text-red-600"
-          iconBackgroundClassName="bg-red-50"
-          valueClassName="text-red-700"
+          iconClassName="text-red-300"
+          iconBackgroundClassName="bg-red-400/10"
+          valueClassName="text-red-300"
         />
 
         <StatCard
@@ -1137,9 +1452,9 @@ export default function ApplicationReviewPage() {
           }
           icon={ShieldAlert}
           description="Cases requiring immediate fraud investigation."
-          iconClassName="text-amber-600"
-          iconBackgroundClassName="bg-amber-50"
-          valueClassName="text-amber-700"
+          iconClassName="text-amber-300"
+          iconBackgroundClassName="bg-amber-400/10"
+          valueClassName="text-amber-300"
         />
       </div>
 
@@ -1152,9 +1467,11 @@ export default function ApplicationReviewPage() {
           overflow-hidden
           rounded-[2rem]
           border
-          border-slate-200/80
-          bg-white
-          shadow-[0_12px_40px_rgba(11,23,54,0.06)]
+          border-white/10
+          bg-white/5
+          backdrop-blur-xl
+          shadow-lg
+          shadow-black/20
         "
       >
         {/* Filter header */}
@@ -1165,7 +1482,7 @@ export default function ApplicationReviewPage() {
             flex-col
             gap-4
             border-b
-            border-slate-100
+            border-white/10
             p-5
             sm:p-6
             lg:flex-row
@@ -1189,8 +1506,8 @@ export default function ApplicationReviewPage() {
                   items-center
                   justify-center
                   rounded-xl
-                  bg-[#0B1736]
-                  text-[#F4B81A]
+                  bg-[#C6A15B]/15
+                  text-[#C6A15B]
                 "
               >
                 <Filter
@@ -1203,7 +1520,7 @@ export default function ApplicationReviewPage() {
                 className="
                   text-base
                   font-black
-                  text-[#0B1736]
+                  text-white
                 "
               >
                 Application Filters
@@ -1214,7 +1531,7 @@ export default function ApplicationReviewPage() {
               className="
                 mt-2
                 text-sm
-                text-slate-500
+                text-slate-400
               "
             >
               Search and refine the application
@@ -1242,10 +1559,10 @@ export default function ApplicationReviewPage() {
                   py-2
                   text-xs
                   font-bold
-                  text-slate-500
+                  text-slate-400
                   transition
-                  hover:bg-slate-100
-                  hover:text-[#0B1736]
+                  hover:bg-white/10
+                  hover:text-white
                 "
               >
                 <X
@@ -1278,8 +1595,8 @@ export default function ApplicationReviewPage() {
                 transition-all
                 ${
                   showAdvancedFilters
-                    ? "border-[#0B1736] bg-[#0B1736] text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                    ? "border-[#C6A15B]/40 bg-[#C6A15B] text-black"
+                    : "border-white/15 bg-white/5 text-slate-200 hover:border-white/25 hover:bg-white/10"
                 }
               `}
             >
@@ -1317,7 +1634,7 @@ export default function ApplicationReviewPage() {
                   font-bold
                   uppercase
                   tracking-wider
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 Search Applications
@@ -1350,21 +1667,21 @@ export default function ApplicationReviewPage() {
                   w-full
                   rounded-2xl
                   border
-                  border-slate-200
-                  bg-slate-50/70
+                  border-white/15
+                  bg-white/5
                   py-3
                   pl-11
                   pr-11
                   text-sm
                   font-medium
-                  text-[#0B1736]
+                  text-white
                   outline-none
                   transition-all
-                  placeholder:text-slate-400
-                  focus:border-[#F4B81A]
-                  focus:bg-white
+                  placeholder:text-slate-500
+                  focus:border-[#C6A15B]
+                  focus:bg-white/10
                   focus:ring-4
-                  focus:ring-[#F4B81A]/10
+                  focus:ring-[#C6A15B]/10
                 "
               />
 
@@ -1388,8 +1705,8 @@ export default function ApplicationReviewPage() {
                     rounded-lg
                     text-slate-400
                     transition
-                    hover:bg-slate-200
-                    hover:text-slate-700
+                    hover:bg-white/10
+                    hover:text-white
                   "
                 >
                   <X
@@ -1412,7 +1729,7 @@ export default function ApplicationReviewPage() {
                   font-bold
                   uppercase
                   tracking-wider
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 Status
@@ -1429,18 +1746,18 @@ export default function ApplicationReviewPage() {
                   w-full
                   rounded-2xl
                   border
-                  border-slate-200
-                  bg-slate-50/70
+                  border-white/15
+                  bg-white/5
                   px-4
                   text-sm
                   font-semibold
-                  text-[#0B1736]
+                  text-white
                   outline-none
                   transition-all
-                  focus:border-[#F4B81A]
-                  focus:bg-white
+                  focus:border-[#C6A15B]
+                  focus:bg-white/10
                   focus:ring-4
-                  focus:ring-[#F4B81A]/10
+                  focus:ring-[#C6A15B]/10
                 "
               >
                 {STATUS_OPTIONS.map(
@@ -1466,7 +1783,7 @@ export default function ApplicationReviewPage() {
                 grid
                 gap-4
                 border-t
-                border-slate-100
+                border-white/10
                 pt-5
                 md:grid-cols-3
               "
@@ -1483,7 +1800,7 @@ export default function ApplicationReviewPage() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-slate-500
+                    text-slate-400
                   "
                 >
                   Country
@@ -1518,20 +1835,20 @@ export default function ApplicationReviewPage() {
                       w-full
                       rounded-2xl
                       border
-                      border-slate-200
-                      bg-slate-50/70
+                      border-white/15
+                      bg-white/5
                       px-4
                       pl-11
                       text-sm
                       font-medium
-                      text-[#0B1736]
+                      text-white
                       outline-none
                       transition
-                      placeholder:text-slate-400
-                      focus:border-[#F4B81A]
-                      focus:bg-white
+                      placeholder:text-slate-500
+                      focus:border-[#C6A15B]
+                      focus:bg-white/10
                       focus:ring-4
-                      focus:ring-[#F4B81A]/10
+                      focus:ring-[#C6A15B]/10
                     "
                   />
                 </div>
@@ -1549,7 +1866,7 @@ export default function ApplicationReviewPage() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-slate-500
+                    text-slate-400
                   "
                 >
                   Visa Type
@@ -1584,20 +1901,20 @@ export default function ApplicationReviewPage() {
                       w-full
                       rounded-2xl
                       border
-                      border-slate-200
-                      bg-slate-50/70
+                      border-white/15
+                      bg-white/5
                       px-4
                       pl-11
                       text-sm
                       font-medium
-                      text-[#0B1736]
+                      text-white
                       outline-none
                       transition
-                      placeholder:text-slate-400
-                      focus:border-[#F4B81A]
-                      focus:bg-white
+                      placeholder:text-slate-500
+                      focus:border-[#C6A15B]
+                      focus:bg-white/10
                       focus:ring-4
-                      focus:ring-[#F4B81A]/10
+                      focus:ring-[#C6A15B]/10
                     "
                   />
                 </div>
@@ -1615,7 +1932,7 @@ export default function ApplicationReviewPage() {
                     font-bold
                     uppercase
                     tracking-wider
-                    text-slate-500
+                    text-slate-400
                   "
                 >
                   Risk Level
@@ -1634,18 +1951,18 @@ export default function ApplicationReviewPage() {
                     w-full
                     rounded-2xl
                     border
-                    border-slate-200
-                    bg-slate-50/70
+                    border-white/15
+                    bg-white/5
                     px-4
                     text-sm
                     font-semibold
-                    text-[#0B1736]
+                    text-white
                     outline-none
                     transition
-                    focus:border-[#F4B81A]
-                    focus:bg-white
+                    focus:border-[#C6A15B]
+                    focus:bg-white/10
                     focus:ring-4
-                    focus:ring-[#F4B81A]/10
+                    focus:ring-[#C6A15B]/10
                   "
                 >
                   <option value="ALL">
@@ -1677,7 +1994,7 @@ export default function ApplicationReviewPage() {
               flex-col
               gap-2
               border-t
-              border-slate-100
+              border-white/10
               pt-4
               text-sm
               sm:flex-row
@@ -1685,13 +2002,13 @@ export default function ApplicationReviewPage() {
               sm:justify-between
             "
           >
-            <p className="text-slate-500">
+            <p className="text-slate-400">
               Showing{" "}
-              <span className="font-black text-[#0B1736]">
+              <span className="font-black text-white">
                 {filteredApplications.length}
               </span>{" "}
               of{" "}
-              <span className="font-black text-[#0B1736]">
+              <span className="font-black text-white">
                 {applications.length}
               </span>{" "}
               applications
@@ -1705,12 +2022,12 @@ export default function ApplicationReviewPage() {
                   items-center
                   gap-1.5
                   rounded-full
-                  bg-[#F4B81A]/10
+                  bg-[#C6A15B]/10
                   px-3
                   py-1
                   text-xs
                   font-bold
-                  text-[#9A6900]
+                  text-[#C6A15B]
                 "
               >
                 <Filter
@@ -1734,9 +2051,11 @@ export default function ApplicationReviewPage() {
           overflow-hidden
           rounded-[2rem]
           border
-          border-slate-200/80
-          bg-white
-          shadow-[0_12px_40px_rgba(11,23,54,0.06)]
+          border-white/10
+          bg-white/5
+          backdrop-blur-xl
+          shadow-lg
+          shadow-black/20
         "
       >
         {/* Table heading */}
@@ -1747,7 +2066,7 @@ export default function ApplicationReviewPage() {
             flex-col
             gap-3
             border-b
-            border-slate-100
+            border-white/10
             p-5
             sm:p-6
             lg:flex-row
@@ -1761,7 +2080,7 @@ export default function ApplicationReviewPage() {
                 text-lg
                 font-black
                 tracking-tight
-                text-[#0B1736]
+                text-white
               "
             >
               Immigration Applications
@@ -1771,7 +2090,7 @@ export default function ApplicationReviewPage() {
               className="
                 mt-1
                 text-sm
-                text-slate-500
+                text-slate-400
               "
             >
               Review applicant information,
@@ -1787,17 +2106,17 @@ export default function ApplicationReviewPage() {
               items-center
               gap-2
               rounded-xl
-              bg-slate-50
+              bg-white/10
               px-3
               py-2
               text-xs
               font-bold
-              text-slate-500
+              text-slate-300
             "
           >
             <FileCheck2
               size={15}
-              className="text-[#F4B81A]"
+              className="text-[#C6A15B]"
               aria-hidden="true"
             />
 
@@ -1820,8 +2139,8 @@ export default function ApplicationReviewPage() {
               <tr
                 className="
                   border-b
-                  border-slate-100
-                  bg-slate-50/80
+                  border-white/10
+                  bg-white/5
                 "
               >
                 {[
@@ -1846,7 +2165,7 @@ export default function ApplicationReviewPage() {
                       font-black
                       uppercase
                       tracking-[0.12em]
-                      text-slate-500
+                      text-slate-400
                     "
                   >
                     {heading}
@@ -1881,8 +2200,8 @@ export default function ApplicationReviewPage() {
                           items-center
                           justify-center
                           rounded-2xl
-                          bg-[#0B1736]
-                          text-[#F4B81A]
+                          bg-[#0B1F3A]
+                          text-[#C6A15B]
                         "
                       >
                         <RefreshCw
@@ -1897,7 +2216,7 @@ export default function ApplicationReviewPage() {
                           mt-4
                           text-sm
                           font-black
-                          text-[#0B1736]
+                          text-white
                         "
                       >
                         Loading applications
@@ -1940,7 +2259,7 @@ export default function ApplicationReviewPage() {
                           items-center
                           justify-center
                           rounded-3xl
-                          bg-slate-100
+                          bg-white/10
                           text-slate-400
                         "
                       >
@@ -1955,7 +2274,7 @@ export default function ApplicationReviewPage() {
                           mt-4
                           text-base
                           font-black
-                          text-[#0B1736]
+                          text-white
                         "
                       >
                         No applications found
@@ -1967,7 +2286,7 @@ export default function ApplicationReviewPage() {
                           max-w-md
                           text-sm
                           leading-6
-                          text-slate-500
+                          text-slate-400
                         "
                       >
                         Try changing your search
@@ -1987,17 +2306,17 @@ export default function ApplicationReviewPage() {
                             items-center
                             gap-2
                             rounded-xl
-                            bg-[#0B1736]
+                            bg-[#C6A15B]
                             px-4
                             py-2.5
                             text-sm
                             font-bold
-                            text-white
+                            text-black
                             transition
-                            hover:bg-[#172554]
+                            hover:bg-[#A8894D]
                             focus:outline-none
                             focus:ring-2
-                            focus:ring-[#F4B81A]
+                            focus:ring-[#C6A15B]
                             focus:ring-offset-2
                           "
                         >
@@ -2026,10 +2345,10 @@ export default function ApplicationReviewPage() {
                         }
                         className="
                           border-b
-                          border-slate-100
+                          border-white/10
                           transition-colors
                           last:border-0
-                          hover:bg-[#F8F6F1]/60
+                          hover:bg-white/[0.06]
                         "
                       >
                         {/* Application */}
@@ -2052,11 +2371,11 @@ export default function ApplicationReviewPage() {
                                 justify-center
                                 rounded-2xl
                                 bg-gradient-to-br
-                                from-[#0B1736]
+                                from-[#0B1F3A]
                                 to-[#172554]
                                 text-xs
                                 font-black
-                                text-[#F4B81A]
+                                text-[#C6A15B]
                               "
                             >
                               {getInitials(
@@ -2071,7 +2390,7 @@ export default function ApplicationReviewPage() {
                                   truncate
                                   text-sm
                                   font-black
-                                  text-[#0B1736]
+                                  text-white
                                 "
                                 title={
                                   application.applicantName
@@ -2109,7 +2428,7 @@ export default function ApplicationReviewPage() {
                               gap-2
                               text-sm
                               font-semibold
-                              text-slate-700
+                              text-slate-300
                             "
                           >
                             <Globe2
@@ -2133,7 +2452,7 @@ export default function ApplicationReviewPage() {
                               truncate
                               text-sm
                               font-semibold
-                              text-slate-700
+                              text-slate-300
                             "
                             title={
                               application.visaType
@@ -2170,7 +2489,7 @@ export default function ApplicationReviewPage() {
                               whitespace-nowrap
                               text-sm
                               font-semibold
-                              text-slate-700
+                              text-slate-300
                             "
                           >
                             {formatDate(
@@ -2212,7 +2531,7 @@ export default function ApplicationReviewPage() {
                                 h-1.5
                                 overflow-hidden
                                 rounded-full
-                                bg-slate-100
+                                bg-white/10
                               "
                             >
                               <div
@@ -2317,7 +2636,7 @@ export default function ApplicationReviewPage() {
                               type="button"
                               onClick={() =>
                                 handleViewApplication(
-                                  application.id,
+                                  application,
                                 )
                               }
                               className="
@@ -2328,12 +2647,12 @@ export default function ApplicationReviewPage() {
                                 justify-center
                                 rounded-xl
                                 border
-                                border-blue-100
-                                bg-blue-50
-                                text-blue-600
+                                border-blue-400/20
+                                bg-blue-400/10
+                                text-blue-300
                                 transition
-                                hover:border-blue-200
-                                hover:bg-blue-100
+                                hover:border-blue-400/30
+                                hover:bg-blue-400/20
                                 focus:outline-none
                                 focus:ring-2
                                 focus:ring-blue-400
@@ -2369,12 +2688,12 @@ export default function ApplicationReviewPage() {
                                 justify-center
                                 rounded-xl
                                 border
-                                border-emerald-100
-                                bg-emerald-50
-                                text-emerald-600
+                                border-emerald-400/20
+                                bg-emerald-400/10
+                                text-emerald-300
                                 transition
-                                hover:border-emerald-200
-                                hover:bg-emerald-100
+                                hover:border-emerald-400/30
+                                hover:bg-emerald-400/20
                                 focus:outline-none
                                 focus:ring-2
                                 focus:ring-emerald-400
@@ -2403,12 +2722,60 @@ export default function ApplicationReviewPage() {
                               )}
                             </button>
 
+                            {/* Reject */}
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleOpenRejectDialog(
+                                  application.id,
+                                )
+                              }
+                              disabled={
+                                isApproving ||
+                                application.status ===
+                                  "REJECTED"
+                              }
+                              className="
+                                flex
+                                h-9
+                                w-9
+                                items-center
+                                justify-center
+                                rounded-xl
+                                border
+                                border-red-400/20
+                                bg-red-400/10
+                                text-red-300
+                                transition
+                                hover:border-red-400/30
+                                hover:bg-red-400/20
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-red-400
+                                disabled:cursor-not-allowed
+                                disabled:opacity-40
+                              "
+                              title={
+                                application.status ===
+                                "REJECTED"
+                                  ? "Application already rejected"
+                                  : "Reject application"
+                              }
+                              aria-label={`Reject application ${application.id}`}
+                            >
+                              <XCircle
+                                size={16}
+                                aria-hidden="true"
+                              />
+                            </button>
+
                             {/* Documents */}
 
                             <button
                               type="button"
                               onClick={() =>
-                                handleReviewDocuments(
+                                void handleReviewDocuments(
                                   application.id,
                                 )
                               }
@@ -2420,12 +2787,12 @@ export default function ApplicationReviewPage() {
                                 justify-center
                                 rounded-xl
                                 border
-                                border-amber-100
-                                bg-amber-50
-                                text-amber-600
+                                border-amber-400/20
+                                bg-amber-400/10
+                                text-amber-300
                                 transition
-                                hover:border-amber-200
-                                hover:bg-amber-100
+                                hover:border-amber-400/30
+                                hover:bg-amber-400/20
                                 focus:outline-none
                                 focus:ring-2
                                 focus:ring-amber-400
@@ -2460,13 +2827,9 @@ export default function ApplicationReviewPage() {
           overflow-hidden
           rounded-[2rem]
           border
-          border-red-200
-          bg-gradient-to-r
-          from-red-50
-          via-white
-          to-amber-50
+          border-red-400/20
+          bg-red-400/10
           p-5
-          shadow-sm
           sm:p-6
         "
       >
@@ -2479,7 +2842,7 @@ export default function ApplicationReviewPage() {
             h-48
             w-48
             rounded-full
-            bg-red-100/60
+            bg-red-500/10
             blur-3xl
           "
           aria-hidden="true"
@@ -2512,8 +2875,8 @@ export default function ApplicationReviewPage() {
                 items-center
                 justify-center
                 rounded-2xl
-                bg-red-100
-                text-red-600
+                bg-red-400/10
+                text-red-300
               "
             >
               <ShieldAlert
@@ -2527,7 +2890,7 @@ export default function ApplicationReviewPage() {
                 className="
                   text-sm
                   font-black
-                  text-red-800
+                  text-red-300
                 "
               >
                 AI Fraud Detection
@@ -2539,7 +2902,7 @@ export default function ApplicationReviewPage() {
                   max-w-3xl
                   text-sm
                   leading-6
-                  text-red-700/80
+                  text-red-300/80
                 "
               >
                 <span className="font-black">
@@ -2580,15 +2943,15 @@ export default function ApplicationReviewPage() {
               gap-2
               rounded-xl
               border
-              border-red-200
-              bg-white
+              border-red-400/20
+              bg-white/5
               px-4
               py-2.5
               text-sm
               font-black
-              text-red-700
+              text-red-300
               transition
-              hover:bg-red-50
+              hover:bg-red-400/10
               focus:outline-none
               focus:ring-2
               focus:ring-red-400
@@ -2604,6 +2967,644 @@ export default function ApplicationReviewPage() {
           </button>
         </div>
       </div>
+
+      {/* ======================================================
+          REJECT APPLICATION DIALOG
+      ====================================================== */}
+
+      {rejectDialog && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Reject application"
+          className="
+            fixed
+            inset-0
+            z-50
+            flex
+            items-center
+            justify-center
+            bg-black/50
+            p-4
+          "
+          onClick={handleCloseRejectDialog}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className="
+              w-full
+              max-w-md
+              rounded-[1.5rem]
+              border
+              border-white/10
+              bg-[#0B1F3A]
+              p-6
+              shadow-2xl
+              shadow-black/40
+            "
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="
+                  flex
+                  h-10
+                  w-10
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-xl
+                  bg-red-400/10
+                  text-red-300
+                "
+              >
+                <XCircle size={20} aria-hidden="true" />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-black text-white">
+                  Reject application
+                </h2>
+
+                <p className="mt-1 text-sm leading-6 text-slate-400">
+                  The applicant will be notified by email and in-app with
+                  the reason you provide below.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <label
+                htmlFor="reject-reason"
+                className="mb-2 block text-sm font-semibold text-slate-200"
+              >
+                Reason for rejection
+              </label>
+
+              <textarea
+                id="reject-reason"
+                rows={4}
+                value={rejectDialog.reason}
+                onChange={(event) =>
+                  handleRejectReasonChange(event.target.value)
+                }
+                disabled={rejectDialog.submitting}
+                placeholder="e.g. Submitted documents do not match the applicant's details."
+                className="
+                  w-full
+                  rounded-xl
+                  border
+                  border-white/15
+                  bg-white/5
+                  px-4
+                  py-3
+                  text-sm
+                  text-white
+                  outline-none
+                  transition
+                  placeholder:text-slate-500
+                  focus:ring-2
+                  focus:ring-red-400
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                "
+              />
+
+              {rejectDialog.error && (
+                <p className="mt-2 text-sm text-red-400">
+                  {rejectDialog.error}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={handleCloseRejectDialog}
+                disabled={rejectDialog.submitting}
+                className="
+                  inline-flex
+                  h-11
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  border-white/15
+                  bg-white/5
+                  px-5
+                  text-sm
+                  font-semibold
+                  text-slate-200
+                  transition
+                  hover:bg-white/10
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                "
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void handleConfirmReject()}
+                disabled={rejectDialog.submitting}
+                className="
+                  inline-flex
+                  h-11
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-xl
+                  bg-red-500
+                  px-5
+                  text-sm
+                  font-bold
+                  text-white
+                  transition
+                  hover:bg-red-600
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                "
+              >
+                {rejectDialog.submitting ? (
+                  <RefreshCw
+                    size={16}
+                    className="animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <XCircle size={16} aria-hidden="true" />
+                )}
+                Reject application
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================
+          APPLICATION DOCUMENTS DIALOG
+      ====================================================== */}
+
+      {documentsDialog && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Application documents"
+          className="
+            fixed
+            inset-0
+            z-50
+            flex
+            items-center
+            justify-center
+            bg-black/50
+            p-4
+          "
+          onClick={handleCloseDocumentsDialog}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className="
+              w-full
+              max-w-lg
+              rounded-[1.5rem]
+              border
+              border-white/10
+              bg-[#0B1F3A]
+              p-6
+              shadow-2xl
+              shadow-black/40
+            "
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div
+                  className="
+                    flex
+                    h-10
+                    w-10
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-amber-400/10
+                    text-amber-300
+                  "
+                >
+                  <FileSearch size={20} aria-hidden="true" />
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-black text-white">
+                    Application documents
+                  </h2>
+
+                  <p className="mt-1 text-sm leading-6 text-slate-400">
+                    Supporting documents submitted with this application.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCloseDocumentsDialog}
+                aria-label="Close"
+                className="
+                  flex
+                  h-8
+                  w-8
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-lg
+                  text-slate-400
+                  transition
+                  hover:bg-white/10
+                  hover:text-white
+                "
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="mt-5">
+              {documentsDialog.loading ? (
+                <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-400">
+                  <RefreshCw
+                    size={16}
+                    className="animate-spin"
+                    aria-hidden="true"
+                  />
+                  Loading documents...
+                </div>
+              ) : documentsDialog.error ? (
+                <div className="flex items-start gap-2 rounded-xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-300">
+                  <AlertTriangle
+                    size={16}
+                    className="mt-0.5 shrink-0"
+                    aria-hidden="true"
+                  />
+                  {documentsDialog.error}
+                </div>
+              ) : documentsDialog.documents.length === 0 ? (
+                <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center text-sm text-slate-400">
+                  No documents have been attached to this application.
+                </div>
+              ) : (
+                <ul className="max-h-96 space-y-2 overflow-y-auto pr-1">
+                  {documentsDialog.documents.map((document) => {
+                    const isOpening =
+                      documentsDialog.openingId === document.id;
+
+                    return (
+                      <li
+                        key={document.id}
+                        className="
+                          flex
+                          items-center
+                          gap-3
+                          rounded-xl
+                          border
+                          border-white/10
+                          bg-white/5
+                          px-4
+                          py-3
+                        "
+                      >
+                        <FileCheck2
+                          size={18}
+                          className="shrink-0 text-[#C6A15B]"
+                          aria-hidden="true"
+                        />
+
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-white">
+                            {document.fileName}
+                          </p>
+
+                          <p className="mt-0.5 truncate text-xs text-slate-400">
+                            {document.documentType}
+                            {document.riskLevel
+                              ? ` · ${document.riskLevel} risk`
+                              : ""}
+                            {document.fraudDetected
+                              ? " · Flagged"
+                              : ""}
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleViewDocument(document.id)
+                          }
+                          disabled={isOpening}
+                          className="
+                            flex
+                            h-9
+                            w-9
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-xl
+                            border
+                            border-blue-400/20
+                            bg-blue-400/10
+                            text-blue-300
+                            transition
+                            hover:border-blue-400/30
+                            hover:bg-blue-400/20
+                            focus:outline-none
+                            focus:ring-2
+                            focus:ring-blue-400
+                            disabled:cursor-not-allowed
+                            disabled:opacity-60
+                          "
+                          title="Open document"
+                          aria-label={`Open ${document.fileName}`}
+                        >
+                          {isOpening ? (
+                            <RefreshCw
+                              size={16}
+                              className="animate-spin"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Eye size={16} aria-hidden="true" />
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================
+          VIEW APPLICATION DIALOG
+      ====================================================== */}
+
+      {viewDialog && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Application details"
+          className="
+            fixed
+            inset-0
+            z-50
+            flex
+            items-center
+            justify-center
+            bg-black/50
+            p-4
+          "
+          onClick={handleCloseViewDialog}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className="
+              w-full
+              max-w-lg
+              rounded-[1.5rem]
+              border
+              border-white/10
+              bg-[#0B1F3A]
+              p-6
+              shadow-2xl
+              shadow-black/40
+            "
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div
+                  className="
+                    flex
+                    h-10
+                    w-10
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-blue-400/10
+                    text-blue-300
+                  "
+                >
+                  <Eye size={20} aria-hidden="true" />
+                </div>
+
+                <div className="min-w-0">
+                  <h2 className="truncate text-lg font-black text-white">
+                    {viewDialog.applicantName}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-slate-400">
+                    Application #{viewDialog.id}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCloseViewDialog}
+                aria-label="Close"
+                className="
+                  flex
+                  h-8
+                  w-8
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-lg
+                  text-slate-400
+                  transition
+                  hover:bg-white/10
+                  hover:text-white
+                "
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-bold ${statusColor(
+                  viewDialog.status,
+                )}`}
+              >
+                {formatStatus(viewDialog.status)}
+              </span>
+
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-bold ${riskColor(
+                  viewDialog.riskLevel,
+                )}`}
+              >
+                {formatRisk(viewDialog.riskLevel)} risk
+              </span>
+            </div>
+
+            <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Email
+                </dt>
+                <dd className="mt-1 truncate font-semibold text-white">
+                  {viewDialog.email || "—"}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Phone
+                </dt>
+                <dd className="mt-1 font-semibold text-white">
+                  {viewDialog.phone || "—"}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Date of birth
+                </dt>
+                <dd className="mt-1 font-semibold text-white">
+                  {viewDialog.dateOfBirth
+                    ? formatDate(viewDialog.dateOfBirth)
+                    : "—"}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Destination
+                </dt>
+                <dd className="mt-1 flex items-center gap-1.5 font-semibold text-white">
+                  <Globe2 size={13} className="text-slate-400" aria-hidden="true" />
+                  {viewDialog.country}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Visa type
+                </dt>
+                <dd className="mt-1 font-semibold text-white">
+                  {viewDialog.visaType}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Submitted
+                </dt>
+                <dd className="mt-1 font-semibold text-white">
+                  {formatDate(viewDialog.submittedAt)}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Documents
+                </dt>
+                <dd className="mt-1 font-semibold text-white">
+                  {viewDialog.documentCount}
+                </dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  AI confidence
+                </dt>
+                <dd className="mt-1 font-semibold text-white">
+                  {Math.round(viewDialog.aiConfidence)}%
+                </dd>
+              </div>
+            </dl>
+
+            {viewDialog.notes && (
+              <div className="mt-5">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                  Applicant notes
+                </p>
+
+                <p className="mt-2 rounded-xl border border-white/10 bg-white/5 p-3 text-sm leading-6 text-slate-300">
+                  {viewDialog.notes}
+                </p>
+              </div>
+            )}
+
+            {viewDialog.status === "REJECTED" &&
+              viewDialog.rejectionReason && (
+                <div className="mt-5 flex items-start gap-2 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-sm leading-6 text-red-300">
+                  <XCircle
+                    size={16}
+                    className="mt-0.5 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <span className="font-bold">Rejection reason: </span>
+                    {viewDialog.rejectionReason}
+                  </span>
+                </div>
+              )}
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={handleCloseViewDialog}
+                className="
+                  inline-flex
+                  h-11
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  border-white/15
+                  bg-white/5
+                  px-5
+                  text-sm
+                  font-semibold
+                  text-slate-200
+                  transition
+                  hover:bg-white/10
+                "
+              >
+                Close
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const applicationId = viewDialog.id;
+                  handleCloseViewDialog();
+                  void handleReviewDocuments(applicationId);
+                }}
+                className="
+                  inline-flex
+                  h-11
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-xl
+                  bg-[#C6A15B]
+                  px-5
+                  text-sm
+                  font-bold
+                  text-black
+                  transition
+                  hover:bg-[#A8894D]
+                "
+              >
+                <FileSearch size={16} aria-hidden="true" />
+                View documents
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

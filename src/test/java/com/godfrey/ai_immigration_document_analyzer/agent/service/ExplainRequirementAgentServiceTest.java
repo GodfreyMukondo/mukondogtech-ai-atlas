@@ -10,6 +10,7 @@ import com.godfrey.ai_immigration_document_analyzer.agent.dto.ExplainRequirement
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentGroundingState;
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentRun;
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentRunStatus;
+import com.godfrey.ai_immigration_document_analyzer.agent.entity.AiExplanationStatus;
 import com.godfrey.ai_immigration_document_analyzer.agent.repository.AgentRunRepository;
 import com.godfrey.ai_immigration_document_analyzer.agent.tool.AgentToolName;
 import com.godfrey.ai_immigration_document_analyzer.agent.tool.EvidenceGraphContextTool;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -198,6 +200,7 @@ class ExplainRequirementAgentServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.explanation()).isEqualTo("Grounded explanation.");
         assertThat(result.recommendedNextStep()).isEqualTo("Do nothing further.");
+        assertThat(result.aiExplanationStatus()).isEqualTo(AiExplanationStatus.GENERATED);
         assertThat(result.currentStatus()).isEqualTo(RequirementEvaluationOutcome.SATISFIED);
         assertThat(result.factsConsidered()).containsExactly(toolOutput.contributingFacts().get(0));
         assertThat(result.evidenceConsidered()).containsExactly(ev);
@@ -296,6 +299,7 @@ class ExplainRequirementAgentServiceTest {
         assertThat(response.status()).isEqualTo(AgentRunStatus.INSUFFICIENT_EVIDENCE);
         assertThat(response.groundingState()).isEqualTo(AgentGroundingState.INSUFFICIENT_EVIDENCE);
         assertThat(response.result().explanation()).contains("Insufficient evidence");
+        assertThat(response.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.NOT_ATTEMPTED);
         assertThat(response.result().recommendedNextStep()).contains("EMPLOYMENT.CURRENT_EMPLOYER");
         assertThat(response.result().humanReviewRequired()).isTrue(); // mandatory + no evidence
 
@@ -439,60 +443,161 @@ class ExplainRequirementAgentServiceTest {
                 .isEqualTo("An unexpected error occurred while generating this explanation. Please try again later.");
     }
 
+    // =========================================================================
+    // 9b. GRACEFUL AI DEGRADATION - the deterministic requirement result must
+    // NEVER disappear merely because the LLM failed (Phase 5.1 Production
+    // Hardening). Every scenario below expects the run to COMPLETE
+    // successfully with the full deterministic result, never an exception.
+    // =========================================================================
+
+    /** Test 2 (spec): OpenAI quota exhausted. */
     @Test
-    void explainRequirementPreservesItsOwnKnownSafeMessageWhenTheLlmIsUnavailable() {
+    void explainRequirementDegradesGracefullyWhenOpenAiQuotaIsExhausted() {
+        assertGracefulDegradationOnLlmCallFailure(new RuntimeException(
+                "429 Too Many Requests - insufficient_quota: You exceeded your current quota, "
+                        + "credit_balance_exhausted"
+        ));
+    }
 
-        AuthenticatedUser actor = user(SUBJECT_ID);
+    /** Test 3 (spec): LLM provider timeout. */
+    @Test
+    void explainRequirementDegradesGracefullyOnLlmTimeout() {
+        assertGracefulDegradationOnLlmCallFailure(new RuntimeException("Read timed out"));
+    }
 
-        RequirementExplanationTool.Output toolOutput = toolOutput(
-                List.of(fact(1L, List.of())), List.of(), List.of(), true,
-                RequirementEvaluationOutcome.SATISFIED, EVALUATION_ID
-        );
-
-        when(requirementExplanationTool.invoke(eq(actor), any())).thenReturn(toolOutput);
-        when(evidenceGraphContextTool.invoke(eq(actor), any())).thenReturn(sampleGraph());
-        when(llmService.ask(anyString())).thenThrow(new RuntimeException(
+    /** Test 4 (spec): LLM provider unavailable / connection failure. */
+    @Test
+    void explainRequirementDegradesGracefullyWhenTheLlmProviderIsUnavailable() {
+        assertGracefulDegradationOnLlmCallFailure(new RuntimeException(
                 "Connection refused: api.openai.com:443 (internal provider detail)"
         ));
-
-        assertThatThrownBy(() -> service.explainRequirement(actor, request()))
-                .isInstanceOf(AiServiceException.class);
-
-        org.mockito.ArgumentCaptor<AgentRun> captor = org.mockito.ArgumentCaptor.forClass(AgentRun.class);
-        verify(agentRunRepository, times(1)).save(captor.capture());
-
-        // The service's OWN pre-written, already-safe message is kept
-        // (never the raw provider error it wraps).
-        assertThat(captor.getValue().getErrorMessage())
-                .isEqualTo("The AI explanation service is currently unavailable.")
-                .doesNotContain("api.openai.com")
-                .doesNotContain("Connection refused");
     }
 
     @Test
-    void explainRequirementRecordsAFailedRunWhenTheLlmFails() {
+    void explainRequirementDegradesGracefullyOnAnUnexpectedLlmException() {
+        assertGracefulDegradationOnLlmCallFailure(new IllegalStateException("Failed to generate AI response"));
+    }
+
+    /**
+     * Every one of the four scenarios above must produce the exact same
+     * shape of graceful degradation: HTTP-successful, COMPLETED run,
+     * deterministic requirement result fully present and unchanged, no
+     * fabricated explanation, and no leaked internal/provider detail
+     * anywhere in what gets persisted or returned.
+     */
+    private void assertGracefulDegradationOnLlmCallFailure(RuntimeException llmFailure) {
 
         AuthenticatedUser actor = user(SUBJECT_ID);
 
+        FactEvidenceResponse ev = evidence(501L);
         RequirementExplanationTool.Output toolOutput = toolOutput(
-                List.of(fact(1L, List.of())), List.of(), List.of(), true,
+                List.of(fact(1L, List.of(ev))), List.of(), List.of(), true,
                 RequirementEvaluationOutcome.SATISFIED, EVALUATION_ID
         );
 
         when(requirementExplanationTool.invoke(eq(actor), any())).thenReturn(toolOutput);
         when(evidenceGraphContextTool.invoke(eq(actor), any())).thenReturn(sampleGraph());
-        when(llmService.ask(anyString())).thenThrow(new RuntimeException("model unavailable"));
+        when(llmService.ask(anyString())).thenThrow(llmFailure);
 
-        assertThatThrownBy(() -> service.explainRequirement(actor, request()))
-                .isInstanceOf(AiServiceException.class);
+        // No exception - the deterministic requirement result succeeds regardless.
+        AgentRunResponse response = service.explainRequirement(actor, request());
 
-        org.mockito.ArgumentCaptor<AgentRun> captor = org.mockito.ArgumentCaptor.forClass(AgentRun.class);
+        assertThat(response.status()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(response.errorMessage()).isNull();
+
+        ExplainRequirementResult result = response.result();
+        assertThat(result).isNotNull();
+        assertThat(result.aiExplanationStatus()).isEqualTo(AiExplanationStatus.UNAVAILABLE);
+        assertThat(result.explanation()).isNull();
+        // The existing deterministic missing-fact-key fallback is the only
+        // permitted next-step text here - never a fabricated one. There are
+        // no missing keys in this scenario, so the generic deterministic
+        // fallback applies.
+        assertThat(result.recommendedNextStep())
+                .isEqualTo("Review this requirement's evidence expectations and provide supporting documentation.");
+
+        // The authoritative deterministic result is completely intact.
+        assertThat(result.currentStatus()).isEqualTo(RequirementEvaluationOutcome.SATISFIED);
+        assertThat(result.groundingState()).isEqualTo(AgentGroundingState.GROUNDED);
+        assertThat(result.factsConsidered()).containsExactly(toolOutput.contributingFacts().get(0));
+        assertThat(result.evidenceConsidered()).containsExactly(ev);
+        assertThat(result.existingExplanation()).isEqualTo("existing explanation");
+        assertThat(result.regulatoryVersionId()).isEqualTo(88L);
+
+        ArgumentCaptor<AgentRun> captor = ArgumentCaptor.forClass(AgentRun.class);
         verify(agentRunRepository, times(1)).save(captor.capture());
-        assertThat(captor.getValue().getStatus()).isEqualTo(AgentRunStatus.FAILED);
+
+        AgentRun savedRun = captor.getValue();
+        assertThat(savedRun.getStatus()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(savedRun.getErrorMessage()).isNull();
+        assertThat(savedRun.getGroundingState()).isEqualTo(AgentGroundingState.GROUNDED);
+
+        // No trace of the raw provider/internal exception message anywhere
+        // that gets persisted or returned.
+        String leakyDetail = llmFailure.getMessage();
+        assertThat(savedRun.getResultJson()).doesNotContain(leakyDetail);
+        assertThat(savedRun.getReasoningSummary()).doesNotContain(leakyDetail);
     }
 
     @Test
-    void explainRequirementFailsSafelyWhenTheLlmReturnsUnparsableText() {
+    void explainRequirementKeepsMissingEvidenceVisibleWhenTheLlmIsUnavailable() {
+
+        AuthenticatedUser actor = user(SUBJECT_ID);
+
+        // Test 5 (spec): MISSING_EVIDENCE must remain MISSING_EVIDENCE - the
+        // LLM must never convert missing evidence into satisfied, and the
+        // deterministic missing-fact-key data must stay visible when the
+        // LLM is unavailable. A contributing fact is present so the
+        // requirement is grounded (missing evidence for ONE bound fact key
+        // alongside an already-contributing fact is a realistic partial
+        // case) - grounding and "some evidence still missing" are
+        // orthogonal, exactly like the pathway-level equivalent.
+        RequirementExplanationTool.Output toolOutput = toolOutput(
+                List.of(fact(1L, List.of())), List.of("EMPLOYMENT.CURRENT_EMPLOYER"), List.of(), true,
+                RequirementEvaluationOutcome.PARTIALLY_SATISFIED, EVALUATION_ID
+        );
+
+        when(requirementExplanationTool.invoke(eq(actor), any())).thenReturn(toolOutput);
+        when(evidenceGraphContextTool.invoke(eq(actor), any())).thenReturn(sampleGraph());
+        when(llmService.ask(anyString())).thenThrow(new RuntimeException("provider unavailable"));
+
+        AgentRunResponse response = service.explainRequirement(actor, request());
+
+        assertThat(response.status()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(response.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.UNAVAILABLE);
+        assertThat(response.result().currentStatus()).isEqualTo(RequirementEvaluationOutcome.PARTIALLY_SATISFIED);
+        assertThat(response.result().evidenceGaps()).containsExactly("EMPLOYMENT.CURRENT_EMPLOYER");
+        assertThat(response.result().recommendedNextStep())
+                .isEqualTo("Provide or upload evidence establishing: EMPLOYMENT.CURRENT_EMPLOYER.");
+    }
+
+    @Test
+    void explainRequirementKeepsConflictsVisibleWhenTheLlmIsUnavailable() {
+
+        AuthenticatedUser actor = user(SUBJECT_ID);
+
+        // Test 6 (spec): conflicts must remain visible and cannot be
+        // overridden by the LLM even when it is unavailable.
+        RequirementExplanationTool.Output toolOutput = toolOutput(
+                List.of(), List.of(), List.of(70L), true,
+                RequirementEvaluationOutcome.CONFLICTED, EVALUATION_ID
+        );
+
+        when(requirementExplanationTool.invoke(eq(actor), any())).thenReturn(toolOutput);
+        when(evidenceGraphContextTool.invoke(eq(actor), any())).thenReturn(sampleGraph());
+        when(llmService.ask(anyString())).thenThrow(new RuntimeException("provider unavailable"));
+
+        AgentRunResponse response = service.explainRequirement(actor, request());
+
+        assertThat(response.status()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(response.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.UNAVAILABLE);
+        // Test 7 (spec): human review remains explicit even when degraded.
+        assertThat(response.result().humanReviewRequired()).isTrue();
+        assertThat(response.result().conflicts()).containsExactly(70L);
+    }
+
+    @Test
+    void explainRequirementDegradesGracefullyWhenTheLlmReturnsUnparsableText() {
 
         AuthenticatedUser actor = user(SUBJECT_ID);
 
@@ -505,12 +610,33 @@ class ExplainRequirementAgentServiceTest {
         when(evidenceGraphContextTool.invoke(eq(actor), any())).thenReturn(sampleGraph());
         when(llmService.ask(anyString())).thenReturn("this is not json at all");
 
-        assertThatThrownBy(() -> service.explainRequirement(actor, request()))
-                .isInstanceOf(AiServiceException.class);
+        AgentRunResponse response = service.explainRequirement(actor, request());
 
-        org.mockito.ArgumentCaptor<AgentRun> captor = org.mockito.ArgumentCaptor.forClass(AgentRun.class);
-        verify(agentRunRepository, times(1)).save(captor.capture());
-        assertThat(captor.getValue().getStatus()).isEqualTo(AgentRunStatus.FAILED);
+        assertThat(response.status()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(response.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.FAILED);
+        assertThat(response.result().explanation()).isNull();
+        assertThat(response.result().currentStatus()).isEqualTo(RequirementEvaluationOutcome.SATISFIED);
+    }
+
+    @Test
+    void explainRequirementDegradesGracefullyWhenTheLlmReturnsAnEmptyResponse() {
+
+        AuthenticatedUser actor = user(SUBJECT_ID);
+
+        RequirementExplanationTool.Output toolOutput = toolOutput(
+                List.of(fact(1L, List.of())), List.of(), List.of(), true,
+                RequirementEvaluationOutcome.SATISFIED, EVALUATION_ID
+        );
+
+        when(requirementExplanationTool.invoke(eq(actor), any())).thenReturn(toolOutput);
+        when(evidenceGraphContextTool.invoke(eq(actor), any())).thenReturn(sampleGraph());
+        when(llmService.ask(anyString())).thenReturn("");
+
+        AgentRunResponse response = service.explainRequirement(actor, request());
+
+        assertThat(response.status()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(response.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.FAILED);
+        assertThat(response.result().explanation()).isNull();
     }
 
     @Test
@@ -533,6 +659,7 @@ class ExplainRequirementAgentServiceTest {
 
         assertThat(response.status()).isEqualTo(AgentRunStatus.COMPLETED);
         assertThat(response.result().explanation()).isEqualTo("Fenced explanation.");
+        assertThat(response.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.GENERATED);
     }
 
     // =========================================================================
@@ -547,7 +674,8 @@ class ExplainRequirementAgentServiceTest {
         ExplainRequirementResult persistedResult = new ExplainRequirementResult(
                 ASSESSMENT_ID, REQUIREMENT_ID, "TEST.REQ", "Test Requirement",
                 RequirementEvaluationOutcome.SATISFIED, CaseRequirementSupportStatus.SATISFIED,
-                "The existing application explanation.", "An explanation.", List.of(), List.of(), List.of(), List.of(),
+                "The existing application explanation.", "An explanation.", AiExplanationStatus.GENERATED,
+                List.of(), List.of(), List.of(), List.of(),
                 sampleGraph(), 88L, "Testland Authority", RegulatoryVerificationStatus.UNVERIFIED_INGESTION,
                 AgentGroundingState.GROUNDED, "Next step.", false
         );

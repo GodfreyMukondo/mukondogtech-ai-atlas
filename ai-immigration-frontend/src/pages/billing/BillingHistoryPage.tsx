@@ -322,19 +322,19 @@ function getStatusClasses(
 ): string {
   switch (status) {
     case "PAID":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
 
     case "PENDING":
-      return "border-amber-200 bg-amber-50 text-amber-700";
+      return "border-amber-500/30 bg-amber-500/10 text-amber-300";
 
     case "FAILED":
-      return "border-red-200 bg-red-50 text-red-700";
+      return "border-red-500/30 bg-red-500/10 text-red-300";
 
     case "CANCELLED":
-      return "border-slate-200 bg-slate-100 text-slate-600";
+      return "border-white/15 bg-white/5 text-slate-300";
 
     default:
-      return "border-slate-200 bg-slate-100 text-slate-600";
+      return "border-white/15 bg-white/5 text-slate-300";
   }
 }
 
@@ -708,8 +708,8 @@ export default function BillingHistoryPage() {
      ======================================================================== */
 
   return (
-    <main className="min-h-screen bg-[#F8F6F1] p-4 text-[#0B1736] sm:p-6">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen p-4 text-slate-100 sm:p-6">
+      <div className="w-full">
 
         {/* ================================================================
             HEADER
@@ -718,7 +718,7 @@ export default function BillingHistoryPage() {
         <section className="mb-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#0B1736]/5 px-3 py-1.5 text-sm font-semibold text-[#0B1736]">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#C6A15B]/30 bg-[#C6A15B]/10 px-3 py-1.5 text-sm font-semibold text-[#C6A15B]">
                 <Receipt
                   size={16}
                   aria-hidden="true"
@@ -727,11 +727,11 @@ export default function BillingHistoryPage() {
                 Billing
               </div>
 
-              <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
+              <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
                 Billing History
               </h1>
 
-              <p className="mt-3 max-w-2xl text-slate-600">
+              <p className="mt-3 max-w-2xl text-slate-300">
                 View your invoices,
                 payment records, and
                 downloadable billing
@@ -748,7 +748,7 @@ export default function BillingHistoryPage() {
                 loading ||
                 refreshing
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0B1736] px-5 py-3 font-semibold text-white transition hover:bg-[#142653] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#C6A15B] to-[#A8894D] px-5 py-3 font-semibold text-[#071426] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RefreshCw
                 size={18}
@@ -772,17 +772,17 @@ export default function BillingHistoryPage() {
         {error && (
           <div
             role="alert"
-            className="mb-8 flex flex-col gap-4 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-800 sm:flex-row sm:items-center sm:justify-between"
+            className="mb-8 flex flex-col gap-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-red-200 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex items-start gap-3">
               <AlertTriangle
-                className="mt-0.5 shrink-0 text-red-600"
+                className="mt-0.5 shrink-0 text-red-300"
                 size={20}
                 aria-hidden="true"
               />
 
               <div>
-                <p className="font-bold">
+                <p className="font-bold text-red-100">
                   Unable to load billing
                   information
                 </p>
@@ -798,7 +798,7 @@ export default function BillingHistoryPage() {
               onClick={
                 handleRefresh
               }
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700"
+              className="rounded-lg bg-red-500/20 px-4 py-2 text-sm font-bold text-red-200 hover:bg-red-500/30"
             >
               Try Again
             </button>
@@ -855,7 +855,7 @@ export default function BillingHistoryPage() {
             FILTERS
         ================================================================= */}
 
-        <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="mb-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-5 shadow-sm">
           <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
 
             <div className="relative">
@@ -886,7 +886,7 @@ export default function BillingHistoryPage() {
                 }
                 placeholder="Search invoices..."
                 autoComplete="off"
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 outline-none transition focus:border-[#F4B81A] focus:ring-2 focus:ring-[#F4B81A]/20"
+                className="w-full rounded-2xl border border-white/15 bg-white/5 py-3 pl-11 pr-4 text-white outline-none transition placeholder:text-slate-500 focus:border-[#C6A15B] focus:ring-2 focus:ring-[#C6A15B]/20"
               />
             </div>
 
@@ -920,7 +920,7 @@ export default function BillingHistoryPage() {
                       | InvoiceStatus
                   )
                 }
-                className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 outline-none transition focus:border-[#F4B81A] focus:ring-2 focus:ring-[#F4B81A]/20"
+                className="w-full appearance-none rounded-2xl border border-white/15 bg-white/5 py-3 pl-11 pr-4 text-white outline-none transition focus:border-[#C6A15B] focus:ring-2 focus:ring-[#C6A15B]/20"
               >
                 <option value="ALL">
                   All Statuses
@@ -948,14 +948,14 @@ export default function BillingHistoryPage() {
             BILLING TABLE
         ================================================================= */}
 
-        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-sm">
 
-          <div className="border-b border-slate-200 p-6">
-            <h2 className="text-xl font-black">
+          <div className="border-b border-white/10 p-6">
+            <h2 className="text-xl font-black text-white">
               Invoices
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-400">
               {loading
                 ? "Loading invoices..."
                 : `${filteredInvoices.length} invoice${
@@ -974,7 +974,7 @@ export default function BillingHistoryPage() {
                 className="flex min-h-[280px] items-center justify-center"
                 aria-live="polite"
               >
-                <div className="flex items-center gap-3 text-slate-500">
+                <div className="flex items-center gap-3 text-slate-400">
                   <RefreshCw
                     size={20}
                     className="animate-spin"
@@ -990,15 +990,15 @@ export default function BillingHistoryPage() {
               <div className="flex min-h-[300px] flex-col items-center justify-center p-8 text-center">
                 <FileText
                   size={44}
-                  className="text-slate-300"
+                  className="text-slate-500"
                   aria-hidden="true"
                 />
 
-                <h3 className="mt-4 text-lg font-bold">
+                <h3 className="mt-4 text-lg font-bold text-white">
                   No invoices found
                 </h3>
 
-                <p className="mt-2 max-w-md text-sm text-slate-500">
+                <p className="mt-2 max-w-md text-sm text-slate-400">
                   No billing records
                   match your current
                   search or status
@@ -1012,38 +1012,38 @@ export default function BillingHistoryPage() {
                 </caption>
 
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
+                  <tr className="border-b border-white/10 bg-white/5">
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
+                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400"
                     >
                       Invoice
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
+                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400"
                     >
                       Date
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
+                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400"
                     >
                       Amount
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-500"
+                      className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wide text-slate-400"
                     >
                       Status
                     </th>
 
                     <th
                       scope="col"
-                      className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wide text-slate-500"
+                      className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wide text-slate-400"
                     >
                       Action
                     </th>
@@ -1067,29 +1067,29 @@ export default function BillingHistoryPage() {
                           key={
                             invoice.id
                           }
-                          className="border-b border-slate-100 transition hover:bg-slate-50"
+                          className="border-b border-white/10 transition hover:bg-white/5"
                         >
                           <td className="px-6 py-5">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0B1736]">
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10">
                                 <FileText
                                   size={
                                     19
                                   }
-                                  className="text-[#F4B81A]"
+                                  className="text-[#C6A15B]"
                                   aria-hidden="true"
                                 />
                               </div>
 
                               <div className="min-w-0">
-                                <p className="font-bold text-[#0B1736]">
+                                <p className="font-bold text-white">
                                   {
                                     invoice.invoiceNumber
                                   }
                                 </p>
 
                                 {invoice.description && (
-                                  <p className="mt-1 max-w-xs truncate text-xs text-slate-500">
+                                  <p className="mt-1 max-w-xs truncate text-xs text-slate-400">
                                     {
                                       invoice.description
                                     }
@@ -1099,13 +1099,13 @@ export default function BillingHistoryPage() {
                             </div>
                           </td>
 
-                          <td className="whitespace-nowrap px-6 py-5 text-slate-600">
+                          <td className="whitespace-nowrap px-6 py-5 text-slate-300">
                             {formatDate(
                               invoice.date
                             )}
                           </td>
 
-                          <td className="whitespace-nowrap px-6 py-5 font-bold">
+                          <td className="whitespace-nowrap px-6 py-5 font-bold text-white">
                             {formatCurrency(
                               invoice.amount,
                               invoice.currency
@@ -1143,7 +1143,7 @@ export default function BillingHistoryPage() {
                                 isDownloading
                               }
                               aria-label={`Download ${invoice.invoiceNumber}`}
-                              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-[#0B1736] transition hover:border-[#F4B81A] hover:bg-[#F4B81A]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#C6A15B] hover:bg-[#C6A15B]/10 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {isDownloading ? (
                                 <RefreshCw
@@ -1197,20 +1197,20 @@ function SummaryCard({
   value: string;
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm">
       <div className="flex items-center justify-between gap-4">
 
         <div>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-sm font-medium text-slate-400">
             {title}
           </p>
 
-          <p className="mt-2 text-3xl font-black text-[#0B1736]">
+          <p className="mt-2 text-3xl font-black text-white">
             {value}
           </p>
         </div>
 
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B1736] text-[#F4B81A]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#C6A15B]/15 text-[#C6A15B]">
           <Icon
             size={22}
             aria-hidden="true"

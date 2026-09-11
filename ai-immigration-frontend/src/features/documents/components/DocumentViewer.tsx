@@ -106,12 +106,14 @@ return (
 <div
 
 className="
-bg-white
-rounded-3xl
 border
-border-[#E5DED1]
+border-white/10
+bg-white/5
+backdrop-blur-xl
+rounded-3xl
 overflow-hidden
-shadow-sm
+shadow-2xl
+shadow-black/20
 "
 
 >
@@ -128,7 +130,7 @@ justify-between
 px-6
 py-4
 border-b
-border-[#E5DED1]
+border-white/10
 "
 
 >
@@ -151,7 +153,7 @@ min-w-0
 className="
 p-2
 rounded-lg
-bg-[#F8F6F1]
+bg-[#C6A15B]/15
 "
 
 >
@@ -161,7 +163,7 @@ bg-[#F8F6F1]
 size={20}
 
 className="
-text-[#0B1736]
+text-[#C6A15B]
 "
 
 />
@@ -182,7 +184,7 @@ truncate
 
 className="
 font-semibold
-text-[#0B1736]
+text-white
 truncate
 "
 
@@ -198,7 +200,7 @@ truncate
 
 className="
 text-xs
-text-gray-500
+text-slate-400
 "
 
 >
@@ -241,8 +243,9 @@ rel="noopener noreferrer"
 className="
 p-2
 rounded-lg
-hover:bg-gray-100
-text-[#0B1736]
+hover:bg-white/10
+text-slate-300
+hover:text-white
 "
 
 title="Open document"
@@ -265,8 +268,9 @@ download={fileName}
 className="
 p-2
 rounded-lg
-hover:bg-gray-100
-text-[#0B1736]
+hover:bg-white/10
+text-slate-300
+hover:text-white
 "
 
 title="Download document"
@@ -298,7 +302,7 @@ title="Download document"
 
 className="
 relative
-bg-gray-50
+bg-black/20
 min-h-[500px]
 "
 
@@ -320,7 +324,7 @@ flex
 items-center
 justify-center
 z-10
-bg-white/80
+bg-[#0B1F3A]/80
 "
 
 >
@@ -329,7 +333,7 @@ bg-white/80
 
 className="
 animate-spin
-text-[#F4B81A]
+text-[#C6A15B]
 "
 
 size={32}
@@ -375,7 +379,7 @@ p-6
 size={40}
 
 className="
-text-red-500
+text-red-400
 mb-4
 "
 
@@ -387,7 +391,7 @@ mb-4
 
 className="
 font-semibold
-text-[#0B1736]
+text-white
 "
 
 >
@@ -401,7 +405,7 @@ Unable to preview document
 <p
 
 className="
-text-gray-500
+text-slate-400
 mt-2
 text-sm
 "
@@ -485,7 +489,7 @@ h-[700px]
 
 >
 
-/iframe>
+</iframe>
 
 )
 
@@ -514,7 +518,7 @@ justify-center
 size={45}
 
 className="
-text-gray-400
+text-slate-500
 "
 
 />
@@ -525,7 +529,7 @@ text-gray-400
 
 className="
 mt-4
-text-gray-600
+text-slate-400
 "
 
 >

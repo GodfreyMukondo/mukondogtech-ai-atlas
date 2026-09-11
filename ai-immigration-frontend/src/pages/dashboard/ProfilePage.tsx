@@ -474,7 +474,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#F6F8FC]">
+      <main className="min-h-screen">
         <div className="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6">
           <div
             className="
@@ -484,24 +484,24 @@ export default function ProfilePage() {
               justify-center
               rounded-3xl
               border
-              border-slate-200
-              bg-white
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
               px-12
               py-12
               shadow-xl
-              shadow-slate-200/40
             "
             role="status"
             aria-live="polite"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFF7DC]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#C6A15B]/15">
               <Loader2
                 size={28}
-                className="animate-spin text-[#D59B00]"
+                className="animate-spin text-[#C6A15B]"
               />
             </div>
 
-            <p className="mt-5 text-sm font-bold text-[#0B1736]">
+            <p className="mt-5 text-sm font-bold text-white">
               Loading your profile...
             </p>
 
@@ -520,33 +520,33 @@ export default function ProfilePage() {
 
   if (error && !user) {
     return (
-      <main className="min-h-screen bg-[#F6F8FC]">
+      <main className="min-h-screen">
         <div className="mx-auto flex min-h-screen max-w-3xl items-center justify-center px-6">
           <div
             className="
               w-full
               rounded-[28px]
               border
-              border-red-100
-              bg-white
+              border-red-500/20
+              bg-white/5
+              backdrop-blur-xl
               p-10
               text-center
               shadow-xl
-              shadow-slate-200/40
             "
             role="alert"
           >
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 text-red-300">
               <AlertCircle
                 size={30}
               />
             </div>
 
-            <h1 className="mt-6 text-2xl font-black text-[#0B1736]">
+            <h1 className="mt-6 text-2xl font-black text-white">
               Unable to load profile
             </h1>
 
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-300">
               {error}
             </p>
 
@@ -561,17 +561,17 @@ export default function ProfilePage() {
                 items-center
                 gap-2
                 rounded-xl
-                bg-[#0B1736]
+                bg-[#0B1F3A]
                 px-6
                 py-3
                 text-sm
                 font-bold
                 text-white
                 transition
-                hover:bg-[#183B6B]
+                hover:bg-[#3C4C61]
                 focus:outline-none
                 focus:ring-2
-                focus:ring-[#F4B81A]
+                focus:ring-[#C6A15B]
                 focus:ring-offset-2
               "
             >
@@ -596,8 +596,8 @@ export default function ProfilePage() {
    * ======================================================================== */
 
   return (
-    <main className="min-h-screen bg-[#F6F8FC]">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <main className="min-h-screen">
+      <div className="w-full px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
 
         {/* ====================================================================
             PAGE HEADER
@@ -622,35 +622,35 @@ export default function ProfilePage() {
                   justify-center
                   rounded-xl
                   border
-                  border-slate-200
-                  bg-white
-                  text-[#0B1736]
+                  border-white/15
+                  bg-white/5
+                  text-white
                   shadow-sm
                   transition
-                  hover:border-[#F4B81A]/50
-                  hover:bg-[#FFFDF5]
+                  hover:border-[#C6A15B]/50
+                  hover:bg-white/10
                 "
               >
                 <ScanSearch
                   size={19}
-                  className="text-[#D59B00]"
+                  className="text-[#C6A15B]"
                 />
               </Link>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-black tracking-tight text-[#0B1736] sm:text-2xl">
+                  <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl">
                     Profile
                   </h1>
 
-                  <span className="hidden h-1 w-1 rounded-full bg-[#F4B81A] sm:block" />
+                  <span className="hidden h-1 w-1 rounded-full bg-[#C6A15B] sm:block" />
 
                   <span className="hidden text-xs font-semibold text-slate-400 sm:block">
                     Account Management
                   </span>
                 </div>
 
-                <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
+                <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">
                   Manage your account, subscription,
                   and AI activity.
                 </p>
@@ -672,16 +672,16 @@ export default function ProfilePage() {
                   gap-2
                   rounded-xl
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/15
+                  bg-white/5
                   px-4
                   text-xs
                   font-bold
-                  text-slate-600
+                  text-slate-200
                   shadow-sm
                   transition
-                  hover:border-[#F4B81A]/50
-                  hover:text-[#0B1736]
+                  hover:border-[#C6A15B]/50
+                  hover:text-white
                   disabled:cursor-not-allowed
                   disabled:opacity-60
                 "
@@ -710,17 +710,17 @@ export default function ProfilePage() {
                   gap-2
                   rounded-xl
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/15
+                  bg-white/5
                   px-4
                   text-xs
                   font-bold
-                  text-slate-600
+                  text-slate-200
                   shadow-sm
                   transition
-                  hover:border-[#F4B81A]/50
-                  hover:bg-[#FFFDF5]
-                  hover:text-[#0B1736]
+                  hover:border-[#C6A15B]/50
+                  hover:bg-white/10
+                  hover:text-white
                 "
               >
                 <Settings
@@ -742,14 +742,14 @@ export default function ProfilePage() {
                   items-center
                   gap-2
                   rounded-xl
-                  bg-[#0B1736]
+                  bg-[#0B1F3A]
                   px-4
                   text-xs
                   font-bold
                   text-white
                   shadow-sm
                   transition
-                  hover:bg-[#183B6B]
+                  hover:bg-[#3C4C61]
                   disabled:cursor-not-allowed
                   disabled:opacity-60
                 "
@@ -787,8 +787,8 @@ export default function ProfilePage() {
               gap-4
               rounded-xl
               border
-              border-amber-200
-              bg-amber-50
+              border-amber-500/30
+              bg-amber-500/10
               px-4
               py-3
             "
@@ -797,10 +797,10 @@ export default function ProfilePage() {
             <div className="flex items-start gap-3">
               <AlertCircle
                 size={17}
-                className="mt-0.5 shrink-0 text-amber-600"
+                className="mt-0.5 shrink-0 text-amber-400"
               />
 
-              <p className="text-xs font-medium leading-5 text-amber-800">
+              <p className="text-xs font-medium leading-5 text-amber-300">
                 {error}
               </p>
             </div>
@@ -816,7 +816,7 @@ export default function ProfilePage() {
                 shrink-0
                 text-xs
                 font-bold
-                text-amber-800
+                text-amber-300
                 underline
                 underline-offset-2
               "
@@ -846,9 +846,9 @@ export default function ProfilePage() {
             relative
             overflow-hidden
             rounded-2xl
-            bg-[#0B1736]
+            bg-[#0B1F3A]
             shadow-xl
-            shadow-[#0B1736]/10
+            shadow-[#0B1F3A]/10
           "
         >
           {/* Decorative background */}
@@ -862,7 +862,7 @@ export default function ProfilePage() {
               h-72
               w-72
               rounded-full
-              bg-[#F4B81A]/10
+              bg-[#C6A15B]/10
               blur-3xl
             "
           />
@@ -920,7 +920,7 @@ export default function ProfilePage() {
                         bg-white/10
                         text-2xl
                         font-black
-                        text-[#F4B81A]
+                        text-[#C6A15B]
                         ring-4
                         ring-white/10
                         sm:h-24
@@ -950,9 +950,9 @@ export default function ProfilePage() {
                       justify-center
                       rounded-lg
                       border-2
-                      border-[#0B1736]
-                      bg-[#F4B81A]
-                      text-[#0B1736]
+                      border-[#0B1F3A]
+                      bg-[#C6A15B]
+                      text-[#0B1F3A]
                       shadow-lg
                       disabled:cursor-not-allowed
                     "
@@ -1017,7 +1017,7 @@ export default function ProfilePage() {
                     )}
 
                     {user.plan && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F4B81A]/15 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-[#F4C84A]">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#C6A15B]/15 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-[#F4C84A]">
                         <Crown
                           size={11}
                         />
@@ -1048,7 +1048,7 @@ export default function ProfilePage() {
                     py-2.5
                     text-xs
                     font-extrabold
-                    text-[#0B1736]
+                    text-[#0B1F3A]
                     transition
                     hover:bg-[#FFF7DC]
                   "
@@ -1063,7 +1063,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5">
                   <Calendar
                     size={14}
-                    className="text-[#F4B81A]"
+                    className="text-[#C6A15B]"
                   />
 
                   <span className="text-[10px] font-semibold text-slate-300">
@@ -1224,10 +1224,10 @@ export default function ProfilePage() {
 
               {user.analysesLimit >
                 0 && (
-                <div className="mt-6 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-xs font-extrabold text-[#0B1736]">
+                      <p className="text-xs font-extrabold text-white">
                         Analysis allowance
                       </p>
 
@@ -1237,7 +1237,7 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    <span className="text-sm font-black text-[#0B1736]">
+                    <span className="text-sm font-black text-white">
                       {usagePercentage.toFixed(
                         0
                       )}
@@ -1246,7 +1246,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div
-                    className="h-2 overflow-hidden rounded-full bg-slate-200"
+                    className="h-2 overflow-hidden rounded-full bg-white/10"
                     role="progressbar"
                     aria-valuemin={0}
                     aria-valuemax={100}
@@ -1266,7 +1266,7 @@ export default function ProfilePage() {
                         duration: 0.7,
                         ease: "easeOut",
                       }}
-                      className="h-full rounded-full bg-gradient-to-r from-[#D89D00] via-[#F4B81A] to-[#FFD76A]"
+                      className="h-full rounded-full bg-gradient-to-r from-[#D89D00] via-[#C6A15B] to-[#FFD76A]"
                     />
                   </div>
 
@@ -1377,20 +1377,20 @@ export default function ProfilePage() {
                 SECURITY CARD
             ================================================================ */}
 
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-5">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300">
                   <ShieldCheck
                     size={17}
                   />
                 </div>
 
                 <div>
-                  <p className="text-xs font-extrabold text-emerald-900">
+                  <p className="text-xs font-extrabold text-emerald-300">
                     Account Security
                   </p>
 
-                  <p className="mt-1 text-[10px] leading-5 text-emerald-700">
+                  <p className="mt-1 text-[10px] leading-5 text-emerald-300/80">
                     Your account information is
                     protected by the application's
                     authentication and security
@@ -1406,8 +1406,8 @@ export default function ProfilePage() {
             FOOTER
         ===================================================================== */}
 
-        <footer className="mt-8 border-t border-slate-200 pt-5">
-          <div className="flex flex-col gap-2 text-[10px] text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <footer className="mt-8 border-t border-white/10 pt-5">
+          <div className="flex flex-col gap-2 text-[10px] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
             <span>
               Profile information is managed securely
               within your account.
@@ -1453,19 +1453,20 @@ function ProfileSection({
         overflow-hidden
         rounded-2xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         shadow-sm
       "
     >
-      <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+      <div className="border-b border-white/10 px-5 py-4 sm:px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF7DC] text-[#B17D00]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#C6A15B]/15 text-[#C6A15B]">
             {icon}
           </div>
 
           <div>
-            <h3 className="text-sm font-extrabold text-[#0B1736]">
+            <h3 className="text-sm font-extrabold text-white">
               {title}
             </h3>
 
@@ -1509,13 +1510,13 @@ function InfoCard({
         group
         rounded-xl
         border
-        border-slate-100
-        bg-slate-50/70
+        border-white/10
+        bg-white/5
         p-4
         transition-all
         duration-200
-        hover:border-[#F4B81A]/30
-        hover:bg-[#FFFDF7]
+        hover:border-[#C6A15B]/30
+        hover:bg-white/10
       "
     >
       <div className="flex items-center justify-between gap-3">
@@ -1537,7 +1538,7 @@ function InfoCard({
         )}
       </div>
 
-      <p className="mt-3 break-words text-sm font-bold text-[#0B1736]">
+      <p className="mt-3 break-words text-sm font-bold text-white">
         {value}
       </p>
     </div>
@@ -1562,9 +1563,9 @@ function UsageMetric({
   icon,
 }: UsageMetricProps) {
   return (
-    <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
+    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
       <div className="flex items-center gap-2 text-slate-400">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-[#B17D00] shadow-sm">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-[#C6A15B] shadow-sm">
           {icon}
         </div>
 
@@ -1573,7 +1574,7 @@ function UsageMetric({
         </span>
       </div>
 
-      <p className="mt-3 truncate text-xl font-black text-[#0B1736]">
+      <p className="mt-3 truncate text-xl font-black text-white">
         {value}
       </p>
     </div>
@@ -1623,12 +1624,12 @@ function QuickActionCard({
         hover:shadow-md
         focus:outline-none
         focus:ring-2
-        focus:ring-[#F4B81A]
+        focus:ring-[#C6A15B]
         focus:ring-offset-2
         ${
           featured
-            ? "border-[#E7C65B]/50 bg-gradient-to-br from-[#FFFDF4] to-white"
-            : "border-slate-200 bg-white hover:border-[#F4B81A]/40"
+            ? "border-[#C6A15B]/30 bg-gradient-to-br from-[#C6A15B]/15 to-[#C6A15B]/5"
+            : "border-white/10 bg-white/5 hover:border-[#C6A15B]/40"
         }
       `}
     >
@@ -1644,8 +1645,8 @@ function QuickActionCard({
             rounded-xl
             ${
               featured
-                ? "bg-[#FFF0B8] text-[#9A6B00]"
-                : "bg-slate-50 text-[#0B1736]"
+                ? "bg-[#C6A15B]/20 text-[#C6A15B]"
+                : "bg-white/10 text-white"
             }
           `}
         >
@@ -1657,17 +1658,17 @@ function QuickActionCard({
           className="
             mt-1
             shrink-0
-            text-slate-300
+            text-slate-500
             transition-transform
             duration-200
             group-hover:translate-x-1
-            group-hover:text-[#0B1736]
+            group-hover:text-white
           "
         />
       </div>
 
       <div className="mt-4">
-        <h4 className="text-sm font-extrabold text-[#0B1736]">
+        <h4 className="text-sm font-extrabold text-white">
           {title}
         </h4>
 
@@ -1676,7 +1677,7 @@ function QuickActionCard({
         </p>
       </div>
 
-      <div className="mt-4 flex items-center gap-1.5 text-[10px] font-extrabold text-[#0B1736]">
+      <div className="mt-4 flex items-center gap-1.5 text-[10px] font-extrabold text-white">
         <span>
           {action}
         </span>

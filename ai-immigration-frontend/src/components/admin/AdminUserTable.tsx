@@ -31,15 +31,15 @@ interface AdminUserTableProps {
 }
 
 const roleStyles: Record<UserRole, string> = {
-  user: "bg-blue-100 text-blue-700",
-  admin: "bg-purple-100 text-purple-700",
-  super_admin: "bg-red-100 text-red-700",
+  user: "bg-blue-400/10 text-blue-300",
+  admin: "bg-purple-400/10 text-purple-300",
+  super_admin: "bg-red-400/10 text-red-300",
 };
 
 const statusStyles: Record<UserStatus, string> = {
-  active: "bg-green-100 text-green-700",
-  suspended: "bg-red-100 text-red-700",
-  pending: "bg-yellow-100 text-yellow-700",
+  active: "bg-emerald-400/10 text-emerald-300",
+  suspended: "bg-red-400/10 text-red-300",
+  pending: "bg-[#C6A15B]/10 text-[#C6A15B]",
 };
 
 const formatDate = (date: string) =>
@@ -55,7 +55,7 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="rounded-lg border p-8 text-center">
+      <div className="rounded-lg border border-white/10 bg-white/5 p-8 text-center text-slate-300">
         Loading users...
       </div>
     );
@@ -63,43 +63,43 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
 
   if (!users.length) {
     return (
-      <div className="rounded-lg border p-8 text-center">
+      <div className="rounded-lg border border-white/10 bg-white/5 p-8 text-center text-slate-300">
         No users found.
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-lg shadow-black/20">
       <div className="overflow-x-auto">
         <table className="min-w-full">
-          <thead className="border-b bg-gray-50">
+          <thead className="border-b border-white/10 bg-white/5">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-200">
                 User
               </th>
 
-              <th className="px-4 py-3 text-left text-sm font-semibold">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-200">
                 Role
               </th>
 
-              <th className="px-4 py-3 text-left text-sm font-semibold">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-200">
                 Status
               </th>
 
-              <th className="px-4 py-3 text-left text-sm font-semibold">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-200">
                 Documents
               </th>
 
-              <th className="px-4 py-3 text-left text-sm font-semibold">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-200">
                 Joined
               </th>
 
-              <th className="px-4 py-3 text-left text-sm font-semibold">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-200">
                 Last Login
               </th>
 
-              <th className="px-4 py-3 text-right text-sm font-semibold">
+              <th className="px-4 py-3 text-right text-sm font-semibold text-slate-200">
                 Actions
               </th>
             </tr>
@@ -109,15 +109,15 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
             {users.map((user) => (
               <tr
                 key={user.id}
-                className="border-b hover:bg-gray-50"
+                className="border-b border-white/10 hover:bg-white/[0.06]"
               >
                 <td className="px-4 py-4">
                   <div>
-                    <p className="font-medium">
+                    <p className="font-medium text-white">
                       {user.fullName}
                     </p>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-400">
                       {user.email}
                     </p>
                   </div>
@@ -139,15 +139,15 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
                   </span>
                 </td>
 
-                <td className="px-4 py-4">
+                <td className="px-4 py-4 text-slate-300">
                   {user.documentsCount}
                 </td>
 
-                <td className="px-4 py-4">
+                <td className="px-4 py-4 text-slate-300">
                   {formatDate(user.createdAt)}
                 </td>
 
-                <td className="px-4 py-4">
+                <td className="px-4 py-4 text-slate-300">
                   {user.lastLogin
                     ? formatDate(user.lastLogin)
                     : "Never"}
@@ -159,7 +159,7 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
                       onClick={() =>
                         onViewUser?.(user)
                       }
-                      className="rounded border px-3 py-1 text-sm hover:bg-gray-100"
+                      className="rounded border border-white/15 px-3 py-1 text-sm text-slate-200 hover:bg-white/10"
                     >
                       View
                     </button>
@@ -169,7 +169,7 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
                         onClick={() =>
                           onSuspendUser?.(user)
                         }
-                        className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+                        className="rounded border border-red-400/30 px-3 py-1 text-sm text-red-300 hover:bg-red-400/10"
                       >
                         Suspend
                       </button>
@@ -178,7 +178,7 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
                         onClick={() =>
                           onActivateUser?.(user)
                         }
-                        className="rounded border border-green-300 px-3 py-1 text-sm text-green-600 hover:bg-green-50"
+                        className="rounded border border-emerald-400/30 px-3 py-1 text-sm text-emerald-300 hover:bg-emerald-400/10"
                       >
                         Activate
                       </button>
@@ -188,7 +188,7 @@ const AdminUserTable: React.FC<AdminUserTableProps> = ({
                       onClick={() =>
                         onDeleteUser?.(user)
                       }
-                      className="rounded border border-red-300 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+                      className="rounded border border-red-400/30 px-3 py-1 text-sm text-red-300 hover:bg-red-400/10"
                     >
                       Delete
                     </button>

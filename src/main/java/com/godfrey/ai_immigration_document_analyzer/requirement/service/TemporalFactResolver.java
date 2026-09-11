@@ -172,4 +172,43 @@ public class TemporalFactResolver {
 
         return null;
     }
+
+    // =========================================================================
+    // HYPOTHETICAL OVERLAY - Scenario Simulation (Phase 5.5), ADDITIVE ONLY
+    // =========================================================================
+
+    /**
+     * Builds a NEW, in-memory-only {@link EvaluationFactView} by overlaying
+     * hypothetical values on top of an already-resolved REAL view - never a
+     * second Fact-resolution path, never a database write, never a change to
+     * {@link #resolve}. The real {@code EvaluationFactView} passed in is
+     * itself untouched (records are immutable); this method returns a
+     * distinct object.
+     *
+     * Every entry in {@code hypotheticalFacts} MUST already carry {@code
+     * FactProvenanceType.SIMULATION} (enforced by the caller - see {@code
+     * ScenarioSimulationService}) - this method does not itself construct or
+     * validate hypothetical values, it only merges already-built ones into a
+     * view shape the existing evaluation engine already understands.
+     *
+     * A hypothetical value for a factKey that currently has an open
+     * conflict deliberately SUPERSEDES that conflict for evaluation
+     * purposes only - the user is explicitly telling the evaluator to
+     * assume this value, so a simulated CONFLICTED outcome would just
+     * restate a known real-case issue rather than answer "what if." The
+     * real {@code FactConflict} row is never read, resolved, or otherwise
+     * touched by this method.
+     */
+    public EvaluationFactView overlayHypothetical(EvaluationFactView real, List<FactResponse> hypotheticalFacts) {
+
+        Map<String, List<FactResponse>> merged = new HashMap<>(real.acceptedFactsByKey());
+        Map<String, Long> conflicts = new HashMap<>(real.openConflictIdByFactKey());
+
+        for (FactResponse hypothetical : hypotheticalFacts) {
+            merged.put(hypothetical.factKey(), List.of(hypothetical));
+            conflicts.remove(hypothetical.factKey());
+        }
+
+        return new EvaluationFactView(Map.copyOf(merged), Map.copyOf(conflicts));
+    }
 }

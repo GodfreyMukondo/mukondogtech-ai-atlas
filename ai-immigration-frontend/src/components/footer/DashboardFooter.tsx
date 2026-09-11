@@ -8,9 +8,9 @@ export default function DashboardFooter() {
     <footer
       className="
         border-t
-        border-[#E7EAF0]
-        bg-white/90
-        backdrop-blur-sm
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
       "
     >
       <div
@@ -25,13 +25,13 @@ export default function DashboardFooter() {
           px-6
           py-5
           text-sm
-          text-[#667085]
+          text-slate-400
           md:flex-row
         "
       >
         <div>
           © {new Date().getFullYear()}{" "}
-          <span className="font-semibold text-[#0B1736]">
+          <span className="font-semibold text-white">
             MukondoGTech AI
           </span>
           . All rights reserved.
@@ -48,7 +48,7 @@ export default function DashboardFooter() {
           <div className="flex items-center gap-2">
             <Sparkles
               size={14}
-              className="text-[#F4B81A]"
+              className="text-[#C6A15B]"
             />
             AI Immigration Intelligence
           </div>
@@ -56,7 +56,7 @@ export default function DashboardFooter() {
           <div className="flex items-center gap-2">
             <ShieldCheck
               size={14}
-              className="text-[#F4B81A]"
+              className="text-[#C6A15B]"
             />
             Secure Processing
           </div>

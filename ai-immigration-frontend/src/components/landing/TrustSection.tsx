@@ -71,7 +71,7 @@ const SECURITY_BENEFITS = [
 export default function TrustSection() {
   return (
     <section
-      id="security"
+      id="trust"
       aria-labelledby="trust-heading"
       className="
         relative
@@ -99,7 +99,7 @@ export default function TrustSection() {
           h-[32rem]
           w-[32rem]
           rounded-full
-          bg-[#F4B81A]/[0.07]
+          bg-[#C6A15B]/[0.07]
           blur-[130px]
         "
       />
@@ -170,7 +170,7 @@ export default function TrustSection() {
           -translate-x-1/2
           bg-gradient-to-r
           from-transparent
-          via-[#F4B81A]/20
+          via-[#C6A15B]/20
           to-transparent
         "
       />
@@ -226,8 +226,8 @@ export default function TrustSection() {
               gap-2.5
               rounded-full
               border
-              border-[#F4B81A]/25
-              bg-[#F4B81A]/[0.06]
+              border-[#C6A15B]/25
+              bg-[#C6A15B]/[0.06]
               px-4
               py-2
               text-xs
@@ -271,7 +271,7 @@ export default function TrustSection() {
                 mt-2
                 block
                 bg-gradient-to-r
-                from-[#F4B81A]
+                from-[#C6A15B]
                 via-[#FFE08A]
                 to-emerald-300
                 bg-clip-text
@@ -354,7 +354,7 @@ export default function TrustSection() {
                   backdrop-blur-sm
                   transition-colors
                   duration-300
-                  hover:border-[#F4B81A]/25
+                  hover:border-[#C6A15B]/25
                   hover:bg-white/[0.045]
                   sm:p-8
                 "
@@ -371,11 +371,11 @@ export default function TrustSection() {
                     h-32
                     w-32
                     rounded-full
-                    bg-[#F4B81A]/[0.07]
+                    bg-[#C6A15B]/[0.07]
                     blur-3xl
                     transition-opacity
                     duration-300
-                    group-hover:bg-[#F4B81A]/[0.11]
+                    group-hover:bg-[#C6A15B]/[0.11]
                   "
                 />
 
@@ -391,11 +391,11 @@ export default function TrustSection() {
                     justify-center
                     rounded-xl
                     border
-                    border-[#F4B81A]/20
+                    border-[#C6A15B]/20
                     bg-gradient-to-br
-                    from-[#F4B81A]
+                    from-[#C6A15B]
                     to-[#FFE08A]
-                    shadow-[0_8px_25px_rgba(244,184,26,0.12)]
+                    shadow-[0_8px_25px_rgba(198, 161, 91,0.12)]
                     transition-transform
                     duration-300
                     group-hover:scale-105
@@ -446,7 +446,7 @@ export default function TrustSection() {
                     mt-6
                     h-px
                     w-10
-                    bg-[#F4B81A]/60
+                    bg-[#C6A15B]/60
                     transition-all
                     duration-300
                     group-hover:w-16
@@ -485,7 +485,7 @@ export default function TrustSection() {
             overflow-hidden
             rounded-3xl
             border
-            border-[#F4B81A]/20
+            border-[#C6A15B]/20
             bg-gradient-to-br
             from-[#FFF9E8]
             via-[#F8F6F1]
@@ -510,7 +510,7 @@ export default function TrustSection() {
               h-64
               w-64
               rounded-full
-              bg-[#F4B81A]/20
+              bg-[#C6A15B]/20
               blur-[90px]
             "
           />
@@ -655,15 +655,15 @@ export default function TrustSection() {
                   text-sm
                   font-bold
                   text-white
-                  shadow-[0_12px_30px_rgba(7,17,31,0.18)]
+                  shadow-[0_12px_30px_rgba(7, 20, 38,0.18)]
                   transition-all
                   duration-300
                   hover:-translate-y-1
                   hover:bg-[#101D31]
-                  hover:shadow-[0_18px_40px_rgba(7,17,31,0.25)]
+                  hover:shadow-[0_18px_40px_rgba(7, 20, 38,0.25)]
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-[#F4B81A]
+                  focus:ring-[#C6A15B]
                   focus:ring-offset-2
                   focus:ring-offset-[#F8F6F1]
                 "

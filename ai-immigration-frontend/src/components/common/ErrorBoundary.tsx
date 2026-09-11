@@ -1,5 +1,8 @@
-import React,{
+import {
 Component,
+} from "react";
+
+import type {
 ErrorInfo,
 ReactNode
 } from "react";
@@ -84,7 +87,6 @@ min-h-screen
 flex
 items-center
 justify-center
-bg-gray-50
 p-6
 ">
 
@@ -92,9 +94,13 @@ p-6
 <div className="
 max-w-md
 text-center
-bg-white
-rounded-xl
-shadow
+border
+border-white/10
+bg-[#1F314A]
+rounded-2xl
+shadow-2xl
+shadow-black/40
+backdrop-blur-xl
 p-8
 ">
 
@@ -102,7 +108,7 @@ p-8
 <h1 className="
 text-2xl
 font-bold
-text-[#0B1736]
+text-white
 ">
 
 Something went wrong
@@ -112,7 +118,7 @@ Something went wrong
 
 <p className="
 mt-3
-text-gray-600
+text-slate-300
 ">
 
 An unexpected error occurred.
@@ -130,9 +136,10 @@ mt-6
 px-5
 py-2
 rounded-lg
-bg-[#F4B81A]
-text-[#0B1736]
+bg-[#C6A15B]
+text-black
 font-semibold
+hover:bg-[#A8894D]
 "
 
 >

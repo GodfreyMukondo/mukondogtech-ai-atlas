@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   TrendingUp,
@@ -104,14 +104,16 @@ function KPICardComponent({
         overflow-hidden
         rounded-3xl
         border
-        border-slate-800
-        bg-[#111827]
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-lg
+        shadow-black/20
         transition-all
         duration-300
         hover:-translate-y-1
-        hover:border-slate-700
+        hover:border-white/20
         hover:shadow-2xl
         focus-within:ring-2
         focus-within:ring-sky-500

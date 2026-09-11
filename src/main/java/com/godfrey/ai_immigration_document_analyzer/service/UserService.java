@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+
 
 
 /**
@@ -328,6 +330,17 @@ public interface UserService {
     boolean emailExists(
             String email
     );
+
+
+
+
+    /**
+     * Retrieve every registered user, unpaginated, for administrative
+     * export.
+     *
+     * @return every user, most recently created first
+     */
+    List<UserManagementResponse> getAllUsersForExport();
 
 
 

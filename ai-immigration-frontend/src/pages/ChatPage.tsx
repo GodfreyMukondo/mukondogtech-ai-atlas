@@ -5,6 +5,7 @@ import {
 } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 import {
   ArrowUpRight,
@@ -57,7 +58,7 @@ const exampleQuestions = [
 |--------------------------------------------------------------------------
 */
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {
     opacity: 0,
   },
@@ -71,7 +72,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 24,
@@ -182,8 +183,7 @@ export default function ChatPage() {
       className="
         min-h-screen
         overflow-hidden
-        bg-[#F8F6F1]
-        text-[#071330]
+        text-slate-100
       "
     >
       {/* =========================================================
@@ -196,9 +196,9 @@ export default function ChatPage() {
           isolate
           overflow-hidden
           bg-gradient-to-br
-          from-[#071330]
-          via-[#0B1736]
-          to-[#183B6B]
+          from-[#071426]
+          via-[#0B1F3A]
+          to-[#3C4C61]
           text-white
         "
       >
@@ -214,7 +214,7 @@ export default function ChatPage() {
             h-[28rem]
             w-[28rem]
             rounded-full
-            bg-[#F4B81A]/10
+            bg-[#C6A15B]/10
             blur-[120px]
           "
           animate={{
@@ -240,7 +240,7 @@ export default function ChatPage() {
             h-[24rem]
             w-[24rem]
             rounded-full
-            bg-[#FFD96A]/10
+            bg-[#D4B984]/10
             blur-[110px]
           "
           animate={{
@@ -296,14 +296,14 @@ export default function ChatPage() {
                   gap-2.5
                   rounded-full
                   border
-                  border-[#F4B81A]/30
+                  border-[#C6A15B]/30
                   bg-white/[0.06]
                   px-4
                   py-2
                   text-sm
                   font-semibold
-                  text-[#FFD96A]
-                  shadow-[0_8px_30px_rgba(244,184,26,0.08)]
+                  text-[#D4B984]
+                  shadow-[0_8px_30px_rgba(198, 161, 91,0.08)]
                   backdrop-blur-xl
                 "
               >
@@ -350,9 +350,9 @@ export default function ChatPage() {
                   mt-2
                   block
                   bg-gradient-to-r
-                  from-[#F4B81A]
-                  via-[#FFD96A]
-                  to-[#F4B81A]
+                  from-[#C6A15B]
+                  via-[#D4B984]
+                  to-[#C6A15B]
                   bg-[length:200%_auto]
                   bg-clip-text
                   text-transparent
@@ -421,7 +421,7 @@ export default function ChatPage() {
               <span className="flex items-center gap-2">
                 <ShieldCheck
                   size={16}
-                  className="text-[#FFD96A]"
+                  className="text-[#D4B984]"
                   aria-hidden="true"
                 />
 
@@ -431,7 +431,7 @@ export default function ChatPage() {
               <span className="flex items-center gap-2">
                 <Zap
                   size={16}
-                  className="text-[#F4B81A]"
+                  className="text-[#C6A15B]"
                   aria-hidden="true"
                 />
 
@@ -492,7 +492,7 @@ export default function ChatPage() {
               border-slate-200
               bg-white
               p-5
-              shadow-[0_15px_50px_rgba(7,19,48,0.07)]
+              shadow-[0_15px_50px_rgba(7, 20, 38,0.07)]
               lg:sticky
               lg:top-24
             "
@@ -508,10 +508,10 @@ export default function ChatPage() {
                   justify-center
                   rounded-2xl
                   bg-gradient-to-br
-                  from-[#F4B81A]
-                  to-[#FFD96A]
-                  text-[#071330]
-                  shadow-[0_8px_25px_rgba(244,184,26,0.22)]
+                  from-[#C6A15B]
+                  to-[#D4B984]
+                  text-[#071426]
+                  shadow-[0_8px_25px_rgba(198, 161, 91,0.22)]
                 "
               >
                 <MessageCircle
@@ -525,7 +525,7 @@ export default function ChatPage() {
                   className="
                     text-lg
                     font-extrabold
-                    text-[#071330]
+                    text-[#071426]
                   "
                 >
                   Example Questions
@@ -594,11 +594,11 @@ export default function ChatPage() {
                         p-3.5
                         text-left
                         transition-colors
-                        hover:border-[#F4B81A]/60
+                        hover:border-[#C6A15B]/60
                         hover:bg-[#FFF8E1]
                         focus:outline-none
                         focus:ring-2
-                        focus:ring-[#F4B81A]/30
+                        focus:ring-[#C6A15B]/30
                       "
                     >
                       <span
@@ -612,10 +612,10 @@ export default function ChatPage() {
                           justify-center
                           rounded-xl
                           bg-white
-                          text-[#071330]
+                          text-[#071426]
                           shadow-sm
                           transition
-                          group-hover:bg-[#FFD96A]
+                          group-hover:bg-[#D4B984]
                         "
                       >
                         <Icon
@@ -649,7 +649,7 @@ export default function ChatPage() {
                 overflow-hidden
                 rounded-2xl
                 border
-                border-[#F4B81A]/20
+                border-[#C6A15B]/20
                 bg-gradient-to-br
                 from-[#FFF8E1]
                 to-[#FFFDF5]
@@ -665,7 +665,7 @@ export default function ChatPage() {
                   h-24
                   w-24
                   rounded-full
-                  bg-[#FFD96A]/20
+                  bg-[#D4B984]/20
                   blur-2xl
                 "
                 animate={{
@@ -692,7 +692,7 @@ export default function ChatPage() {
                   <p
                     className="
                       font-bold
-                      text-[#071330]
+                      text-[#071426]
                     "
                   >
                     Secure Processing
@@ -741,9 +741,10 @@ export default function ChatPage() {
               overflow-hidden
               rounded-[1.75rem]
               border
-              border-slate-200
-              bg-white
-              shadow-[0_15px_60px_rgba(7,19,48,0.08)]
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
+              shadow-[0_15px_60px_rgba(7, 20, 38,0.25)]
             "
           >
             {/* Top accent */}
@@ -753,9 +754,9 @@ export default function ChatPage() {
                 h-1
                 w-full
                 bg-gradient-to-r
-                from-[#F4B81A]
-                via-[#FFD96A]
-                to-[#F4B81A]
+                from-[#C6A15B]
+                via-[#D4B984]
+                to-[#C6A15B]
               "
             />
 
@@ -787,8 +788,8 @@ export default function ChatPage() {
                         items-center
                         justify-center
                         rounded-2xl
-                        bg-[#071330]
-                        text-[#FFD96A]
+                        bg-[#071426]
+                        text-[#D4B984]
                       "
                     >
                       <Bot
@@ -803,7 +804,7 @@ export default function ChatPage() {
                         className="
                           text-xl
                           font-extrabold
-                          text-[#071330]
+                          text-white
                         "
                       >
                         Ask Your Question
@@ -816,7 +817,7 @@ export default function ChatPage() {
                           items-center
                           gap-2
                           text-xs
-                          text-slate-500
+                          text-slate-400
                         "
                       >
                         <span
@@ -841,13 +842,13 @@ export default function ChatPage() {
                     gap-2
                     rounded-full
                     border
-                    border-[#F4B81A]/20
-                    bg-[#FFF8E1]
+                    border-[#C6A15B]/30
+                    bg-[#C6A15B]/10
                     px-3
                     py-1.5
                     text-xs
                     font-semibold
-                    text-[#9A6A00]
+                    text-[#C6A15B]
                     sm:flex
                   "
                 >
@@ -866,7 +867,7 @@ export default function ChatPage() {
                   max-w-2xl
                   text-sm
                   leading-6
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 Describe your immigration question
@@ -877,7 +878,23 @@ export default function ChatPage() {
 
               {/* Textarea */}
 
-              <div className="relative mt-5">
+              <div
+                className="
+                  group
+                  relative
+                  mt-5
+                  rounded-2xl
+                  bg-gradient-to-r
+                  from-[#2563EB]/50
+                  via-[#7C5CFF]/40
+                  to-[#C6A15B]/50
+                  p-[1.5px]
+                  shadow-[0_8px_30px_-8px_rgba(37,99,235,0.35)]
+                  transition
+                  duration-300
+                  focus-within:shadow-[0_8px_36px_-6px_rgba(37,99,235,0.55)]
+                "
+              >
                 <textarea
                   id="question"
                   rows={7}
@@ -894,21 +911,16 @@ export default function ChatPage() {
                   className="
                     w-full
                     resize-none
-                    rounded-2xl
-                    border
-                    border-slate-200
-                    bg-[#FCFCFA]
+                    rounded-[15px]
+                    bg-[#0B1F3A]/90
+                    backdrop-blur-xl
                     p-5
                     text-sm
                     leading-7
-                    text-[#071330]
+                    text-white
                     outline-none
                     transition-all
                     placeholder:text-slate-400
-                    focus:border-[#F4B81A]
-                    focus:bg-white
-                    focus:ring-4
-                    focus:ring-[#F4B81A]/10
                     disabled:cursor-not-allowed
                     disabled:opacity-70
                   "
@@ -921,7 +933,7 @@ export default function ChatPage() {
                     bottom-3
                     right-4
                     text-[11px]
-                    text-slate-400
+                    text-slate-500
                   "
                 >
                   Ctrl + Enter
@@ -983,18 +995,18 @@ export default function ChatPage() {
                     gap-2.5
                     rounded-2xl
                     bg-gradient-to-r
-                    from-[#F4B81A]
-                    to-[#FFD96A]
+                    from-[#C6A15B]
+                    to-[#D4B984]
                     px-6
                     py-3
                     font-bold
-                    text-[#071330]
-                    shadow-[0_10px_30px_rgba(244,184,26,0.22)]
+                    text-[#071426]
+                    shadow-[0_10px_30px_rgba(198, 161, 91,0.22)]
                     transition-all
-                    hover:shadow-[0_15px_40px_rgba(244,184,26,0.32)]
+                    hover:shadow-[0_15px_40px_rgba(198, 161, 91,0.32)]
                     focus:outline-none
                     focus:ring-2
-                    focus:ring-[#F4B81A]/40
+                    focus:ring-[#C6A15B]/40
                     disabled:cursor-not-allowed
                     disabled:opacity-50
                     disabled:shadow-none
@@ -1050,12 +1062,12 @@ export default function ChatPage() {
                       mt-6
                       rounded-2xl
                       border
-                      border-red-200
-                      bg-red-50
+                      border-red-500/30
+                      bg-red-500/10
                       p-4
                       text-sm
                       leading-6
-                      text-red-700
+                      text-red-300
                     "
                   >
                     {error}
@@ -1086,7 +1098,7 @@ export default function ChatPage() {
                       mt-8
                       rounded-3xl
                       border
-                      border-[#F4B81A]/20
+                      border-[#C6A15B]/20
                       bg-gradient-to-br
                       from-[#FFFDF7]
                       to-[#F8F6F1]
@@ -1103,12 +1115,12 @@ export default function ChatPage() {
                           items-center
                           justify-center
                           rounded-2xl
-                          bg-[#071330]
+                          bg-[#071426]
                         "
                       >
                         <Bot
                           size={22}
-                          className="text-[#FFD96A]"
+                          className="text-[#D4B984]"
                           aria-hidden="true"
                         />
 
@@ -1118,7 +1130,7 @@ export default function ChatPage() {
                             inset-[-4px]
                             rounded-2xl
                             border
-                            border-[#F4B81A]/40
+                            border-[#C6A15B]/40
                           "
                           animate={{
                             scale: [1, 1.15, 1],
@@ -1135,7 +1147,7 @@ export default function ChatPage() {
                         <p
                           className="
                             font-bold
-                            text-[#071330]
+                            text-[#071426]
                           "
                         >
                           AI is analyzing your
@@ -1170,7 +1182,7 @@ export default function ChatPage() {
                               h-2
                               w-2
                               rounded-full
-                              bg-[#F4B81A]
+                              bg-[#C6A15B]
                             "
                             animate={{
                               y: [0, -5, 0],
@@ -1215,7 +1227,7 @@ export default function ChatPage() {
                       overflow-hidden
                       rounded-3xl
                       border
-                      border-[#F4B81A]/20
+                      border-[#C6A15B]/20
                       bg-gradient-to-br
                       from-[#FFFDF8]
                       to-[#F8F6F1]
@@ -1226,7 +1238,7 @@ export default function ChatPage() {
                     <div
                       className="
                         border-b
-                        border-[#F4B81A]/15
+                        border-[#C6A15B]/15
                         px-6
                         py-5
                       "
@@ -1248,13 +1260,13 @@ export default function ChatPage() {
                             items-center
                             justify-center
                             rounded-2xl
-                            bg-[#071330]
+                            bg-[#071426]
                             shadow-lg
                           "
                         >
                           <Bot
                             size={22}
-                            className="text-[#FFD96A]"
+                            className="text-[#D4B984]"
                             aria-hidden="true"
                           />
                         </motion.div>
@@ -1270,7 +1282,7 @@ export default function ChatPage() {
                             <h3
                               className="
                                 font-extrabold
-                                text-[#071330]
+                                text-[#071426]
                               "
                             >
                               AI Assistant Response
@@ -1316,7 +1328,7 @@ export default function ChatPage() {
                         py-7
                         text-sm
                         leading-8
-                        text-[#0B1736]
+                        text-[#0B1F3A]
                         sm:text-base
                       "
                     >
@@ -1331,7 +1343,7 @@ export default function ChatPage() {
                         flex-col
                         gap-3
                         border-t
-                        border-[#F4B81A]/10
+                        border-[#C6A15B]/10
                         px-6
                         py-4
                         sm:flex-row
@@ -1419,7 +1431,7 @@ export default function ChatPage() {
             absolute
             inset-[-9px]
             rounded-full
-            bg-[#F4B81A]/20
+            bg-[#C6A15B]/20
             blur-md
           "
           animate={{
@@ -1442,7 +1454,7 @@ export default function ChatPage() {
             inset-[-5px]
             rounded-full
             border-2
-            border-[#FFD96A]/50
+            border-[#D4B984]/50
           "
           animate={{
             scale: [1, 1.14, 1],
@@ -1479,15 +1491,15 @@ export default function ChatPage() {
             justify-center
             rounded-full
             border
-            border-[#FFD96A]/70
+            border-[#D4B984]/70
             bg-gradient-to-br
-            from-[#F4B81A]
-            to-[#FFD96A]
-            text-[#071330]
-            shadow-[0_12px_45px_rgba(244,184,26,0.35)]
+            from-[#C6A15B]
+            to-[#D4B984]
+            text-[#071426]
+            shadow-[0_12px_45px_rgba(198, 161, 91,0.35)]
             focus:outline-none
             focus:ring-2
-            focus:ring-[#F4B81A]
+            focus:ring-[#C6A15B]
             focus:ring-offset-4
             focus:ring-offset-[#F8F6F1]
           "
@@ -1521,7 +1533,7 @@ export default function ChatPage() {
               w-4
               rounded-full
               border-2
-              border-[#071330]
+              border-[#071426]
               bg-emerald-400
             "
             animate={{
@@ -1544,7 +1556,7 @@ export default function ChatPage() {
               mb-3
               whitespace-nowrap
               rounded-xl
-              bg-[#071330]
+              bg-[#071426]
               px-3
               py-2
               text-xs

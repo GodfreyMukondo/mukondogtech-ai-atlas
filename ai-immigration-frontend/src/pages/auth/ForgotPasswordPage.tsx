@@ -132,12 +132,14 @@ return (
 <div
 
 className="
-bg-white
+bg-white/5
+backdrop-blur-xl
 border
-border-[#E5DED1]
+border-white/10
 rounded-3xl
 p-8
-shadow-sm
+shadow-2xl
+shadow-black/40
 "
 
 >
@@ -149,7 +151,7 @@ shadow-sm
 className="
 text-3xl
 font-bold
-text-[#0B1736]
+text-white
 "
 
 >
@@ -165,7 +167,7 @@ Forgot password?
 
 className="
 mt-2
-text-[#7D8CA3]
+text-slate-300
 "
 
 >
@@ -189,10 +191,10 @@ error &&
 className="
 mt-5
 rounded-xl
-bg-red-50
+bg-red-500/10
 border
-border-red-200
-text-red-600
+border-red-500/30
+text-red-300
 px-4
 py-3
 "
@@ -217,10 +219,10 @@ success &&
 className="
 mt-5
 rounded-xl
-bg-green-50
+bg-emerald-500/10
 border
-border-green-200
-text-green-700
+border-emerald-500/30
+text-emerald-300
 px-4
 py-3
 "
@@ -261,7 +263,7 @@ className="
 block
 mb-2
 font-medium
-text-[#0B1736]
+text-slate-200
 "
 
 >
@@ -307,10 +309,13 @@ px-4
 py-3
 rounded-xl
 border
-border-[#D9DDE5]
+border-white/15
+bg-white/5
+text-white
+placeholder:text-slate-500
 focus:outline-none
 focus:ring-2
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 "
 
 
@@ -341,8 +346,8 @@ className="
 w-full
 py-4
 rounded-xl
-bg-[#F4B81A]
-hover:bg-[#e6ab12]
+bg-[#C6A15B]
+hover:bg-[#A8894D]
 font-semibold
 text-black
 flex
@@ -396,7 +401,7 @@ Send Reset Link
 className="
 mt-6
 text-center
-text-[#7D8CA3]
+text-slate-300
 "
 
 >
@@ -411,8 +416,8 @@ to="/login"
 
 className="
 font-semibold
-text-[#0B1736]
-hover:text-[#F4B81A]
+text-white
+hover:text-[#C6A15B]
 transition
 "
 
@@ -434,7 +439,7 @@ Sign in
 className="
 mt-3
 text-center
-text-[#7D8CA3]
+text-slate-300
 "
 
 >
@@ -449,8 +454,8 @@ to="/register"
 
 className="
 font-semibold
-text-[#0B1736]
-hover:text-[#F4B81A]
+text-white
+hover:text-[#C6A15B]
 transition
 "
 

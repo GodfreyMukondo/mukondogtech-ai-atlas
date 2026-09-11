@@ -84,9 +84,6 @@ const DOCUMENT_FILE_REQUIRED =
 const DOCUMENT_TYPE_REQUIRED =
   "Document type is required.";
 
-const AUTHENTICATED_USER_REQUIRED =
-  "Authenticated user information is required.";
-
 const INVALID_USER_ID =
   "Invalid authenticated user ID.";
 

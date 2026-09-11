@@ -197,12 +197,10 @@ export default function DocumentsPage() {
     documentCount === 0;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <main
         className="
-          mx-auto
           w-full
-          max-w-7xl
           px-4
           py-6
           sm:px-6
@@ -247,7 +245,7 @@ export default function DocumentsPage() {
                   gap-2
                   text-sm
                   font-medium
-                  text-[#183B6B]
+                  text-[#C6A15B]
                 "
               >
                 <FolderOpen
@@ -265,7 +263,7 @@ export default function DocumentsPage() {
                   text-3xl
                   font-bold
                   tracking-tight
-                  text-slate-900
+                  text-white
                   sm:text-4xl
                 "
               >
@@ -278,7 +276,7 @@ export default function DocumentsPage() {
                   max-w-2xl
                   text-base
                   leading-7
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 Keep your immigration documents organised
@@ -315,21 +313,21 @@ export default function DocumentsPage() {
                 self-start
                 rounded-lg
                 border
-                border-slate-200
-                bg-white
+                border-white/15
+                bg-white/5
                 px-4
                 text-sm
                 font-semibold
-                text-slate-700
+                text-slate-200
                 shadow-sm
                 transition
                 duration-200
-                hover:border-slate-300
-                hover:bg-slate-50
-                hover:text-slate-900
+                hover:border-white/25
+                hover:bg-white/10
+                hover:text-white
                 focus:outline-none
                 focus:ring-2
-                focus:ring-[#183B6B]/20
+                focus:ring-[#3C4C61]/20
                 disabled:cursor-not-allowed
                 disabled:opacity-60
                 lg:self-auto
@@ -461,15 +459,16 @@ export default function DocumentsPage() {
             overflow-hidden
             rounded-xl
             border
-            border-slate-200
-            bg-white
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             shadow-sm
           "
         >
           <div
             className="
               border-b
-              border-slate-100
+              border-white/10
               px-5
               py-5
               sm:px-6
@@ -491,8 +490,8 @@ export default function DocumentsPage() {
                   items-center
                   justify-center
                   rounded-lg
-                  bg-[#183B6B]/10
-                  text-[#183B6B]
+                  bg-blue-500/10
+                  text-blue-300
                 "
               >
                 <UploadCloud
@@ -506,7 +505,7 @@ export default function DocumentsPage() {
                   className="
                     text-base
                     font-semibold
-                    text-slate-900
+                    text-white
                   "
                 >
                   Upload a document
@@ -517,7 +516,7 @@ export default function DocumentsPage() {
                     mt-1
                     text-sm
                     leading-6
-                    text-slate-500
+                    text-slate-400
                   "
                 >
                   Add a passport, visa, permit, certificate
@@ -567,7 +566,7 @@ export default function DocumentsPage() {
                   text-xl
                   font-bold
                   tracking-tight
-                  text-slate-900
+                  text-white
                 "
               >
                 Document Library
@@ -577,7 +576,7 @@ export default function DocumentsPage() {
                 className="
                   mt-1
                   text-sm
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 {libraryDescription}
@@ -589,7 +588,7 @@ export default function DocumentsPage() {
                 className="
                   text-sm
                   font-medium
-                  text-slate-500
+                  text-slate-400
                 "
                 aria-label={`${documentCount} ${documentLabel}`}
               >
@@ -613,8 +612,8 @@ export default function DocumentsPage() {
               justify-center
               rounded-xl
               border
-              border-slate-200
-              bg-white
+              border-white/10
+              bg-white/5
               shadow-sm
             "
             role="status"
@@ -653,12 +652,12 @@ export default function DocumentsPage() {
                   gap-2
                   rounded-lg
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/10
+                  bg-white/5
                   px-4
                   py-3
                   text-sm
-                  text-slate-500
+                  text-slate-400
                   shadow-sm
                 "
                 role="status"
@@ -746,13 +745,13 @@ function StatsCard({
       className="
         rounded-xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
         p-5
         shadow-sm
         transition
         duration-200
-        hover:border-slate-300
+        hover:border-white/20
         hover:shadow-md
       "
     >
@@ -773,8 +772,8 @@ function StatsCard({
             items-center
             justify-center
             rounded-lg
-            bg-[#183B6B]/10
-            text-[#183B6B]
+            bg-blue-500/10
+            text-blue-300
           "
           aria-hidden="true"
         >
@@ -784,12 +783,12 @@ function StatsCard({
         <span
           className="
             rounded-full
-            bg-slate-100
+            bg-white/10
             px-2.5
             py-1
             text-xs
             font-medium
-            text-slate-500
+            text-slate-400
           "
         >
           {label}
@@ -802,7 +801,7 @@ function StatsCard({
             text-2xl
             font-bold
             tracking-tight
-            text-slate-900
+            text-white
           "
         >
           {value}
@@ -813,7 +812,7 @@ function StatsCard({
             mt-1
             text-sm
             leading-5
-            text-slate-500
+            text-slate-400
           "
         >
           {description}
@@ -843,8 +842,8 @@ function EmptyDocumentsState() {
       className="
         rounded-xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
         px-6
         py-14
         text-center
@@ -861,8 +860,8 @@ function EmptyDocumentsState() {
           items-center
           justify-center
           rounded-xl
-          bg-slate-100
-          text-[#183B6B]
+          bg-white/10
+          text-[#C6A15B]
         "
         aria-hidden="true"
       >
@@ -877,7 +876,7 @@ function EmptyDocumentsState() {
           mt-5
           text-lg
           font-semibold
-          text-slate-900
+          text-white
         "
       >
         No documents yet
@@ -890,7 +889,7 @@ function EmptyDocumentsState() {
           max-w-md
           text-sm
           leading-6
-          text-slate-500
+          text-slate-400
         "
       >
         You have not uploaded any immigration documents

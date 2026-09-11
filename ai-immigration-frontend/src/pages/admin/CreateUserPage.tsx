@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import axios from "axios";
 import { ArrowLeft, UserPlus } from "lucide-react";
 
 import { createUser } from "../../api/userApi";
@@ -13,6 +14,8 @@ interface CreateUserForm {
   fullName: string;
   email: string;
   password: string;
+  phone: string;
+  country: string;
   role: Role;
 }
 
@@ -32,6 +35,8 @@ export default function CreateUserPage() {
       fullName: "",
       email: "",
       password: "",
+      phone: "",
+      country: "",
       role: "USER",
     });
 
@@ -80,7 +85,11 @@ export default function CreateUserPage() {
 
 
 
-      await createUser(form);
+      await createUser({
+        ...form,
+        phone: form.phone.trim() || undefined,
+        country: form.country.trim() || undefined,
+      });
 
 
 
@@ -104,9 +113,13 @@ export default function CreateUserPage() {
       );
 
 
-      toast.error(
-        "Failed to create user."
-      );
+      const message =
+        axios.isAxiosError(error)
+          ? error.response?.data?.message ?? "Failed to create user."
+          : "Failed to create user.";
+
+
+      toast.error(message);
 
 
     }
@@ -128,7 +141,7 @@ export default function CreateUserPage() {
 
   return (
 
-  <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-amber-50 px-6 py-12">
+  <div className="min-h-screen px-6 py-12">
 
 
       <div className="mx-auto max-w-3xl">
@@ -138,7 +151,7 @@ export default function CreateUserPage() {
 
           onClick={() => navigate(-1)}
 
-          className="mb-6 flex items-center gap-2 rounded-xl bg-white px-4 py-2 shadow-sm"
+          className="mb-6 flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 text-slate-200 px-4 py-2 shadow-sm hover:bg-white/10 transition"
 
         >
 
@@ -152,13 +165,13 @@ export default function CreateUserPage() {
 
 
 
-        <div className="rounded-3xl bg-white p-8 shadow-xl">
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-xl">
 
 
           <div className="mb-8 flex items-center gap-4">
 
 
-            <div className="rounded-2xl bg-blue-100 p-4 text-blue-700">
+            <div className="rounded-2xl bg-blue-500/10 p-4 text-blue-300">
 
               <UserPlus size={30}/>
 
@@ -167,14 +180,14 @@ export default function CreateUserPage() {
 
             <div>
 
-              <h1 className="text-3xl font-black text-slate-900">
+              <h1 className="text-3xl font-black text-white">
 
                 Create User
 
               </h1>
 
 
-              <p className="text-slate-500">
+              <p className="text-slate-400">
 
                 Add a new platform user.
 
@@ -211,7 +224,7 @@ export default function CreateUserPage() {
 
               required
 
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-white/15 bg-white/5 text-white placeholder:text-slate-500 p-3"
 
             />
 
@@ -233,7 +246,7 @@ export default function CreateUserPage() {
 
               required
 
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-white/15 bg-white/5 text-white placeholder:text-slate-500 p-3"
 
             />
 
@@ -256,11 +269,46 @@ export default function CreateUserPage() {
 
               required
 
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-white/15 bg-white/5 text-white placeholder:text-slate-500 p-3"
 
             />
 
 
+
+
+            <div className="grid grid-cols-2 gap-4">
+
+              <input
+
+                name="phone"
+
+                type="tel"
+
+                value={form.phone}
+
+                onChange={handleChange}
+
+                placeholder="Phone (optional)"
+
+                className="w-full rounded-xl border border-white/15 bg-white/5 text-white placeholder:text-slate-500 p-3"
+
+              />
+
+              <input
+
+                name="country"
+
+                value={form.country}
+
+                onChange={handleChange}
+
+                placeholder="Country (optional)"
+
+                className="w-full rounded-xl border border-white/15 bg-white/5 text-white placeholder:text-slate-500 p-3"
+
+              />
+
+            </div>
 
 
 
@@ -273,7 +321,7 @@ export default function CreateUserPage() {
 
               onChange={handleChange}
 
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-white/15 bg-white/5 text-white placeholder:text-slate-500 p-3"
 
             >
 
@@ -298,7 +346,7 @@ export default function CreateUserPage() {
 
               disabled={loading}
 
-              className="w-full rounded-xl bg-[#F4B81A] py-3 font-bold text-[#071330] disabled:opacity-50"
+              className="w-full rounded-xl bg-[#C6A15B] py-3 font-bold text-[#071426] disabled:opacity-50"
 
             >
 

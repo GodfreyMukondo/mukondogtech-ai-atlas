@@ -5,6 +5,7 @@ import com.godfrey.ai_immigration_document_analyzer.agent.dto.ExplainRequirement
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentGroundingState;
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentRun;
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentRunStatus;
+import com.godfrey.ai_immigration_document_analyzer.agent.entity.AiExplanationStatus;
 import com.godfrey.ai_immigration_document_analyzer.agent.repository.AgentRunRepository;
 import com.godfrey.ai_immigration_document_analyzer.agent.service.ExplainRequirementAgentService;
 import com.godfrey.ai_immigration_document_analyzer.entity.Role;
@@ -340,5 +341,79 @@ class AgentExplainRequirementWorkflowIntegrationTest {
         AgentRun persisted = agentRunRepository.findById(response.id()).orElseThrow();
         assertThat(persisted.getStatus()).isEqualTo(AgentRunStatus.INSUFFICIENT_EVIDENCE);
         assertThat(persisted.getModel()).isNull();
+    }
+
+    // =========================================================================
+    // GRACEFUL AI DEGRADATION AGAINST REAL DATA - Phase 5.1 Production
+    // Hardening: the complete deterministic requirement result and AgentRun
+    // round trip must succeed even when the AI provider fails (mocked here
+    // exactly like OpenAI returning HTTP 429/insufficient_quota would) - no
+    // live OpenAI credentials are required for this test.
+    // =========================================================================
+
+    @Test
+    void explainRequirementReturnsTheFullDeterministicResultWhenTheLlmIsUnavailable() {
+
+        Long subjectUserId = createTestSubject();
+        AuthenticatedUser actor = actorFor(subjectUserId);
+
+        RegulatoryVersionResponse version =
+                createTestRegulatoryVersion("TEST_AGENT_WORKFLOW_DEGRADED_SOURCE_" + System.nanoTime());
+        RequirementAdminDetailResponse requirement =
+                createAndPublishTestRequirement(version.id(), "TEST.AGENT_WORKFLOW_DEGRADED_REQ_" + System.nanoTime());
+        PathwayResponse pathway =
+                createAndPublishTestPathway("TEST_AGENT_WORKFLOW_DEGRADED_PATHWAY_" + System.nanoTime(), requirement.id());
+
+        acceptFact(subjectUserId);
+
+        var assessment = pathwayAssessmentService.assess(actor, pathway.id(), subjectUserId, null);
+        assertThat(assessment.requirementEvaluations().get(0).outcome())
+                .isEqualTo(RequirementEvaluationOutcome.SATISFIED);
+
+        // Simulates OpenAI returning HTTP 429 / insufficient_quota /
+        // credit_balance_exhausted - LlmService wraps any such provider
+        // failure into a generic RuntimeException (see LlmService.ask()).
+        when(llmService.ask(anyString())).thenThrow(new RuntimeException(
+                "429 Too Many Requests - insufficient_quota: credit_balance_exhausted"
+        ));
+
+        ExplainRequirementRequest request = new ExplainRequirementRequest();
+        request.setPathwayAssessmentId(assessment.id());
+        request.setRequirementId(requirement.id());
+
+        AgentRunResponse response = explainRequirementAgentService.explainRequirement(actor, request);
+
+        // ---- The run still completes successfully - never a 5xx/exception ----
+        assertThat(response.status()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(response.errorMessage()).isNull();
+
+        // ---- The full deterministic requirement result is present and unaltered ----
+        assertThat(response.result().currentStatus()).isEqualTo(RequirementEvaluationOutcome.SATISFIED);
+        assertThat(response.result().groundingState()).isEqualTo(AgentGroundingState.GROUNDED);
+        assertThat(response.result().factsConsidered()).extracting("factKey").contains(FACT_KEY);
+        assertThat(response.result().regulatoryVersionId()).isEqualTo(version.id());
+        assertThat(response.result().existingExplanation()).isNotNull();
+
+        // ---- The AI explanation is honestly absent - never fabricated ----
+        assertThat(response.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.UNAVAILABLE);
+        assertThat(response.result().explanation()).isNull();
+
+        // ---- The AgentRun round trip persisted correctly ----
+        AgentRun persisted = agentRunRepository.findById(response.id()).orElseThrow();
+        assertThat(persisted.getStatus()).isEqualTo(AgentRunStatus.COMPLETED);
+        assertThat(persisted.getSubjectUserId()).isEqualTo(subjectUserId);
+        assertThat(persisted.getErrorMessage()).isNull();
+        assertThat(persisted.getResultJson()).doesNotContain("insufficient_quota");
+
+        // ---- Re-fetching the run returns the same graceful-degradation result ----
+        AgentRunResponse refetched = explainRequirementAgentService.getRun(actor, response.id());
+        assertThat(refetched.result().aiExplanationStatus()).isEqualTo(AiExplanationStatus.UNAVAILABLE);
+        assertThat(refetched.result().currentStatus()).isEqualTo(RequirementEvaluationOutcome.SATISFIED);
+
+        // ---- A stranger still may not view this run for this subject's requirement ----
+        AuthenticatedUser stranger = actorFor(createTestSubject());
+
+        assertThatThrownBy(() -> explainRequirementAgentService.getRun(stranger, response.id()))
+                .isInstanceOf(AccessDeniedException.class);
     }
 }

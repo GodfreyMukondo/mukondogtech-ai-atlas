@@ -10,11 +10,13 @@ import {
   ChevronsRight,
   ClipboardCheck,
   Clock,
+  Compass,
   CreditCard,
   Database,
   FileCheck,
   FileText,
   History,
+  IdCard,
   LayoutDashboard,
   LifeBuoy,
   LockKeyhole,
@@ -22,7 +24,6 @@ import {
   MessageCircle,
   Receipt,
   Scale,
-  ScanSearch,
   Search,
   Settings,
   ShieldCheck,
@@ -38,6 +39,20 @@ import { useAuth } from "../features/auth/hooks/useAuth";
 interface SidebarProps {
   mobileOpen?: boolean;
   onClose?: () => void;
+
+  /**
+   * Controlled collapse state.
+   *
+   * When provided (together with onCollapsedChange), the parent layout
+   * owns the collapsed/expanded state so it can size its own content
+   * offset in sync with the sidebar's actual width instead of guessing
+   * with a fixed margin.
+   *
+   * When omitted, the sidebar manages its own collapse state internally,
+   * as before.
+   */
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 interface NavigationItem {
@@ -79,6 +94,11 @@ const userNavigationGroups: NavigationGroup[] = [
     label: "Case Management",
     items: [
       {
+        label: "Immigration Profile",
+        path: "/dashboard/immigration-profile",
+        icon: IdCard,
+      },
+      {
         label: "My Documents",
         path: "/dashboard/documents",
         icon: FileText,
@@ -92,6 +112,11 @@ const userNavigationGroups: NavigationGroup[] = [
         label: "Pathway Discovery",
         path: "/dashboard/pathways/discovery",
         icon: Telescope,
+      },
+      {
+        label: "Pathway Assessment",
+        path: "/dashboard/pathways/assessments/new",
+        icon: Compass,
       },
       {
         label: "Case Timeline & Signals",
@@ -176,6 +201,16 @@ const adminNavigationGroups: NavigationGroup[] = [
         path: "/admin/rules",
         icon: Scale,
       },
+      {
+        label: "Pathways",
+        path: "/admin/pathways",
+        icon: Compass,
+      },
+      {
+        label: "Requirements",
+        path: "/admin/requirements",
+        icon: FileCheck,
+      },
     ],
   },
   {
@@ -213,10 +248,10 @@ const badgeStyles: Record<
   NonNullable<NavigationItem["badgeTone"]>,
   string
 > = {
-  gold: "border border-[#F4B81A]/30 bg-[#FFF7DD] text-[#9A7200]",
-  red: "border border-red-200 bg-red-50 text-red-700",
-  emerald: "border border-emerald-200 bg-emerald-50 text-emerald-700",
-  blue: "border border-blue-200 bg-blue-50 text-blue-700",
+  gold: "border border-[#C6A15B]/30 bg-[#C6A15B]/15 text-[#C6A15B]",
+  red: "border border-red-500/30 bg-red-500/15 text-red-300",
+  emerald: "border border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
+  blue: "border border-blue-500/30 bg-blue-500/15 text-blue-300",
 };
 
 /* ============================================================================
@@ -226,58 +261,69 @@ const badgeStyles: Record<
 export default function Sidebar({
   mobileOpen = false,
   onClose,
+  collapsed: controlledCollapsed,
+  onCollapsedChange,
 }: SidebarProps) {
   const location = useLocation();
 
-  const { user, logout } = useAuth() as {
-    user?: {
-      name?: string;
-      email?: string;
-      role?: string;
-    };
-    logout?: () => void;
-  };
+  const { user, logout } = useAuth();
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
   const [query, setQuery] = useState("");
+
+  const isControlled =
+    controlledCollapsed !== undefined;
+
+  const collapsed = isControlled
+    ? controlledCollapsed
+    : internalCollapsed;
 
   /* --------------------------------------------------------------------------
      RESTORE SIDEBAR STATE
+
+     Only needed in uncontrolled mode - a controlling parent is
+     responsible for restoring its own initial state.
   -------------------------------------------------------------------------- */
 
   useEffect(() => {
+    if (isControlled) {
+      return;
+    }
+
     try {
       const stored = window.localStorage.getItem(
         "mgt-sidebar-collapsed",
       );
 
       if (stored === "true") {
-        setCollapsed(true);
+        setInternalCollapsed(true);
       }
     } catch {
       // Ignore storage failures.
     }
-  }, []);
+  }, [isControlled]);
 
   /* --------------------------------------------------------------------------
      COLLAPSE SIDEBAR
   -------------------------------------------------------------------------- */
 
   const toggleCollapsed = () => {
-    setCollapsed((previous) => {
-      const next = !previous;
+    const next = !collapsed;
 
-      try {
-        window.localStorage.setItem(
-          "mgt-sidebar-collapsed",
-          String(next),
-        );
-      } catch {
-        // Ignore storage failures.
-      }
+    try {
+      window.localStorage.setItem(
+        "mgt-sidebar-collapsed",
+        String(next),
+      );
+    } catch {
+      // Ignore storage failures.
+    }
 
-      return next;
-    });
+    if (isControlled) {
+      onCollapsedChange?.(next);
+    } else {
+      setInternalCollapsed(next);
+    }
   };
 
   /* --------------------------------------------------------------------------
@@ -297,7 +343,7 @@ export default function Sidebar({
   -------------------------------------------------------------------------- */
 
   const initials = useMemo(() => {
-    const name = user?.name?.trim();
+    const name = user?.fullName?.trim();
 
     if (!name) {
       return "MG";
@@ -312,7 +358,7 @@ export default function Sidebar({
       .slice(0, 2)
       .join("")
       .toUpperCase();
-  }, [user?.name]);
+  }, [user?.fullName]);
 
   /* --------------------------------------------------------------------------
      SEARCH
@@ -358,18 +404,18 @@ export default function Sidebar({
     if (filteredGroups.length === 0) {
       return (
         <div className="px-2 py-10 text-center">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
+          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/5">
             <Search
               size={17}
               className="text-slate-400"
             />
           </div>
 
-          <p className="text-xs font-semibold text-slate-500">
+          <p className="text-xs font-semibold text-slate-300">
             No navigation results
           </p>
 
-          <p className="mt-1 text-[11px] text-slate-400">
+          <p className="mt-1 text-[11px] text-slate-500">
             Try another search term.
           </p>
         </div>
@@ -382,7 +428,7 @@ export default function Sidebar({
           <section key={group.label}>
             {!collapsed && (
               <div className="mb-2.5 flex items-center gap-2 px-2">
-                <span className="h-1 w-1 rounded-full bg-slate-300" />
+                <span className="h-3 w-1 rounded-full bg-gradient-to-b from-[#C6A15B] to-[#C6A15B]/20" />
 
                 <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
                   {group.label}
@@ -411,25 +457,21 @@ export default function Sidebar({
                     }
                     className={({ isActive }) => {
                       const base =
-                        "group relative flex min-h-[48px] items-center gap-3 rounded-xl px-3 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+                        "group relative flex min-h-[48px] items-center gap-3 rounded-2xl px-3 transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1F3A]";
 
-                      if (collapsed) {
-                        return `${base} justify-center`;
-                      }
+                      const layout = collapsed
+                        ? "justify-center"
+                        : "";
 
-                      if (isActive) {
-                        return `${base} ${
-                          admin
-                            ? "bg-red-50 text-red-700 shadow-sm ring-1 ring-red-100 focus-visible:ring-red-400"
-                            : "bg-[#0B1736] text-white shadow-lg shadow-[#0B1736]/10 focus-visible:ring-[#F4B81A]"
-                        }`;
-                      }
+                      const state = isActive
+                        ? admin
+                          ? "bg-red-500/15 text-red-300 shadow-sm ring-1 ring-red-500/30 focus-visible:ring-red-400"
+                          : "bg-gradient-to-br from-[#C6A15B] to-[#A8894D] text-[#071426] shadow-[0_8px_22px_-4px_rgba(198, 161, 91,0.55)] focus-visible:ring-[#C6A15B]"
+                        : admin
+                          ? "text-slate-300 hover:translate-x-0.5 hover:bg-red-500/10 hover:text-red-300 focus-visible:ring-red-400/40"
+                          : "text-slate-300 hover:translate-x-0.5 hover:bg-white/10 hover:text-white focus-visible:ring-white/30";
 
-                      return `${base} ${
-                        admin
-                          ? "text-slate-600 hover:bg-red-50 hover:text-red-700 focus-visible:ring-red-300"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-[#0B1736] focus-visible:ring-slate-300"
-                      }`;
+                      return `${base} ${layout} ${state}`;
                     }}
                   >
                     {({ isActive }) => (
@@ -437,10 +479,10 @@ export default function Sidebar({
                         {/* Active indicator */}
                         {isActive && !collapsed && (
                           <span
-                            className={`absolute left-0 top-1/2 h-7 w-[3px] -translate-y-1/2 rounded-r-full ${
+                            className={`absolute left-1.5 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full ${
                               admin
-                                ? "bg-red-500"
-                                : "bg-[#F4B81A]"
+                                ? "bg-red-400"
+                                : "bg-[#071426]/70"
                             }`}
                           />
                         )}
@@ -448,16 +490,16 @@ export default function Sidebar({
                         {/* Icon */}
                         <span
                           className={`
-                            flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
-                            transition-all duration-200
+                            flex h-9 w-9 shrink-0 items-center justify-center rounded-xl
+                            transition-all duration-200 ease-out
                             ${
                               isActive
                                 ? admin
-                                  ? "bg-red-100 text-red-600"
-                                  : "bg-white/10 text-[#F4B81A]"
+                                  ? "bg-red-500/20 text-red-200"
+                                  : "bg-[#071426]/15 text-[#071426]"
                                 : admin
-                                  ? "bg-red-50 text-red-500 group-hover:bg-red-100"
-                                  : "bg-slate-100 text-slate-500 group-hover:bg-[#0B1736] group-hover:text-[#F4B81A]"
+                                  ? "bg-red-500/10 text-red-300 group-hover:bg-red-500/20"
+                                  : "bg-white/10 text-slate-300 backdrop-blur-sm group-hover:scale-105 group-hover:bg-[#C6A15B] group-hover:text-[#071426]"
                             }
                           `}
                         >
@@ -509,7 +551,7 @@ export default function Sidebar({
         onClick={onClose}
         aria-hidden="true"
         className={`
-          fixed inset-0 z-40 bg-[#071330]/50
+          fixed inset-0 z-40 bg-[#071426]/50
           backdrop-blur-sm transition-all duration-300
           lg:hidden
           ${
@@ -527,11 +569,11 @@ export default function Sidebar({
       <aside
         aria-label="Primary navigation"
         className={`
-          fixed left-0 top-20 z-50 flex
+          fixed left-0 top-20 z-40 flex
           h-[calc(100vh-5rem)] flex-col
-          border-r border-slate-200/80
-          bg-white
-          shadow-[8px_0_30px_rgba(15,23,42,0.05)]
+          border-r border-white/10
+          bg-gradient-to-b from-[#0B1F3A] to-[#071426]
+          shadow-[8px_0_30px_rgba(7, 20, 38,0.35)]
           transition-all duration-300
           ${
             collapsed
@@ -547,88 +589,48 @@ export default function Sidebar({
         `}
       >
         {/* ====================================================================
-            BRAND HEADER
+            MOBILE CLOSE BAR
+
+            The app's brand identity now lives once, in the fixed header
+            above (DashboardHeader/AdminLayout), which the sidebar sits
+            below rather than beside - so this row only needs to carry
+            the mobile drawer's close affordance. It's replaced entirely
+            by the collapse toggle below on desktop.
         ==================================================================== */}
 
-        <div className="shrink-0 border-b border-slate-200/80 bg-white px-4 py-4">
-          <div
-            className={`
-              flex items-center
-              ${
-                collapsed
-                  ? "justify-center"
-                  : "justify-between"
-              }
-            `}
+        <div
+          className="
+            flex h-14 shrink-0 items-center justify-end
+            border-b border-white/10 px-4
+            lg:hidden
+          "
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close navigation"
+            className="
+              shrink-0 rounded-lg p-2 text-slate-400
+              transition hover:bg-white/10
+              hover:text-white
+            "
           >
-            <div
-              className={`
-                flex min-w-0 items-center
-                ${
-                  collapsed
-                    ? "justify-center"
-                    : "gap-3"
-                }
-              `}
-            >
-              {/* Brand mark */}
-              <div
-                className="
-                  relative flex h-11 w-11 shrink-0
-                  items-center justify-center
-                  overflow-hidden rounded-xl
-                  bg-[#0B1736]
-                  shadow-lg shadow-[#0B1736]/20
-                "
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-[#183B6B] to-[#0B1736]" />
+            <X size={20} />
+          </button>
+        </div>
 
-                <div className="absolute right-0 top-0 h-5 w-5 rounded-full bg-[#F4B81A]/30 blur-md" />
+        {/* ====================================================================
+            COLLAPSE TOGGLE
+        ==================================================================== */}
 
-                <ScanSearch
-                  size={22}
-                  strokeWidth={2.2}
-                  className="relative z-10 text-[#F4B81A]"
-                />
-              </div>
-
-              {/* Brand text */}
-              {!collapsed && (
-                <div className="min-w-0">
-                  <div className="flex items-center">
-                    <h2 className="truncate text-[15px] font-extrabold tracking-tight text-[#0B1736]">
-                      MukondoGTech
-                    </h2>
-
-                    <span className="ml-1 text-[15px] font-extrabold text-[#F4B81A]">
-                      AI
-                    </span>
-                  </div>
-
-                  <p className="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    Immigration Intelligence
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile close */}
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close navigation"
-              className="
-                rounded-lg p-2 text-slate-400
-                transition hover:bg-slate-100
-                hover:text-slate-700
-                lg:hidden
-              "
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          {/* Collapse */}
+        <div
+          className="
+            hidden shrink-0
+            border-b border-white/10
+            px-4 pb-3 pt-5
+            lg:block
+          "
+        >
           <button
             type="button"
             onClick={toggleCollapsed}
@@ -638,16 +640,15 @@ export default function Sidebar({
                 : "Collapse sidebar"
             }
             className={`
-              mt-4 hidden h-9 w-full
+              flex h-9 w-full
               items-center justify-center gap-2
-              rounded-lg border border-slate-200
-              bg-slate-50 text-[11px]
-              font-bold text-slate-500
+              rounded-xl border border-white/10
+              bg-white/5 backdrop-blur-sm text-[11px]
+              font-bold text-slate-300
               transition-all duration-200
-              hover:border-[#F4B81A]/40
-              hover:bg-[#FFF9E8]
-              hover:text-[#0B1736]
-              lg:flex
+              hover:border-[#C6A15B]/40
+              hover:bg-[#C6A15B]/10
+              hover:text-[#C6A15B]
               ${
                 collapsed
                   ? "border-transparent bg-transparent"
@@ -671,7 +672,7 @@ export default function Sidebar({
         ==================================================================== */}
 
         {!collapsed && (
-          <div className="shrink-0 border-b border-slate-100 px-4 py-3">
+          <div className="shrink-0 border-b border-white/10 px-4 py-3">
             <div className="relative">
               <Search
                 size={15}
@@ -692,19 +693,19 @@ export default function Sidebar({
                 placeholder="Search navigation..."
                 aria-label="Search navigation"
                 className="
-                  h-10 w-full rounded-lg
-                  border border-slate-200
-                  bg-slate-50
+                  h-10 w-full rounded-xl
+                  border border-white/10
+                  bg-white/5 backdrop-blur-sm
                   pl-10 pr-3
                   text-xs font-medium
-                  text-slate-700
+                  text-white
                   placeholder:text-slate-400
                   outline-none
-                  transition-all
-                  focus:border-[#F4B81A]
-                  focus:bg-white
+                  transition-all duration-200
+                  focus:border-[#C6A15B]/60
+                  focus:bg-white/10
                   focus:ring-4
-                  focus:ring-[#F4B81A]/10
+                  focus:ring-[#C6A15B]/15
                 "
               />
             </div>
@@ -717,7 +718,7 @@ export default function Sidebar({
 
         <nav
           aria-label="Application navigation"
-          className="min-h-0 flex-1 overflow-y-auto px-3 py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200"
+          className="min-h-0 flex-1 overflow-y-auto px-3 py-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-600"
         >
           {/* USER WORKSPACE */}
 
@@ -725,11 +726,11 @@ export default function Sidebar({
             <>
               {!collapsed && (
                 <div className="mb-4 flex items-center gap-2 px-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#FFF7DD] text-[#B17E00]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-[#C6A15B]/15 text-[#C6A15B]">
                     <Sparkles size={12} />
                   </span>
 
-                  <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-500">
+                  <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-400">
                     Workspace
                   </span>
                 </div>
@@ -745,11 +746,11 @@ export default function Sidebar({
             <>
               {!collapsed && (
                 <div className="mb-4 flex items-center gap-2 px-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-red-50 text-red-600">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-lg bg-red-500/15 text-red-300">
                     <ShieldCheck size={12} />
                   </span>
 
-                  <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-red-600">
+                  <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-red-400">
                     Administrator
                   </span>
                 </div>
@@ -761,7 +762,7 @@ export default function Sidebar({
               )}
 
               {/* Return to user workspace */}
-              <div className="my-5 border-t border-slate-200/80" />
+              <div className="my-5 border-t border-white/10" />
 
               <NavLink
                 to="/dashboard"
@@ -773,15 +774,16 @@ export default function Sidebar({
                 }
                 className={`
                   group flex min-h-[46px]
-                  items-center gap-3 rounded-xl
-                  border border-slate-200
-                  bg-slate-50
+                  items-center gap-3 rounded-2xl
+                  border border-white/10
+                  bg-white/5 backdrop-blur-sm
                   px-3
-                  text-slate-600
+                  text-slate-300
                   transition-all duration-200
-                  hover:border-slate-300
-                  hover:bg-white
-                  hover:text-[#0B1736]
+                  hover:translate-x-0.5
+                  hover:border-white/20
+                  hover:bg-white/10
+                  hover:text-white
                   hover:shadow-sm
                   ${
                     collapsed
@@ -794,11 +796,10 @@ export default function Sidebar({
                   className="
                     flex h-9 w-9 shrink-0
                     items-center justify-center
-                    rounded-lg bg-white
-                    text-slate-500
-                    shadow-sm
+                    rounded-xl bg-white/10
+                    text-slate-300
                     transition-colors
-                    group-hover:text-[#0B1736]
+                    group-hover:text-white
                   "
                 >
                   <UserCircle size={18} />
@@ -818,13 +819,15 @@ export default function Sidebar({
             USER PROFILE
         ==================================================================== */}
 
-        <div className="shrink-0 border-t border-slate-200/80 bg-white p-3">
+        <div className="shrink-0 border-t border-white/10 p-3">
           <div
             className={`
-              rounded-xl
-              border border-slate-200
-              bg-slate-50
+              rounded-2xl
+              border border-white/10
+              bg-white/5 backdrop-blur-sm
               p-2.5
+              transition-colors duration-200
+              hover:bg-white/10
               ${
                 collapsed
                   ? "flex justify-center"
@@ -847,10 +850,10 @@ export default function Sidebar({
                 className="
                   flex h-9 w-9 shrink-0
                   items-center justify-center
-                  rounded-lg
-                  bg-[#0B1736]
+                  rounded-xl
+                  bg-gradient-to-br from-[#C6A15B] to-[#A8894D]
                   text-xs font-extrabold
-                  text-[#F4B81A]
+                  text-[#071426]
                   shadow-sm
                 "
               >
@@ -860,8 +863,8 @@ export default function Sidebar({
               {/* User information */}
               {!collapsed && (
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-bold text-[#0B1736]">
-                    {user?.name ?? "Guest User"}
+                  <p className="truncate text-xs font-bold text-white">
+                    {user?.fullName ?? "Guest User"}
                   </p>
 
                   <p className="mt-0.5 truncate text-[10px] text-slate-400">
@@ -883,11 +886,11 @@ export default function Sidebar({
                     rounded-lg
                     text-slate-400
                     transition-all
-                    hover:bg-red-50
-                    hover:text-red-600
+                    hover:bg-red-500/15
+                    hover:text-red-300
                     focus-visible:outline-none
                     focus-visible:ring-2
-                    focus-visible:ring-red-300
+                    focus-visible:ring-red-400/40
                   "
                 >
                   <LogOut size={15} />
@@ -901,21 +904,22 @@ export default function Sidebar({
             HELP & SUPPORT
         ==================================================================== */}
 
-        <footer className="shrink-0 border-t border-slate-200/80 bg-white p-3">
+        <footer className="shrink-0 border-t border-white/10 p-3">
           <a
             href="/help"
             title={collapsed ? "Help & Support" : undefined}
             className={`
               group flex min-h-[46px]
-              items-center gap-3 rounded-xl
-              border border-slate-200
-              bg-slate-50
+              items-center gap-3 rounded-2xl
+              border border-white/10
+              bg-white/5 backdrop-blur-sm
               px-3
-              text-slate-600
+              text-slate-300
               transition-all duration-200
-              hover:border-[#F4B81A]/40
-              hover:bg-[#FFF9E8]
-              hover:text-[#0B1736]
+              hover:translate-x-0.5
+              hover:border-[#C6A15B]/40
+              hover:bg-[#C6A15B]/10
+              hover:text-[#C6A15B]
               ${collapsed ? "justify-center" : ""}
             `}
           >
@@ -923,11 +927,10 @@ export default function Sidebar({
               className="
                 flex h-9 w-9 shrink-0
                 items-center justify-center
-                rounded-lg bg-white
-                text-slate-500
-                shadow-sm
+                rounded-xl bg-white/10
+                text-slate-300
                 transition-colors
-                group-hover:text-[#0B1736]
+                group-hover:text-[#C6A15B]
               "
             >
               <LifeBuoy size={18} />

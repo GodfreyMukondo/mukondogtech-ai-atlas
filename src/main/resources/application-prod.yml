@@ -1,22 +1,55 @@
 spring:
+  # ==========================================================================
+  # JPA / HIBERNATE PRODUCTION
+  # ==========================================================================
+
   jpa:
     hibernate:
+      # Never allow Hibernate to modify the production schema.
+      # Database changes must be handled through Flyway migrations.
       ddl-auto: validate
 
     show-sql: false
     open-in-view: false
 
+  # ==========================================================================
+  # FLYWAY PRODUCTION
+  # ==========================================================================
+
   flyway:
     enabled: true
+
     baseline-on-migrate: true
     validate-on-migrate: true
+
+    # The current production database contains the physical V2 objects,
+    # while Flyway history records V2 as ignored because V3 was already
+    # applied.
+    #
+    # This prevents startup validation from failing with:
+    # "Detected resolved migration not applied to database: 2."
+    ignore-migration-patterns: "*:ignored"
+
+    # Keep disabled in production.
+    # Do not enable this to resolve the existing V2/V3 situation because
+    # V2 objects already exist in the database.
     out-of-order: false
+
+    # Never allow Flyway to execute CLEAN against production.
     clean-disabled: true
+
+    locations: classpath:db/migration
+
+  # ==========================================================================
+  # FILE UPLOAD PRODUCTION
+  # ==========================================================================
 
   servlet:
     multipart:
+      enabled: true
       max-file-size: 20MB
       max-request-size: 20MB
+      file-size-threshold: 2KB
 
 
 # ============================================================================
@@ -35,6 +68,10 @@ aws:
 # ============================================================================
 
 file:
+  # Maximum raw document size enforced by the application storage layer.
+  #
+  # Allowed file extensions and MIME types are validated separately by
+  # DocumentService.
   max-size: ${DOCUMENT_MAX_FILE_SIZE:10485760}
 
 
@@ -54,6 +91,7 @@ ocr:
 
 logging:
   level:
+    # Production should not run with DEBUG/TRACE logging.
     root: INFO
 
     org.springframework: WARN

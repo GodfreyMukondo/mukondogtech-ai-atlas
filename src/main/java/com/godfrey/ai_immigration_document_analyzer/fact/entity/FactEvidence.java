@@ -73,6 +73,16 @@ public class FactEvidence {
     @Column(name = "RELIABILITY_NOTE", length = 255)
     private String reliabilityNote;
 
+    /**
+     * Optional enrichment link to the Evidence Intelligence Graph's richer
+     * {@code EvidenceItem} (lifecycle, strength vector, document version) -
+     * additive and nullable so every row committed before this link existed
+     * keeps working unmodified. This remains the one Document&lt;-&gt;Fact
+     * linkage mechanism; EvidenceItem never becomes a second one.
+     */
+    @Column(name = "EVIDENCE_ITEM_ID")
+    private Long evidenceItemId;
+
     @CreationTimestamp
     @Column(name = "CAPTURED_AT", nullable = false, updatable = false)
     private LocalDateTime capturedAt;

@@ -40,7 +40,7 @@ import {
 
 import type {
   AnalyticsOverview,
-} from "../types/analytics";
+} from "../../types/analytics";
 
 import Loader from "../../components/common/Loader";
 
@@ -68,10 +68,6 @@ interface MetricSummaryProps {
 // ============================================================
 // CONSTANTS
 // ============================================================
-
-const PAGE_BACKGROUND = "#F8F6F1";
-const NAVY = "#0B1736";
-const GOLD = "#F4B81A";
 
 // ============================================================
 // NUMBER FORMATTER
@@ -280,7 +276,7 @@ export default function AnalyticsPage() {
           items-center
           justify-center
           rounded-3xl
-          bg-[#F8F6F1]
+          bg-white/5
           px-6
         "
       >
@@ -299,14 +295,11 @@ export default function AnalyticsPage() {
     <div
       className="
         min-h-screen
-        bg-[#F8F6F1]
       "
     >
       <div
         className="
-          mx-auto
           w-full
-          max-w-[1800px]
           px-4
           py-6
           sm:px-6
@@ -325,8 +318,9 @@ export default function AnalyticsPage() {
             overflow-hidden
             rounded-[2rem]
             border
-            border-slate-200/80
-            bg-white
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             shadow-sm
           "
         >
@@ -341,7 +335,7 @@ export default function AnalyticsPage() {
               h-72
               w-72
               rounded-full
-              bg-[#F4B81A]/10
+              bg-[#C6A15B]/10
               blur-3xl
             "
             aria-hidden="true"
@@ -386,15 +380,15 @@ export default function AnalyticsPage() {
                   gap-2
                   rounded-full
                   border
-                  border-[#F4B81A]/30
-                  bg-[#F4B81A]/10
+                  border-[#C6A15B]/30
+                  bg-[#C6A15B]/10
                   px-3
                   py-1.5
                   text-xs
                   font-bold
                   uppercase
                   tracking-wider
-                  text-[#8A6500]
+                  text-[#C6A15B]
                 "
               >
                 <Activity
@@ -412,7 +406,7 @@ export default function AnalyticsPage() {
                   text-3xl
                   font-black
                   tracking-tight
-                  text-[#0B1736]
+                  text-white
                   sm:text-4xl
                   lg:text-5xl
                 "
@@ -426,7 +420,7 @@ export default function AnalyticsPage() {
                   max-w-2xl
                   text-sm
                   leading-6
-                  text-slate-500
+                  text-slate-300
                   sm:text-base
                 "
               >
@@ -480,14 +474,14 @@ export default function AnalyticsPage() {
                 justify-center
                 gap-2
                 rounded-2xl
-                bg-[#0B1736]
+                bg-[#0B1F3A]
                 px-5
                 py-3
                 text-sm
                 font-bold
                 text-white
                 shadow-lg
-                shadow-[#0B1736]/10
+                shadow-[#0B1F3A]/10
                 transition-all
                 duration-200
                 hover:-translate-y-0.5
@@ -495,7 +489,7 @@ export default function AnalyticsPage() {
                 hover:shadow-xl
                 focus:outline-none
                 focus:ring-2
-                focus:ring-[#F4B81A]
+                focus:ring-[#C6A15B]
                 focus:ring-offset-2
                 disabled:cursor-not-allowed
                 disabled:opacity-60
@@ -560,9 +554,9 @@ export default function AnalyticsPage() {
             value={documentTotal}
             description="Total documents uploaded to the platform."
             iconClassName="
-              bg-blue-50
-              text-blue-600
-              ring-blue-100
+              bg-blue-500/10
+              text-blue-300
+              ring-blue-500/20
             "
             accentClassName="
               from-blue-500/10
@@ -584,9 +578,9 @@ export default function AnalyticsPage() {
             value={queryTotal}
             description="Total conversations handled by the AI assistant."
             iconClassName="
-              bg-violet-50
-              text-violet-600
-              ring-violet-100
+              bg-violet-500/10
+              text-violet-300
+              ring-violet-500/20
             "
             accentClassName="
               from-violet-500/10
@@ -608,9 +602,9 @@ export default function AnalyticsPage() {
             value={accuracyRate}
             description="Current AI document analysis accuracy rate."
             iconClassName="
-              bg-emerald-50
-              text-emerald-600
-              ring-emerald-100
+              bg-emerald-500/10
+              text-emerald-300
+              ring-emerald-500/20
             "
             accentClassName="
               from-emerald-500/10
@@ -679,10 +673,10 @@ export default function AnalyticsPage() {
             overflow-hidden
             rounded-[2rem]
             border
-            border-[#0B1736]/10
-            bg-[#0B1736]
+            border-[#0B1F3A]/10
+            bg-[#0B1F3A]
             shadow-xl
-            shadow-[#0B1736]/10
+            shadow-[#0B1F3A]/10
           "
         >
           {/* Decorative gold glow */}
@@ -696,7 +690,7 @@ export default function AnalyticsPage() {
               h-56
               w-56
               rounded-full
-              bg-[#F4B81A]/20
+              bg-[#C6A15B]/20
               blur-3xl
             "
             aria-hidden="true"
@@ -721,7 +715,7 @@ export default function AnalyticsPage() {
                   flex
                   items-center
                   gap-2
-                  text-[#F4B81A]
+                  text-[#C6A15B]
                 "
               >
                 <CheckCircle2
@@ -766,7 +760,7 @@ export default function AnalyticsPage() {
                 <span
                   className="
                     font-black
-                    text-[#F4B81A]
+                    text-[#C6A15B]
                   "
                 >
                   {accuracyRate}
@@ -787,9 +781,9 @@ export default function AnalyticsPage() {
                 justify-center
                 rounded-3xl
                 border
-                border-[#F4B81A]/30
-                bg-[#F4B81A]/10
-                text-[#F4B81A]
+                border-[#C6A15B]/30
+                bg-[#C6A15B]/10
+                text-[#C6A15B]
               "
             >
               <TrendingUp
@@ -824,14 +818,15 @@ function AnalyticsCard({
         overflow-hidden
         rounded-[2rem]
         border
-        border-slate-200/80
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-sm
         transition-all
         duration-300
         hover:-translate-y-1
-        hover:border-slate-300
+        hover:border-white/20
         hover:shadow-xl
       "
     >
@@ -878,7 +873,7 @@ function AnalyticsCard({
             mt-6
             text-base
             font-black
-            text-[#0B1736]
+            text-white
           "
         >
           {title}
@@ -892,7 +887,7 @@ function AnalyticsCard({
             text-4xl
             font-black
             tracking-tight
-            text-[#0B1736]
+            text-white
             sm:text-5xl
           "
         >
@@ -907,7 +902,7 @@ function AnalyticsCard({
             max-w-sm
             text-sm
             leading-6
-            text-slate-500
+            text-slate-400
           "
         >
           {description}
@@ -922,7 +917,7 @@ function AnalyticsCard({
             items-center
             gap-2
             border-t
-            border-slate-100
+            border-white/10
             pt-4
             text-xs
             font-bold
@@ -966,13 +961,14 @@ function MetricSummary({
         gap-4
         rounded-3xl
         border
-        border-slate-200/80
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-5
         shadow-sm
         transition
         duration-200
-        hover:border-slate-300
+        hover:border-white/20
         hover:shadow-md
       "
     >
@@ -993,8 +989,8 @@ function MetricSummary({
             items-center
             justify-center
             rounded-xl
-            bg-[#0B1736]
-            text-[#F4B81A]
+            bg-[#0B1F3A]
+            text-[#C6A15B]
           "
         >
           {icon}
@@ -1006,7 +1002,7 @@ function MetricSummary({
               truncate
               text-sm
               font-bold
-              text-[#0B1736]
+              text-white
             "
           >
             {label}
@@ -1028,14 +1024,14 @@ function MetricSummary({
         className="
           shrink-0
           rounded-full
-          bg-emerald-50
+          bg-emerald-500/10
           px-3
           py-1.5
           text-xs
           font-black
-          text-emerald-700
+          text-emerald-300
           ring-1
-          ring-emerald-100
+          ring-emerald-500/20
         "
       >
         {value}

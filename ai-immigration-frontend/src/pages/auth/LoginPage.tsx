@@ -545,28 +545,14 @@ return (
 <div
 
 className="
-min-h-screen
-flex
-items-center
-justify-center
-bg-[#F8F6F1]
-px-4
-"
-
->
-
-
-<div
-
-className="
-w-full
-max-w-md
 rounded-3xl
 border
-border-[#E5DED1]
-bg-white
+border-white/10
+bg-white/5
+backdrop-blur-xl
 p-8
-shadow-xl
+shadow-2xl
+shadow-black/40
 "
 
 >
@@ -577,7 +563,7 @@ shadow-xl
 className="
 text-3xl
 font-black
-text-[#0B1736]
+text-white
 "
 
 >
@@ -593,7 +579,7 @@ Welcome back
 
 className="
 mt-3
-text-[#7D8CA3]
+text-slate-300
 "
 
 >
@@ -618,12 +604,12 @@ className="
 mt-5
 rounded-xl
 border
-border-red-200
-bg-red-50
+border-red-500/30
+bg-red-500/10
 px-4
 py-3
 text-sm
-text-red-600
+text-red-300
 "
 
 >
@@ -662,7 +648,7 @@ className="
 mb-2
 block
 font-semibold
-text-[#0B1736]
+text-slate-200
 "
 
 >
@@ -709,12 +695,15 @@ className="
 w-full
 rounded-xl
 border
-border-gray-300
+border-white/15
+bg-white/5
+text-white
+placeholder:text-slate-500
 px-4
 py-3
 outline-none
 focus:ring-2
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 "
 
 />
@@ -736,7 +725,7 @@ className="
 mb-2
 block
 font-semibold
-text-[#0B1736]
+text-slate-200
 "
 
 >
@@ -808,13 +797,16 @@ className="
 w-full
 rounded-xl
 border
-border-gray-300
+border-white/15
+bg-white/5
+text-white
+placeholder:text-slate-500
 px-4
 py-3
 pr-12
 outline-none
 focus:ring-2
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 "
 
 />
@@ -851,7 +843,7 @@ absolute
 right-3
 top-1/2
 -translate-y-1/2
-text-gray-500
+text-slate-400
 "
 
 aria-label="Toggle password visibility"
@@ -908,8 +900,8 @@ to="/forgot-password"
 className="
 text-sm
 font-semibold
-text-[#0B1736]
-hover:text-[#F4B81A]
+text-slate-300
+hover:text-[#C6A15B]
 "
 
 >
@@ -945,12 +937,12 @@ items-center
 justify-center
 gap-2
 rounded-xl
-bg-[#F4B81A]
+bg-[#C6A15B]
 py-4
 font-bold
 text-black
 transition
-hover:bg-[#e6ab12]
+hover:bg-[#A8894D]
 disabled:opacity-50
 "
 
@@ -1001,7 +993,7 @@ className="
 mt-6
 text-center
 text-sm
-text-gray-500
+text-slate-400
 "
 
 >
@@ -1016,8 +1008,8 @@ to="/register"
 
 className="
 font-bold
-text-[#0B1736]
-hover:text-[#F4B81A]
+text-white
+hover:text-[#C6A15B]
 "
 
 >
@@ -1032,9 +1024,6 @@ Create account
 
 
 
-
-
-</div>
 
 
 </div>

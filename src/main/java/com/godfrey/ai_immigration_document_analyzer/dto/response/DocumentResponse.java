@@ -4,18 +4,25 @@ import com.godfrey.ai_immigration_document_analyzer.entity.Document;
 
 import java.time.LocalDateTime;
 
-
 /**
  * ============================================================================
  * DOCUMENT RESPONSE DTO
  * ============================================================================
  *
- * Public API representation of a document.
+ * Public API representation of a stored document.
  *
- * IMPORTANT:
+ * SECURITY
+ * ----------------------------------------------------------------------------
+ * Internal storage information such as:
  *
- * Internal storage information such as the S3 object key is intentionally
- * not exposed directly to the frontend.
+ * - S3 object keys
+ * - internal file paths
+ * - extracted OCR text
+ * - storage provider details
+ *
+ * is intentionally not exposed.
+ *
+ * This DTO is safe for normal document listing/detail endpoints.
  *
  * ============================================================================
  */
@@ -45,47 +52,38 @@ public record DocumentResponse(
 
 ) {
 
-
     /**
-     * Create API response from entity.
+     * Creates a public API response from a Document entity.
+     *
+     * @param document document entity
+     * @return immutable API response
+     * @throws IllegalArgumentException if document is null
      */
     public static DocumentResponse from(
             Document document
     ) {
 
         if (document == null) {
-
             throw new IllegalArgumentException(
                     "Document cannot be null."
             );
         }
 
-
         return new DocumentResponse(
-
                 document.getId(),
-
                 document.getFileName(),
-
                 document.getDocumentType(),
-
                 document.getFileSize(),
-
                 document.getMimeType(),
-
                 document.getSummary(),
-
                 Boolean.TRUE.equals(
                         document.getFraudDetected()
                 ),
-
                 document.getRiskLevel(),
-
                 document.getUploadStatus(),
-
                 document.getUploadedAt(),
-
                 document.getUpdatedAt()
         );
     }
 }
+

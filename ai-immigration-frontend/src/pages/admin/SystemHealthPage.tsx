@@ -23,7 +23,6 @@ import {
   ShieldCheck,
   Wifi,
   XCircle,
-  Zap,
 } from "lucide-react";
 
 /* ============================================================
@@ -249,18 +248,18 @@ function getStatusColor(status: HealthStatus): string {
     case "HEALTHY":
     case "OPERATIONAL":
     case "ONLINE":
-      return "text-green-600";
+      return "text-green-400";
 
     case "WARNING":
     case "DEGRADED":
-      return "text-yellow-600";
+      return "text-yellow-400";
 
     case "DOWN":
     case "OFFLINE":
-      return "text-red-600";
+      return "text-red-400";
 
     default:
-      return "text-slate-500";
+      return "text-slate-400";
   }
 }
 
@@ -269,18 +268,18 @@ function getStatusBackground(status: HealthStatus): string {
     case "HEALTHY":
     case "OPERATIONAL":
     case "ONLINE":
-      return "bg-green-100 text-green-700";
+      return "bg-green-500/10 text-green-300";
 
     case "WARNING":
     case "DEGRADED":
-      return "bg-yellow-100 text-yellow-700";
+      return "bg-yellow-500/10 text-yellow-300";
 
     case "DOWN":
     case "OFFLINE":
-      return "bg-red-100 text-red-700";
+      return "bg-red-500/10 text-red-300";
 
     default:
-      return "bg-slate-100 text-slate-600";
+      return "bg-white/10 text-slate-400";
   }
 }
 
@@ -415,12 +414,12 @@ function HealthCard({
   color,
 }: HealthCardProps) {
   const colorClasses: Record<HealthCardColor, string> = {
-    blue: "bg-blue-100 text-blue-700",
-    green: "bg-green-100 text-green-700",
-    yellow: "bg-yellow-100 text-yellow-700",
-    purple: "bg-purple-100 text-purple-700",
-    red: "bg-red-100 text-red-700",
-    orange: "bg-orange-100 text-orange-700",
+    blue: "bg-blue-500/10 text-blue-300",
+    green: "bg-green-500/10 text-green-300",
+    yellow: "bg-yellow-500/10 text-yellow-300",
+    purple: "bg-purple-500/10 text-purple-300",
+    red: "bg-red-500/10 text-red-300",
+    orange: "bg-orange-500/10 text-orange-300",
   };
 
   return (
@@ -428,8 +427,9 @@ function HealthCard({
       className="
         rounded-3xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-sm
         transition
@@ -449,7 +449,7 @@ function HealthCard({
           <p
             className="
               text-sm
-              text-slate-500
+              text-slate-400
             "
           >
             {title}
@@ -461,7 +461,7 @@ function HealthCard({
               break-words
               text-3xl
               font-black
-              text-[#071330]
+              text-white
             "
           >
             {value}
@@ -514,8 +514,9 @@ function Panel({
       className="
         rounded-3xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-sm
       "
@@ -531,9 +532,9 @@ function Panel({
         <div
           className="
             rounded-xl
-            bg-[#071330]
+            bg-[#C6A15B]/15
             p-2
-            text-[#F4B81A]
+            text-[#C6A15B]
           "
         >
           <Icon size={20} />
@@ -543,7 +544,7 @@ function Panel({
           className="
             text-lg
             font-black
-            text-[#071330]
+            text-white
           "
         >
           {title}
@@ -562,13 +563,13 @@ function Panel({
 function LoadingSkeleton() {
   return (
     <div className="animate-pulse space-y-8">
-      <div className="h-32 rounded-3xl bg-slate-200" />
+      <div className="h-32 rounded-3xl bg-white/10" />
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className="h-36 rounded-3xl bg-slate-200"
+            className="h-36 rounded-3xl bg-white/10"
           />
         ))}
       </div>
@@ -577,7 +578,7 @@ function LoadingSkeleton() {
         {Array.from({ length: 3 }).map((_, index) => (
           <div
             key={index}
-            className="h-80 rounded-3xl bg-slate-200"
+            className="h-80 rounded-3xl bg-white/10"
           />
         ))}
       </div>
@@ -600,12 +601,12 @@ function EmptyState({
         rounded-2xl
         border
         border-dashed
-        border-slate-300
-        bg-slate-50
+        border-white/15
+        bg-white/5
         p-8
         text-center
         text-sm
-        text-slate-500
+        text-slate-400
       "
     >
       {message}
@@ -623,9 +624,9 @@ function IncidentItem({
   incident: SystemIncident;
 }) {
   const severityStyles = {
-    INFO: "bg-blue-50 text-blue-700",
-    WARNING: "bg-yellow-50 text-yellow-700",
-    CRITICAL: "bg-red-50 text-red-700",
+    INFO: "bg-blue-500/10 text-blue-300",
+    WARNING: "bg-yellow-500/10 text-yellow-300",
+    CRITICAL: "bg-red-500/10 text-red-300",
   };
 
   const Icon =
@@ -685,14 +686,15 @@ function AdministrationAction({
       className="
         rounded-2xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
         p-4
         text-left
         font-semibold
+        text-white
         transition
-        hover:border-[#F4B81A]
-        hover:bg-[#FFF4D1]
+        hover:border-[#C6A15B]/50
+        hover:bg-[#C6A15B]/10
         disabled:cursor-not-allowed
         disabled:opacity-50
       "
@@ -926,16 +928,11 @@ export default function SystemHealthPage() {
     <div
       className="
         min-h-screen
-        bg-gradient-to-br
-        from-[#F8F6F1]
-        via-white
-        to-blue-50
       "
     >
       <div
         className="
-          mx-auto
-          max-w-[1700px]
+          w-full
           p-6
         "
       >
@@ -960,7 +957,7 @@ export default function SystemHealthPage() {
                 className="
                   text-4xl
                   font-black
-                  text-[#071330]
+                  text-white
                 "
               >
                 System Health Center
@@ -970,14 +967,14 @@ export default function SystemHealthPage() {
                 <span
                   className="
                     rounded-full
-                    bg-slate-100
+                    bg-white/10
                     px-3
                     py-1
                     text-xs
                     font-bold
                     uppercase
                     tracking-wide
-                    text-slate-600
+                    text-slate-300
                   "
                 >
                   {dashboard.environment}
@@ -989,7 +986,7 @@ export default function SystemHealthPage() {
               className="
                 mt-3
                 max-w-3xl
-                text-slate-600
+                text-slate-300
               "
             >
               Monitor infrastructure, AI services,
@@ -1030,16 +1027,16 @@ export default function SystemHealthPage() {
                 gap-2
                 rounded-2xl
                 border
-                border-slate-200
-                bg-white
+                border-white/15
+                bg-white/5
                 px-5
                 py-3
                 font-bold
-                text-[#071330]
+                text-white
                 shadow-sm
                 transition
-                hover:border-[#F4B81A]
-                hover:bg-[#FFF4D1]
+                hover:border-[#C6A15B]/50
+                hover:bg-[#C6A15B]/10
                 disabled:cursor-not-allowed
                 disabled:opacity-50
               "
@@ -1071,14 +1068,16 @@ export default function SystemHealthPage() {
                 items-center
                 gap-2
                 rounded-2xl
-                bg-[#071330]
+                border
+                border-white/10
+                bg-[#071426]
                 px-6
                 py-3
                 font-bold
                 text-white
                 shadow-sm
                 transition
-                hover:bg-[#183B6B]
+                hover:bg-[#3C4C61]
                 disabled:cursor-not-allowed
                 disabled:opacity-50
               "
@@ -1112,10 +1111,10 @@ export default function SystemHealthPage() {
               gap-3
               rounded-2xl
               border
-              border-red-200
-              bg-red-50
+              border-red-500/30
+              bg-red-500/10
               p-4
-              text-red-700
+              text-red-300
             "
           >
             <XCircle
@@ -1140,14 +1139,14 @@ export default function SystemHealthPage() {
               }
               className="
                 rounded-xl
-                bg-white
+                bg-red-500/15
                 px-4
                 py-2
                 text-sm
                 font-bold
-                text-red-700
+                text-red-200
                 shadow-sm
-                hover:bg-red-100
+                hover:bg-red-500/25
               "
             >
               Retry
@@ -1171,9 +1170,9 @@ export default function SystemHealthPage() {
               className="
                 rounded-3xl
                 bg-gradient-to-r
-                from-[#071330]
-                via-[#183B6B]
-                to-[#0B1736]
+                from-[#071426]
+                via-[#3C4C61]
+                to-[#0B1F3A]
                 p-8
                 text-white
                 shadow-xl
@@ -1203,7 +1202,7 @@ export default function SystemHealthPage() {
                     className="
                       text-6xl
                       font-black
-                      text-[#F4B81A]
+                      text-[#C6A15B]
                     "
                   >
                     {formatPercentage(
@@ -1376,7 +1375,7 @@ export default function SystemHealthPage() {
                             key={metric.key}
                             className="
                               rounded-xl
-                              bg-slate-50
+                              bg-white/5
                               p-4
                             "
                           >
@@ -1391,7 +1390,7 @@ export default function SystemHealthPage() {
                               <div className="flex items-center gap-2">
                                 <Icon
                                   size={17}
-                                  className="text-slate-500"
+                                  className="text-slate-400"
                                 />
 
                                 <span>
@@ -1402,7 +1401,7 @@ export default function SystemHealthPage() {
                               <span
                                 className="
                                   font-bold
-                                  text-[#071330]
+                                  text-white
                                 "
                               >
                                 {metric.value}
@@ -1416,14 +1415,14 @@ export default function SystemHealthPage() {
                                 h-2
                                 overflow-hidden
                                 rounded-full
-                                bg-slate-200
+                                bg-white/10
                               "
                             >
                               <div
                                 className="
                                   h-2
                                   rounded-full
-                                  bg-[#F4B81A]
+                                  bg-[#C6A15B]
                                   transition-all
                                 "
                                 style={{
@@ -1476,7 +1475,7 @@ export default function SystemHealthPage() {
                             key={service.id}
                             className="
                               rounded-xl
-                              bg-slate-50
+                              bg-white/5
                               p-4
                             "
                           >
@@ -1492,14 +1491,13 @@ export default function SystemHealthPage() {
                                 <div
                                   className="
                                     rounded-xl
-                                    bg-white
+                                    bg-white/10
                                     p-2
-                                    shadow-sm
                                   "
                                 >
                                   <Icon
                                     size={18}
-                                    className="text-[#071330]"
+                                    className="text-[#C6A15B]"
                                   />
                                 </div>
 
@@ -1510,7 +1508,7 @@ export default function SystemHealthPage() {
 
                                   {service.responseTimeMs !==
                                     undefined && (
-                                    <p className="text-xs text-slate-500">
+                                    <p className="text-xs text-slate-400">
                                       {formatNumber(
                                         service.responseTimeMs,
                                       )}
@@ -1540,7 +1538,7 @@ export default function SystemHealthPage() {
                             </div>
 
                             {service.description && (
-                              <p className="mt-3 text-xs text-slate-500">
+                              <p className="mt-3 text-xs text-slate-400">
                                 {service.description}
                               </p>
                             )}
@@ -1573,11 +1571,11 @@ export default function SystemHealthPage() {
                             justify-between
                             gap-4
                             rounded-xl
-                            bg-slate-50
+                            bg-white/5
                             p-4
                           "
                         >
-                          <span className="text-slate-600">
+                          <span className="text-slate-300">
                             {metric.label}
                           </span>
 
@@ -1636,9 +1634,9 @@ export default function SystemHealthPage() {
                       items-center
                       gap-3
                       rounded-2xl
-                      bg-green-50
+                      bg-green-500/10
                       p-4
-                      text-green-700
+                      text-green-300
                     "
                   >
                     <CheckCircle2 size={21} />
@@ -1704,11 +1702,12 @@ export default function SystemHealthPage() {
                 gap-2
                 rounded-2xl
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-white/5
+                backdrop-blur-xl
                 p-4
                 text-xs
-                text-slate-500
+                text-slate-400
                 sm:flex-row
                 sm:items-center
                 sm:justify-between
@@ -1726,7 +1725,7 @@ export default function SystemHealthPage() {
               {dashboard.version && (
                 <span>
                   Platform version:{" "}
-                  <strong className="text-slate-700">
+                  <strong className="text-slate-200">
                     {dashboard.version}
                   </strong>
                 </span>
@@ -1738,8 +1737,9 @@ export default function SystemHealthPage() {
             className="
               rounded-3xl
               border
-              border-slate-200
-              bg-white
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
               p-12
               text-center
               shadow-sm
@@ -1755,13 +1755,13 @@ export default function SystemHealthPage() {
                 mt-4
                 text-xl
                 font-black
-                text-[#071330]
+                text-white
               "
             >
               System health unavailable
             </h2>
 
-            <p className="mt-2 text-slate-500">
+            <p className="mt-2 text-slate-400">
               No health information was returned by
               the backend.
             </p>
@@ -1774,12 +1774,12 @@ export default function SystemHealthPage() {
               className="
                 mt-6
                 rounded-2xl
-                bg-[#071330]
+                bg-[#071426]
                 px-6
                 py-3
                 font-bold
                 text-white
-                hover:bg-[#183B6B]
+                hover:bg-[#3C4C61]
               "
             >
               Try Again

@@ -178,6 +178,8 @@ public class DocumentService {
 
     private final LlmService llmService;
 
+    private final NotificationService notificationService;
+
     /**
      * Evidence Intelligence Graph write path (Phase 4 gap closure - see
      * docs/evidence-intelligence-graph.md). Populating these is optional
@@ -443,7 +445,13 @@ public class DocumentService {
             );
 
             // ================================================================
-            // 9. RESPONSE
+            // 9. NOTIFY USER
+            // ================================================================
+
+            notifyDocumentProcessed(savedDocument);
+
+            // ================================================================
+            // 10. RESPONSE
             // ================================================================
 
             return DocumentUploadResponse.success(
@@ -710,6 +718,52 @@ public class DocumentService {
 
 
     // =========================================================================
+    // ADMIN: GET DOCUMENT CONTENT
+    // =========================================================================
+
+    /**
+     * Retrieves the raw file content of a document for administrator review.
+     *
+     * Unlike {@link #getDocumentById(Long, Long)}, this is intentionally not
+     * scoped to a document owner: the caller is an administrator reviewing a
+     * specific applicant's submitted evidence, which {@code SecurityConfig}
+     * already restricts to the ADMIN role.
+     *
+     * @param documentId document ID
+     * @return the stored file bytes together with its display metadata
+     */
+    @Transactional(readOnly = true)
+    public DocumentContent getDocumentContentForAdmin(
+            Long documentId
+    ) {
+
+        validateDocumentId(documentId);
+
+        Document document =
+                documentRepository
+                        .findById(documentId)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException(
+                                        "Document not found."
+                                )
+                        );
+
+        byte[] fileBytes =
+                s3FileStorageService.downloadFile(
+                        document.getFilePath()
+                );
+
+        return new DocumentContent(
+                fileBytes,
+                normalizeMimeType(
+                        document.getMimeType()
+                ),
+                document.getFileName()
+        );
+    }
+
+
+    // =========================================================================
     // DELETE DOCUMENT
     // =========================================================================
 
@@ -826,6 +880,50 @@ public class DocumentService {
             throw new IllegalStateException(
                     "Unable to delete document.",
                     exception
+            );
+        }
+    }
+
+
+    // =========================================================================
+    // NOTIFICATIONS
+    // =========================================================================
+
+    /**
+     * Notifies the document owner once processing has completed.
+     *
+     * A dedicated higher-priority notification is created when the document
+     * was flagged as high risk or a fraud indicator was detected, in
+     * addition to the standard "processing complete" notification.
+     *
+     * Notification failures are logged internally by NotificationService
+     * and never interrupt the upload flow.
+     */
+    private void notifyDocumentProcessed(
+            Document document
+    ) {
+
+        notificationService.notify(
+                document.getUserId(),
+                "DOCUMENT_PROCESSED",
+                "Document analysis complete",
+                "\"" + document.getFileName() + "\" has finished processing.",
+                "/dashboard/documents"
+        );
+
+        boolean flagged =
+                Boolean.TRUE.equals(document.getFraudDetected())
+                        || HIGH_RISK.equalsIgnoreCase(document.getRiskLevel());
+
+        if (flagged) {
+
+            notificationService.notify(
+                    document.getUserId(),
+                    "DOCUMENT_FLAGGED",
+                    "Document needs a closer look",
+                    "\"" + document.getFileName() + "\" was flagged as " + document.getRiskLevel()
+                            + " risk during analysis.",
+                    "/dashboard/documents"
             );
         }
     }
@@ -1853,6 +1951,22 @@ public class DocumentService {
     private record FraudResult(
             boolean fraudDetected,
             int score
+    ) {
+    }
+
+
+    // =========================================================================
+    // DOCUMENT CONTENT
+    // =========================================================================
+
+    /**
+     * A document's raw file bytes together with the metadata needed to
+     * serve it back over HTTP (Content-Type, Content-Disposition filename).
+     */
+    public record DocumentContent(
+            byte[] bytes,
+            String mimeType,
+            String fileName
     ) {
     }
 }

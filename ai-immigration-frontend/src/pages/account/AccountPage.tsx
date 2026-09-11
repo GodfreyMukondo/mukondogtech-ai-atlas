@@ -17,9 +17,8 @@ return (
 <div
 className="
 min-h-screen
-bg-[#F8F6F1]
 p-6
-text-[#0B1736]
+text-slate-100
 "
 >
 

@@ -30,9 +30,8 @@ return (
 <div
 className="
 min-h-screen
-bg-[#F8F6F1]
 p-6
-text-[#0B1736]
+text-slate-100
 "
 >
 
@@ -57,7 +56,7 @@ Notification Settings
 
 <p
 className="
-text-gray-600
+text-slate-300
 mt-2
 mb-10
 "
@@ -70,9 +69,11 @@ Control how MukondoGTech communicates with you.
 
 <div
 className="
-bg-white
-rounded-3xl
 border
+border-white/10
+bg-white/5
+backdrop-blur-xl
+rounded-3xl
 p-8
 space-y-6
 "
@@ -94,7 +95,7 @@ items-center
 >
 
 
-<span>
+<span className="text-slate-200">
 {item}
 </span>
 
@@ -115,12 +116,13 @@ className={`
 w-14
 h-7
 rounded-full
+transition
 ${
 settings[index]
 ?
-"bg-[#F4B81A]"
+"bg-[#C6A15B]"
 :
-"bg-gray-300"
+"bg-white/15"
 }
 `}
 

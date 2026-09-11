@@ -3,7 +3,7 @@
 
 "use client";
 
-import React, {
+import {
   useEffect,
   useRef,
   useState,
@@ -487,7 +487,7 @@ export default function Navbar({
             aria-hidden="true"
             className={
               opened || menuIsActive
-                ? "text-[#F4B81A]"
+                ? "text-[#C6A15B]"
                 : "text-slate-400 group-hover:text-[#FFD45A]"
             }
           />
@@ -502,7 +502,7 @@ export default function Navbar({
               duration-200
               ${
                 opened
-                  ? "rotate-180 text-[#F4B81A]"
+                  ? "rotate-180 text-[#C6A15B]"
                   : "text-slate-500"
               }
             `}
@@ -540,10 +540,12 @@ export default function Navbar({
                 overflow-hidden
                 rounded-2xl
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-[#1F314A]
                 p-2
-                shadow-[0_20px_60px_rgba(15,23,42,0.22)]
+                shadow-2xl
+                shadow-black/40
+                backdrop-blur-xl
               "
             >
               <div className="px-3 pb-2 pt-2">
@@ -575,8 +577,8 @@ export default function Navbar({
 
                         ${
                           active
-                            ? "bg-[#FFF6D8]"
-                            : "hover:bg-slate-50"
+                            ? "bg-[#C6A15B]/15"
+                            : "hover:bg-white/5"
                         }
                       `}
                     >
@@ -594,8 +596,8 @@ export default function Navbar({
 
                           ${
                             active
-                              ? "border-[#F4B81A]/30 bg-[#F4B81A]/15 text-[#B67A00]"
-                              : "border-slate-200 bg-slate-50 text-slate-500 group-hover:border-[#F4B81A]/30 group-hover:bg-[#FFF6D8] group-hover:text-[#B67A00]"
+                              ? "border-[#C6A15B]/30 bg-[#C6A15B]/15 text-[#C6A15B]"
+                              : "border-white/10 bg-white/5 text-slate-400 group-hover:border-[#C6A15B]/30 group-hover:bg-[#C6A15B]/15 group-hover:text-[#C6A15B]"
                           }
                         `}
                       >
@@ -615,8 +617,8 @@ export default function Navbar({
 
                             ${
                               active
-                                ? "text-[#8B6100]"
-                                : "text-slate-800"
+                                ? "text-[#FFD45A]"
+                                : "text-white"
                             }
                           `}
                         >
@@ -624,7 +626,7 @@ export default function Navbar({
                         </span>
 
                         {item.description && (
-                          <span className="mt-0.5 block truncate text-xs text-slate-500">
+                          <span className="mt-0.5 block truncate text-xs text-slate-400">
                             {item.description}
                           </span>
                         )}
@@ -635,7 +637,7 @@ export default function Navbar({
                         aria-hidden="true"
                         className="
                           opacity-0
-                          text-[#B67A00]
+                          text-[#C6A15B]
                           transition-all
                           duration-200
                           group-hover:translate-x-0.5
@@ -671,7 +673,7 @@ export default function Navbar({
         <div className="flex items-center gap-2 px-2 pt-2">
           <SectionIcon
             size={15}
-            className="text-[#F4B81A]"
+            className="text-[#C6A15B]"
             aria-hidden="true"
           />
 
@@ -710,7 +712,7 @@ export default function Navbar({
 
                   ${
                     active
-                      ? "bg-[#F4B81A]/15 text-[#FFD45A]"
+                      ? "bg-[#C6A15B]/15 text-[#FFD45A]"
                       : "text-slate-200 hover:bg-white/[0.06]"
                   }
                 `}
@@ -727,7 +729,7 @@ export default function Navbar({
 
                     ${
                       active
-                        ? "bg-[#F4B81A]/15 text-[#F4B81A]"
+                        ? "bg-[#C6A15B]/15 text-[#C6A15B]"
                         : "bg-white/[0.05] text-slate-400"
                     }
                   `}
@@ -783,7 +785,7 @@ export default function Navbar({
         z-50
         border-b
         border-white/10
-        bg-[#071330]/95
+        bg-[#071426]/95
         shadow-[0_8px_30px_rgba(0,0,0,0.18)]
         backdrop-blur-xl
       "
@@ -834,9 +836,9 @@ export default function Navbar({
               border
               border-[#FFD45A]/40
               bg-gradient-to-br
-              from-[#F4B81A]
-              to-[#FFD96A]
-              shadow-[0_8px_25px_rgba(244,184,26,0.20)]
+              from-[#C6A15B]
+              to-[#D4B984]
+              shadow-[0_8px_25px_rgba(198, 161, 91,0.20)]
               transition-transform
               duration-300
               group-hover:scale-[1.03]
@@ -845,7 +847,7 @@ export default function Navbar({
             <BrainCircuit
               size={24}
               strokeWidth={2}
-              className="text-[#071330]"
+              className="text-[#071426]"
               aria-hidden="true"
             />
 
@@ -866,7 +868,7 @@ export default function Navbar({
           <span className="hidden sm:block">
             <span className="block text-[17px] font-black tracking-tight text-white">
               MukondoGTech
-              <span className="ml-1 text-[#F4B81A]">
+              <span className="ml-1 text-[#C6A15B]">
                 AI
               </span>
             </span>
@@ -943,18 +945,18 @@ export default function Navbar({
                   border
                   border-[#FFD45A]
                   bg-gradient-to-r
-                  from-[#F4B81A]
-                  to-[#FFD96A]
+                  from-[#C6A15B]
+                  to-[#D4B984]
                   px-5
                   py-2.5
                   text-sm
                   font-extrabold
-                  text-[#071330]
-                  shadow-[0_8px_25px_rgba(244,184,26,0.18)]
+                  text-[#071426]
+                  shadow-[0_8px_25px_rgba(198, 161, 91,0.18)]
                   transition-all
                   duration-200
                   hover:-translate-y-0.5
-                  hover:shadow-[0_12px_32px_rgba(244,184,26,0.28)]
+                  hover:shadow-[0_12px_32px_rgba(198, 161, 91,0.28)]
                 "
               >
                 <span>Start Free</span>
@@ -1141,7 +1143,7 @@ export default function Navbar({
               overflow-hidden
               border-t
               border-white/10
-              bg-[#071330]
+              bg-[#071426]
               lg:hidden
             "
           >
@@ -1181,13 +1183,13 @@ export default function Navbar({
                     justify-center
                     rounded-xl
                     bg-gradient-to-br
-                    from-[#F4B81A]
-                    to-[#FFD96A]
+                    from-[#C6A15B]
+                    to-[#D4B984]
                   "
                 >
                   <BrainCircuit
                     size={21}
-                    className="text-[#071330]"
+                    className="text-[#071426]"
                     aria-hidden="true"
                   />
                 </div>
@@ -1275,13 +1277,13 @@ export default function Navbar({
                         gap-2
                         rounded-xl
                         bg-gradient-to-r
-                        from-[#F4B81A]
-                        to-[#FFD96A]
+                        from-[#C6A15B]
+                        to-[#D4B984]
                         px-4
                         py-3
                         text-sm
                         font-extrabold
-                        text-[#071330]
+                        text-[#071426]
                       "
                     >
                       Start Free

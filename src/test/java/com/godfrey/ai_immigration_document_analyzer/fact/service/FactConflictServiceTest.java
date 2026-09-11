@@ -367,6 +367,73 @@ class FactConflictServiceTest {
     }
 
     // =========================================================================
+    // APPLICANT CONFIRMATION - SELF-REPORTED, NEVER VERIFICATION
+    // =========================================================================
+
+    @Test
+    void applicantConfirmationAcceptsTheConfirmedValueAndRejectsTheOtherWithoutVerifying() {
+
+        Fact factA = baseFact(1L, "IDENTITY.FULL_NAME", FactProvenanceType.USER_INPUT).status(FactStatus.CONTESTED).build();
+        Fact factB = baseFact(2L, "IDENTITY.FULL_NAME", FactProvenanceType.USER_INPUT).status(FactStatus.CONTESTED).build();
+
+        FactConflict conflict = FactConflict.builder()
+                .id(50L)
+                .subjectUserId(SUBJECT_ID)
+                .factKey("IDENTITY.FULL_NAME")
+                .factAId(1L)
+                .factBId(2L)
+                .status(ConflictStatus.OPEN)
+                .build();
+
+        when(factRepository.findById(1L)).thenReturn(Optional.of(factA));
+        when(factRepository.findById(2L)).thenReturn(Optional.of(factB));
+
+        FactConflict resolved = conflictService.applicantConfirm(conflict, 2L, SUBJECT_ID, "This is the correct value.");
+
+        assertThat(factB.getStatus()).isEqualTo(FactStatus.ACCEPTED);
+        assertThat(factA.getStatus()).isEqualTo(FactStatus.REJECTED);
+        assertThat(factA.getRejectionReason()).contains("not a fraud determination");
+
+        // The critical semantic invariant: self-confirmation never sets the
+        // independent verification overlay on either fact.
+        assertThat(factB.getIsVerified()).isFalse();
+        assertThat(factA.getIsVerified()).isFalse();
+
+        assertThat(resolved.getStatus()).isEqualTo(ConflictStatus.RESOLVED);
+        assertThat(resolved.getResolutionType()).isEqualTo(ConflictResolutionType.APPLICANT_CONFIRMATION);
+        assertThat(resolved.getWinningFactId()).isEqualTo(2L);
+        assertThat(resolved.getResolvedByUserId()).isEqualTo(SUBJECT_ID);
+
+        // Neither fact is ever deleted - competing evidence/history is retained.
+        verify(factRepository, never()).delete(any());
+        verify(factRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void applicantConfirmationRejectsAConfirmedFactIdNotPartOfTheConflict() {
+
+        FactConflict conflict = FactConflict.builder()
+                .id(50L).subjectUserId(SUBJECT_ID).factKey("IDENTITY.FULL_NAME")
+                .factAId(1L).factBId(2L).status(ConflictStatus.OPEN)
+                .build();
+
+        assertThatThrownBy(() -> conflictService.applicantConfirm(conflict, 999L, SUBJECT_ID, "n/a"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void applicantConfirmationRejectsAnAlreadyResolvedConflict() {
+
+        FactConflict conflict = FactConflict.builder()
+                .id(50L).subjectUserId(SUBJECT_ID).factKey("IDENTITY.FULL_NAME")
+                .factAId(1L).factBId(2L).status(ConflictStatus.RESOLVED)
+                .build();
+
+        assertThatThrownBy(() -> conflictService.applicantConfirm(conflict, 1L, SUBJECT_ID, "n/a"))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    // =========================================================================
     // HELPERS
     // =========================================================================
 

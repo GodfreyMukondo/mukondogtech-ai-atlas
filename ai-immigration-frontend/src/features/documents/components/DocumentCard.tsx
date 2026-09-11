@@ -53,10 +53,14 @@ interface Props {
 
 type DocumentStatus =
   | "VERIFIED"
+  | "COMPLETED"
+  | "SUCCESS"
   | "PENDING"
   | "REJECTED"
   | "PROCESSING"
+  | "ANALYZING"
   | "IN_PROGRESS"
+  | "UPLOADED"
   | "UPLOADING"
   | "FAILED"
   | "ERROR"
@@ -107,6 +111,12 @@ const normalizeStatus = (
     case "VERIFIED":
       return "VERIFIED";
 
+    case "COMPLETED":
+      return "COMPLETED";
+
+    case "SUCCESS":
+      return "SUCCESS";
+
     case "PENDING":
       return "PENDING";
 
@@ -116,8 +126,14 @@ const normalizeStatus = (
     case "PROCESSING":
       return "PROCESSING";
 
+    case "ANALYZING":
+      return "ANALYZING";
+
     case "IN_PROGRESS":
       return "IN_PROGRESS";
+
+    case "UPLOADED":
+      return "UPLOADED";
 
     case "UPLOADING":
       return "UPLOADING";
@@ -155,28 +171,32 @@ const getStatusColor = (
   ) {
 
     case "VERIFIED":
-      return "text-green-600";
+    case "COMPLETED":
+    case "SUCCESS":
+      return "text-emerald-400";
 
     case "PENDING":
-      return "text-yellow-600";
+      return "text-[#C6A15B]";
 
     case "PROCESSING":
+    case "ANALYZING":
     case "IN_PROGRESS":
+    case "UPLOADED":
     case "UPLOADING":
-      return "text-blue-600";
+      return "text-blue-400";
 
     case "UNDER_REVIEW":
     case "REVIEW":
-      return "text-indigo-600";
+      return "text-indigo-300";
 
     case "REJECTED":
     case "FAILED":
     case "ERROR":
-      return "text-red-600";
+      return "text-red-400";
 
     case "UNKNOWN":
     default:
-      return "text-slate-600";
+      return "text-slate-400";
   }
 };
 
@@ -204,14 +224,26 @@ const getStatusLabel = (
     case "VERIFIED":
       return "Verified";
 
+    case "COMPLETED":
+      return "Completed";
+
+    case "SUCCESS":
+      return "Success";
+
     case "PENDING":
       return "Pending";
 
     case "PROCESSING":
       return "Processing";
 
+    case "ANALYZING":
+      return "Analyzing";
+
     case "IN_PROGRESS":
       return "In Progress";
+
+    case "UPLOADED":
+      return "Uploaded";
 
     case "UPLOADING":
       return "Uploading";
@@ -337,12 +369,14 @@ export default function DocumentCard({
   return (
     <div
       className="
-        bg-white
         border
-        border-[#E5DED1]
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         rounded-3xl
         p-6
-        hover:shadow-lg
+        hover:-translate-y-1
+        hover:bg-white/[0.08]
         transition-all
         duration-200
       "
@@ -358,7 +392,7 @@ export default function DocumentCard({
 
         <FileText
           size={22}
-          className="text-[#F4B81A] shrink-0"
+          className="text-[#C6A15B] shrink-0"
           aria-hidden="true"
         />
 
@@ -378,7 +412,7 @@ export default function DocumentCard({
             className="
               font-bold
               text-lg
-              text-[#0B1736]
+              text-white
               break-words
             "
           >
@@ -397,8 +431,8 @@ export default function DocumentCard({
               px-3
               py-1
               rounded-full
-              bg-[#FFF4D1]
-              text-[#0B1736]
+              bg-[#C6A15B]/15
+              text-[#C6A15B]
               text-sm
               font-medium
               break-words
@@ -419,7 +453,7 @@ export default function DocumentCard({
               items-center
               gap-2
               text-sm
-              text-[#7D8CA3]
+              text-slate-400
             "
           >
 

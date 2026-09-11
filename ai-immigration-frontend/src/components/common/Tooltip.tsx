@@ -1,6 +1,9 @@
 import {
-ReactNode,
 useState
+} from "react";
+
+import type {
+ReactNode
 } from "react";
 
 
@@ -86,7 +89,7 @@ px-3
 py-2
 text-xs
 text-white
-bg-[#0B1736]
+bg-[#0B1F3A]
 rounded-lg
 shadow-lg
 whitespace-nowrap

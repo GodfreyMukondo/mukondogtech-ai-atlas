@@ -344,6 +344,43 @@ public class FactService {
         return FactConflictResponse.from(resolved);
     }
 
+    /**
+     * The applicant's own confirmation of which side of THEIR OWN open
+     * conflict is correct - a distinct, subject-only operation from
+     * {@link #resolveConflict}, never reachable by a CASE_WORKER/ADMIN and
+     * never routed through {@code assertCanVerifyOrResolve}.
+     * {@code conflict.getSubjectUserId()} (loaded from the persisted
+     * record) is what authorization checks the caller against - the
+     * request body carries no subjectUserId of its own to trust or distrust.
+     */
+    @Transactional
+    public FactConflictResponse applicantConfirmConflict(
+            AuthenticatedUser actor,
+            Long conflictId,
+            ConflictResolutionRequest request
+    ) {
+
+        FactConflict conflict = conflictRepository.findById(conflictId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conflict not found."));
+
+        authorizationService.assertCanApplicantConfirmConflict(
+                actor,
+                conflict.getSubjectUserId(),
+                null,
+                null,
+                "applicant confirm conflict"
+        );
+
+        FactConflict resolved = factConflictService.applicantConfirm(
+                conflict,
+                request.getWinningFactId(),
+                actor.getUserId(),
+                request.getNotes()
+        );
+
+        return FactConflictResponse.from(resolved);
+    }
+
     // =========================================================================
     // HELPERS
     // =========================================================================

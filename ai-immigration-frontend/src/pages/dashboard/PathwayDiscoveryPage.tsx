@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import {
   AlertTriangle,
   ArrowRight,
+  Bot,
   Info,
   RefreshCw,
   ShieldQuestion,
@@ -31,6 +32,7 @@ import Button from "../../components/common/Button";
 import ErrorAlert from "../../components/common/ErrorAlert";
 import EmptyState from "../../components/common/EmptyState";
 import Skeleton from "../../components/common/Skeleton";
+import PathwayDiscoveryExplanationPanel from "../../components/agent/PathwayDiscoveryExplanationPanel";
 
 /**
  * ============================================================================
@@ -62,6 +64,7 @@ export default function PathwayDiscoveryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedPathwayId, setExpandedPathwayId] = useState<number | null>(null);
+  const [explainingDiscovery, setExplainingDiscovery] = useState(false);
 
   const loadDiscovery = useCallback(async () => {
 
@@ -118,6 +121,15 @@ export default function PathwayDiscoveryPage() {
             <p>{discovery.disclaimer}</p>
           </div>
         )}
+
+        {discovery && discovery.rankedPathways.length > 0 && (
+          <div className="mt-4">
+            <Button variant="outline" onClick={() => setExplainingDiscovery(true)}>
+              <Bot size={16} />
+              Explain My Recommendations
+            </Button>
+          </div>
+        )}
       </header>
 
       {loading && (
@@ -165,6 +177,15 @@ export default function PathwayDiscoveryPage() {
               onAssess={() => navigate(`/dashboard/pathways/assessments/new?pathwayId=${row.pathwayId}`)}
             />
           ))}
+        </div>
+      )}
+
+      {explainingDiscovery && user?.id != null && (
+        <div className="fixed inset-y-0 right-0 z-40 h-full">
+          <PathwayDiscoveryExplanationPanel
+            subjectUserId={user.id}
+            onClose={() => setExplainingDiscovery(false)}
+          />
         </div>
       )}
     </motion.div>

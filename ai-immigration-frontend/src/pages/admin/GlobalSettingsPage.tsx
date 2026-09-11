@@ -277,12 +277,13 @@ function SettingToggle({
         gap-5
         rounded-2xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-5
         transition-all
         duration-200
-        hover:border-slate-300
+        hover:border-white/20
         hover:shadow-md
       "
     >
@@ -296,10 +297,8 @@ function SettingToggle({
             items-center
             justify-center
             rounded-xl
-            bg-gradient-to-br
-            from-amber-50
-            to-yellow-100
-            text-[#0B1736]
+            bg-[#C6A15B]/15
+            text-[#C6A15B]
             shadow-sm
           "
         >
@@ -310,7 +309,7 @@ function SettingToggle({
           <h3
             className="
               font-bold
-              text-[#0B1736]
+              text-white
             "
           >
             {title}
@@ -321,7 +320,7 @@ function SettingToggle({
               mt-1
               text-sm
               leading-6
-              text-slate-500
+              text-slate-400
             "
           >
             {description}
@@ -344,7 +343,7 @@ function SettingToggle({
           transition
           focus:outline-none
           focus:ring-2
-          focus:ring-[#F4B81A]
+          focus:ring-[#C6A15B]
           focus:ring-offset-2
           disabled:cursor-not-allowed
           disabled:opacity-50
@@ -359,7 +358,7 @@ function SettingToggle({
           <ToggleRight
             size={42}
             strokeWidth={1.8}
-            className="text-emerald-600"
+            className="text-emerald-400"
           />
         ) : (
           <ToggleLeft
@@ -388,8 +387,9 @@ function Section({
       className="
         rounded-3xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-sm
         transition-all
@@ -416,7 +416,7 @@ function Section({
             justify-center
             rounded-2xl
             bg-gradient-to-br
-            from-[#071330]
+            from-[#071426]
             via-[#10254D]
             to-[#24558F]
             shadow-lg
@@ -425,7 +425,7 @@ function Section({
           <Icon
             size={23}
             strokeWidth={2}
-            className="text-[#F4B81A]"
+            className="text-[#C6A15B]"
           />
         </div>
 
@@ -435,7 +435,7 @@ function Section({
               text-xl
               font-black
               tracking-tight
-              text-[#0B1736]
+              text-white
             "
           >
             {title}
@@ -446,7 +446,7 @@ function Section({
               mt-1
               text-sm
               leading-6
-              text-slate-500
+              text-slate-400
             "
           >
             {description}
@@ -477,10 +477,8 @@ function InformationCard({
       className="
         rounded-2xl
         border
-        border-slate-200
-        bg-gradient-to-br
-        from-slate-50
-        to-white
+        border-white/10
+        bg-white/5
         p-5
       "
     >
@@ -493,14 +491,14 @@ function InformationCard({
             items-center
             justify-center
             rounded-xl
-            bg-blue-50
-            text-blue-700
+            bg-blue-500/10
+            text-blue-300
           "
         >
           <Icon size={19} />
         </div>
 
-        <p className="text-sm font-medium text-slate-500">
+        <p className="text-sm font-medium text-slate-400">
           {label}
         </p>
       </div>
@@ -511,7 +509,7 @@ function InformationCard({
           break-words
           text-lg
           font-black
-          text-[#0B1736]
+          text-white
         "
       >
         {value || "Not configured"}
@@ -736,10 +734,6 @@ export default function GlobalSettingsPage() {
     <div
       className="
         min-h-screen
-        bg-gradient-to-br
-        from-[#F8F6F1]
-        via-white
-        to-slate-100
         p-4
         sm:p-6
         lg:p-8
@@ -747,8 +741,7 @@ export default function GlobalSettingsPage() {
     >
       <div
         className="
-          mx-auto
-          max-w-[1600px]
+          w-full
           space-y-8
         "
       >
@@ -762,7 +755,7 @@ export default function GlobalSettingsPage() {
             rounded-[2rem]
             bg-gradient-to-br
             from-[#050D21]
-            via-[#0B1736]
+            via-[#0B1F3A]
             to-[#24558F]
             text-white
             shadow-2xl
@@ -804,7 +797,7 @@ export default function GlobalSettingsPage() {
                 >
                   <Settings
                     size={25}
-                    className="text-[#F4B81A]"
+                    className="text-[#C6A15B]"
                   />
                 </div>
 
@@ -916,11 +909,11 @@ export default function GlobalSettingsPage() {
                   justify-center
                   gap-3
                   rounded-2xl
-                  bg-[#F4B81A]
+                  bg-[#C6A15B]
                   px-6
                   py-3
                   font-black
-                  text-[#071330]
+                  text-[#071426]
                   shadow-lg
                   transition-all
                   hover:-translate-y-0.5
@@ -959,10 +952,10 @@ export default function GlobalSettingsPage() {
               gap-4
               rounded-2xl
               border
-              border-red-200
-              bg-red-50
+              border-red-500/30
+              bg-red-500/10
               p-4
-              text-red-800
+              text-red-300
               sm:flex-row
               sm:items-center
               sm:justify-between
@@ -1027,12 +1020,12 @@ export default function GlobalSettingsPage() {
               gap-3
               rounded-2xl
               border
-              border-emerald-200
-              bg-emerald-50
+              border-emerald-500/30
+              bg-emerald-500/10
               p-4
               text-sm
               font-bold
-              text-emerald-700
+              text-emerald-300
             "
           >
             <CheckCircle2 size={21} />
@@ -1054,8 +1047,9 @@ export default function GlobalSettingsPage() {
               justify-center
               rounded-3xl
               border
-              border-slate-200
-              bg-white
+              border-white/10
+              bg-white/5
+              backdrop-blur-xl
               shadow-sm
             "
           >
@@ -1065,7 +1059,7 @@ export default function GlobalSettingsPage() {
                 className="
                   mx-auto
                   animate-spin
-                  text-[#183B6B]
+                  text-blue-300
                 "
               />
 
@@ -1073,7 +1067,7 @@ export default function GlobalSettingsPage() {
                 className="
                   mt-4
                   font-bold
-                  text-[#0B1736]
+                  text-white
                 "
               >
                 Loading platform settings...
@@ -1083,7 +1077,7 @@ export default function GlobalSettingsPage() {
                 className="
                   mt-1
                   text-sm
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 Synchronizing configuration
@@ -1377,10 +1371,8 @@ export default function GlobalSettingsPage() {
                 gap-4
                 rounded-3xl
                 border
-                border-blue-200
-                bg-gradient-to-r
-                from-blue-50
-                to-indigo-50
+                border-blue-500/20
+                bg-blue-500/10
                 p-6
               "
             >
@@ -1393,8 +1385,8 @@ export default function GlobalSettingsPage() {
                   items-center
                   justify-center
                   rounded-xl
-                  bg-blue-100
-                  text-blue-700
+                  bg-blue-500/10
+                  text-blue-300
                 "
               >
                 <Info size={20} />
@@ -1404,7 +1396,7 @@ export default function GlobalSettingsPage() {
                 <h3
                   className="
                     font-black
-                    text-[#0B1736]
+                    text-white
                   "
                 >
                   Backend-controlled configuration
@@ -1415,7 +1407,7 @@ export default function GlobalSettingsPage() {
                     mt-1
                     text-sm
                     leading-6
-                    text-slate-600
+                    text-slate-300
                   "
                 >
                   Platform configuration is retrieved
@@ -1448,11 +1440,11 @@ export default function GlobalSettingsPage() {
               gap-4
               rounded-2xl
               border
-              border-amber-200
-              bg-amber-50/95
+              border-amber-500/20
+              bg-[#1F314A]/95
               p-4
               shadow-xl
-              backdrop-blur
+              backdrop-blur-xl
               sm:flex-row
               sm:items-center
               sm:justify-between
@@ -1464,16 +1456,16 @@ export default function GlobalSettingsPage() {
                 className="
                   mt-0.5
                   shrink-0
-                  text-amber-600
+                  text-amber-400
                 "
               />
 
               <div>
-                <p className="font-black text-amber-900">
+                <p className="font-black text-white">
                   Unsaved changes
                 </p>
 
-                <p className="mt-0.5 text-sm text-amber-800">
+                <p className="mt-0.5 text-sm text-amber-200">
                   Your configuration changes have
                   not been saved yet.
                 </p>
@@ -1488,15 +1480,15 @@ export default function GlobalSettingsPage() {
                 className="
                   rounded-xl
                   border
-                  border-amber-200
-                  bg-white
+                  border-white/15
+                  bg-white/5
                   px-4
                   py-2.5
                   text-sm
                   font-bold
-                  text-slate-700
+                  text-slate-200
                   transition
-                  hover:bg-slate-50
+                  hover:bg-white/10
                   disabled:opacity-50
                 "
               >
@@ -1514,14 +1506,14 @@ export default function GlobalSettingsPage() {
                   items-center
                   gap-2
                   rounded-xl
-                  bg-[#071330]
+                  bg-[#071426]
                   px-5
                   py-2.5
                   text-sm
                   font-bold
                   text-white
                   transition
-                  hover:bg-[#183B6B]
+                  hover:bg-[#3C4C61]
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "

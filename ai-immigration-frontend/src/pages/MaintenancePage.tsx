@@ -11,7 +11,6 @@ return (
 <div
 className="
 min-h-screen
-bg-[#F8F6F1]
 flex
 items-center
 justify-center
@@ -28,7 +27,7 @@ p-6
 size={70}
 className="
 mx-auto
-text-[#F4B81A]
+text-[#C6A15B]
 "
 />
 
@@ -46,7 +45,7 @@ Under Maintenance
 
 <p
 className="
-text-gray-600
+text-slate-300
 mt-4
 max-w-md
 "

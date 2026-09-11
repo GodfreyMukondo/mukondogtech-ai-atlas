@@ -1,4 +1,4 @@
-import {
+import type {
   ButtonHTMLAttributes,
   ReactNode,
 } from "react";
@@ -10,16 +10,16 @@ interface ButtonProps
   children: ReactNode;
 
   variant?:
-     "primary"
-     "secondary"
-     "danger"
-     "outline"
-     "ghost";
+     | "primary"
+     | "secondary"
+     | "danger"
+     | "outline"
+     | "ghost";
 
   size?:
-     "sm"
-     "md"
-     "lg";
+     | "sm"
+     | "md"
+     | "lg";
 
   loading?: boolean;
 }
@@ -39,19 +39,19 @@ export default function Button({
   const variants = {
 
     primary:
-      "bg-[#F4B81A] text-black hover:bg-[#E5AA12]",
+      "bg-[#C6A15B] text-black hover:bg-[#A8894D]",
 
     secondary:
-      "bg-[#071330] text-white hover:bg-[#0B1736]",
+      "border border-white/15 bg-white/10 text-white hover:bg-white/20",
 
     danger:
       "bg-red-500 text-white hover:bg-red-600",
 
     outline:
-      "border border-[#D9DDE5] text-[#0B1736] hover:bg-gray-50",
+      "border border-white/20 text-white hover:bg-white/10",
 
     ghost:
-      "text-[#0B1736] hover:bg-gray-100",
+      "text-white hover:bg-white/10",
 
   };
 

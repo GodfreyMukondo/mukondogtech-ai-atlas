@@ -53,9 +53,12 @@ return (
 w-full
 rounded-xl
 border
-bg-white
+border-white/10
+bg-white/5
+backdrop-blur-xl
 p-4
-shadow-sm
+shadow-lg
+shadow-black/20
 ">
 
 
@@ -79,7 +82,7 @@ status==="uploading" &&
 
 <UploadCloud
 className="
-text-[#F4B81A]
+text-[#C6A15B]
 "
 />
 
@@ -93,7 +96,7 @@ status==="success" &&
 
 <CheckCircle
 className="
-text-green-600
+text-emerald-400
 "
 />
 
@@ -107,7 +110,7 @@ status==="error" &&
 
 <XCircle
 className="
-text-red-600
+text-red-400
 "
 />
 
@@ -121,7 +124,7 @@ text-red-600
 <p className="
 text-sm
 font-medium
-text-[#0B1736]
+text-white
 truncate
 max-w-xs
 ">
@@ -133,7 +136,7 @@ max-w-xs
 
 <p className="
 text-xs
-text-gray-500
+text-slate-400
 ">
 
 {
@@ -174,7 +177,7 @@ onClick={onCancel}
 
 className="
 text-sm
-text-red-600
+text-red-400
 hover:underline
 "
 
@@ -199,7 +202,7 @@ Cancel
 <div className="
 mt-4
 h-2
-bg-gray-200
+bg-white/10
 rounded-full
 overflow-hidden
 ">
@@ -209,7 +212,7 @@ overflow-hidden
 
 className="
 h-full
-bg-[#F4B81A]
+bg-[#C6A15B]
 transition-all
 duration-300
 "

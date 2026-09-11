@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 
 import Navbar from "../../components/landing/Navbar";
@@ -18,7 +18,6 @@ export default function LandingLayout({
         min-h-screen
         flex
         flex-col
-        bg-white
       "
     >
       <Navbar />

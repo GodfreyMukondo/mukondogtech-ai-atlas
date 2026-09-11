@@ -216,10 +216,6 @@ try{
 
     await changePassword({
 
-        currentPassword:
-            form.currentPassword,
-
-
         newPassword:
             form.newPassword,
 
@@ -327,7 +323,6 @@ min-h-screen
 flex
 items-center
 justify-center
-bg-[#F8F6F1]
 px-4
 "
 
@@ -367,7 +362,7 @@ gap-3
 
 className="
 rounded-2xl
-bg-[#F4B81A]/20
+bg-[#C6A15B]/20
 p-3
 "
 
@@ -375,7 +370,7 @@ p-3
 
 <Lock
 
-className="text-[#F4B81A]"
+className="text-[#C6A15B]"
 
 />
 
@@ -388,7 +383,7 @@ className="text-[#F4B81A]"
 className="
 text-3xl
 font-black
-text-[#0B1736]
+text-[#0B1F3A]
 "
 
 >
@@ -436,7 +431,7 @@ className="
 mt-3
 text-sm
 font-semibold
-text-[#0B1736]
+text-[#0B1F3A]
 "
 
 >
@@ -589,7 +584,7 @@ className="
 mb-2
 block
 font-semibold
-text-[#0B1736]
+text-[#0B1F3A]
 "
 
 >
@@ -675,7 +670,7 @@ py-3
 pr-12
 outline-none
 focus:ring-2
-focus:ring-[#F4B81A]
+focus:ring-[#C6A15B]
 "
 
 
@@ -787,12 +782,12 @@ items-center
 justify-center
 gap-2
 rounded-xl
-bg-[#F4B81A]
+bg-[#C6A15B]
 py-4
 font-black
 text-black
 transition
-hover:bg-[#e6ab12]
+hover:bg-[#A8894D]
 disabled:opacity-50
 "
 

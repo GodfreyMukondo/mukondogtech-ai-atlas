@@ -59,6 +59,9 @@ class DocumentServiceOwnershipTest {
     private LlmService llmService;
 
     @Mock
+    private NotificationService notificationService;
+
+    @Mock
     private DocumentVersionRepository documentVersionRepository;
 
     @Mock
@@ -77,6 +80,7 @@ class DocumentServiceOwnershipTest {
                 ocrService,
                 documentRepository,
                 llmService,
+                notificationService,
                 documentVersionRepository,
                 evidenceItemRepository,
                 evidenceItemLifecycleService

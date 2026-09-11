@@ -79,9 +79,9 @@ className="
 relative
 overflow-hidden
 bg-gradient-to-br
-from-[#111827]
-via-[#1F2937]
-to-[#064E3B]
+from-[#071426]
+via-[#0B1F3A]
+to-[#3C4C61]
 text-white
 "
 >
@@ -97,7 +97,7 @@ left-0
 h-96
 w-96
 rounded-full
-bg-emerald-400/20
+bg-blue-400/20
 blur-3xl
 "
 />
@@ -233,13 +233,13 @@ flex
 items-center
 gap-2
 rounded-xl
-bg-emerald-600
+bg-[#C6A15B]
 px-5
 py-3
 font-bold
-text-white
+text-[#071426]
 transition
-hover:bg-emerald-700
+hover:bg-[#A8894D]
 "
 >
 
@@ -386,7 +386,7 @@ p-3
 
 <ShieldCheck
 size={20}
-className="text-emerald-400"
+className="text-[#C6A15B]"
 />
 
 <span

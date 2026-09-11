@@ -11,4 +11,12 @@ import java.util.List;
 public interface RequirementEvaluationFactRepository extends JpaRepository<RequirementEvaluationFact, Long> {
 
     List<RequirementEvaluationFact> findByEvaluationId(Long evaluationId);
+
+    /**
+     * Reverse lookup used by the Evidence Intelligence Graph's per-Fact
+     * traversal (EvidenceGraphService) - "which evaluations depend on this
+     * Fact," the one upward hop the per-Fact graph view adds beyond
+     * Document/Evidence/Conflict.
+     */
+    List<RequirementEvaluationFact> findByFactId(Long factId);
 }

@@ -27,7 +27,6 @@ export default function PricingPreview() {
       id="pricing"
       className="
         py-24
-        bg-[#F8F6F1]
       "
     >
 
@@ -46,7 +45,7 @@ export default function PricingPreview() {
             text-4xl
             md:text-5xl
             font-bold
-            text-[#0B1736]
+            text-white
           "
         >
           Simple pricing for smarter verification
@@ -60,7 +59,7 @@ export default function PricingPreview() {
             max-w-2xl
             mx-auto
             text-lg
-            text-[#7D8CA3]
+            text-slate-300
           "
         >
           Start with powerful AI immigration document
@@ -79,10 +78,12 @@ export default function PricingPreview() {
             mx-auto
             rounded-3xl
             border
-            border-[#E5DED1]
-            bg-white
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             p-8
-            shadow-xl
+            shadow-2xl
+            shadow-black/40
             transition-all
             duration-300
             hover:-translate-y-2
@@ -94,12 +95,12 @@ export default function PricingPreview() {
             className="
               inline-flex
               rounded-full
-              bg-[#FFF4D1]
+              bg-[#C6A15B]/15
               px-4
               py-2
               text-sm
               font-semibold
-              text-[#B58100]
+              text-[#C6A15B]
             "
           >
             Start Free
@@ -112,7 +113,7 @@ export default function PricingPreview() {
               mt-6
               text-3xl
               font-bold
-              text-[#0B1736]
+              text-white
             "
           >
             Free Plan
@@ -124,7 +125,7 @@ export default function PricingPreview() {
             className="
               mt-3
               leading-relaxed
-              text-[#7D8CA3]
+              text-slate-300
             "
           >
             Explore MukondoGTech AI document
@@ -151,7 +152,7 @@ export default function PricingPreview() {
                   flex
                   items-center
                   gap-3
-                  text-[#0B1736]
+                  text-white
                 "
               >
 
@@ -163,13 +164,13 @@ export default function PricingPreview() {
                     items-center
                     justify-center
                     rounded-full
-                    bg-green-100
+                    bg-emerald-500/15
                   "
                 >
 
                   <Check
                     size={15}
-                    className="text-green-600"
+                    className="text-emerald-400"
                   />
 
                 </div>
@@ -206,8 +207,8 @@ export default function PricingPreview() {
               gap-2
               rounded-xl
               bg-gradient-to-r
-              from-[#F4B81A]
-              to-[#FFD96A]
+              from-[#C6A15B]
+              to-[#D4B984]
               py-4
               font-bold
               text-black

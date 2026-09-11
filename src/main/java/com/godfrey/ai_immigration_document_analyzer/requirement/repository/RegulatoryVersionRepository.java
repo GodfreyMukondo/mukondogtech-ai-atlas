@@ -14,6 +14,13 @@ public interface RegulatoryVersionRepository extends JpaRepository<RegulatoryVer
 
     List<RegulatoryVersion> findByRegulationIdentity(String regulationIdentity);
 
+    /**
+     * The currently open-ended (still-in-force) version of a regulation, if
+     * any - used by {@code RegulatoryVersionAdminService} to auto-link the
+     * supersedes/supersededBy chain when a new version is recorded.
+     */
+    Optional<RegulatoryVersion> findByRegulationIdentityAndEffectiveToIsNull(String regulationIdentity);
+
     /** The version whose effective window covers the given instant - used for point-in-time evaluation (section 13). */
     @org.springframework.data.jpa.repository.Query(
             "SELECT v FROM RegulatoryVersion v WHERE v.regulationIdentity = :regulationIdentity "

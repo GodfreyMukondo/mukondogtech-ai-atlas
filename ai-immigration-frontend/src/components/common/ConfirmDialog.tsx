@@ -1,22 +1,17 @@
 import {
-  Fragment,
   useEffect,
 } from "react";
 
 import {
-  Dialog,
-  Transition,
-} from "@headlessui/react";
+  AnimatePresence,
+  motion,
+} from "framer-motion";
 
 import {
   AlertTriangle,
   CheckCircle,
   XCircle,
 } from "lucide-react";
-
-import {
-  motion,
-} from "framer-motion";
 
 
 interface ConfirmDialogProps {
@@ -118,78 +113,55 @@ warning:
 
 return (
 
-<Transition
-show={open}
-as={Fragment}
->
+<AnimatePresence>
 
-<Dialog
-open={open}
-onClose={onCancel}
-className="relative z-50"
->
+{open && (
 
-
-<Transition.Child
-
-enter="ease-out duration-200"
-
-enterFrom="opacity-0"
-
-enterTo="opacity-100"
-
-leave="ease-in duration-150"
-
-leaveFrom="opacity-100"
-
-leaveTo="opacity-0"
-
->
-
-<div className="
-fixed inset-0
-bg-black/40
-backdrop-blur-sm
-"/>
-
-</Transition.Child>
-
-
-
-<div className="
-fixed inset-0
+<div
+role="dialog"
+aria-modal="true"
+className="
+fixed
+inset-0
+z-50
 flex
 items-center
 justify-center
 p-4
-">
-
-
-<Transition.Child
-
-enter="ease-out duration-200"
-
-enterFrom="opacity-0 scale-95"
-
-enterTo="opacity-100 scale-100"
-
-leave="ease-in duration-150"
-
-leaveFrom="opacity-100 scale-100"
-
-leaveTo="opacity-0 scale-95"
-
+"
 >
 
-<Dialog.Panel
-as={motion.div}
+<motion.div
+initial={{opacity:0}}
+animate={{opacity:1}}
+exit={{opacity:0}}
+transition={{duration:0.15}}
+onClick={onCancel}
 className="
+fixed
+inset-0
+bg-black/40
+backdrop-blur-sm
+"
+/>
+
+<motion.div
+initial={{opacity:0, scale:0.95}}
+animate={{opacity:1, scale:1}}
+exit={{opacity:0, scale:0.95}}
+transition={{duration:0.2}}
+className="
+relative
 w-full
 max-w-md
 rounded-2xl
-bg-white
+border
+border-white/10
+bg-[#1F314A]
 p-6
-shadow-xl
+shadow-2xl
+shadow-black/40
+backdrop-blur-xl
 "
 >
 
@@ -202,24 +174,24 @@ items-center
 
 {icons[variant]}
 
-<Dialog.Title
+<h2
 className="
 text-lg
 font-semibold
-text-[#0B1736]
+text-white
 "
 >
 
 {title}
 
-</Dialog.Title>
+</h2>
 
 </div>
 
 
 <p className="
 mt-4
-text-gray-600
+text-slate-300
 text-sm
 ">
 
@@ -248,8 +220,9 @@ px-4
 py-2
 rounded-lg
 border
-text-gray-700
-hover:bg-gray-100
+border-white/15
+text-slate-200
+hover:bg-white/10
 "
 
 >
@@ -304,19 +277,14 @@ confirmText
 </div>
 
 
-</Dialog.Panel>
-
-
-</Transition.Child>
+</motion.div>
 
 
 </div>
 
+)}
 
-</Dialog>
-
-
-</Transition>
+</AnimatePresence>
 
 
 );

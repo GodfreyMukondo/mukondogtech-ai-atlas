@@ -181,13 +181,13 @@ const MODEL_STATUS_STYLES: Record<
   string
 > = {
   Healthy:
-    "bg-emerald-100 text-emerald-700",
+    "bg-emerald-500/10 text-emerald-300",
   Monitoring:
-    "bg-amber-100 text-amber-700",
+    "bg-amber-500/10 text-amber-300",
   Degraded:
-    "bg-red-100 text-red-700",
+    "bg-red-500/10 text-red-300",
   Unknown:
-    "bg-slate-100 text-slate-600",
+    "bg-white/10 text-slate-400",
 };
 
 const INFRASTRUCTURE_STATUS_STYLES: Record<
@@ -195,19 +195,19 @@ const INFRASTRUCTURE_STATUS_STYLES: Record<
   string
 > = {
   Healthy:
-    "bg-emerald-100 text-emerald-700",
+    "bg-emerald-500/10 text-emerald-300",
   Operational:
-    "bg-emerald-100 text-emerald-700",
+    "bg-emerald-500/10 text-emerald-300",
   Connected:
-    "bg-blue-100 text-blue-700",
+    "bg-blue-500/10 text-blue-300",
   Active:
-    "bg-blue-100 text-blue-700",
+    "bg-blue-500/10 text-blue-300",
   Degraded:
-    "bg-amber-100 text-amber-700",
+    "bg-amber-500/10 text-amber-300",
   Unavailable:
-    "bg-red-100 text-red-700",
+    "bg-red-500/10 text-red-300",
   Unknown:
-    "bg-slate-100 text-slate-600",
+    "bg-white/10 text-slate-400",
 };
 
 const ALERT_STYLES: Record<
@@ -215,11 +215,11 @@ const ALERT_STYLES: Record<
   string
 > = {
   critical:
-    "bg-red-50 border-red-100 text-red-700",
+    "bg-red-500/10 border-red-500/30 text-red-300",
   warning:
-    "bg-amber-50 border-amber-100 text-amber-700",
+    "bg-amber-500/10 border-amber-500/30 text-amber-300",
   success:
-    "bg-emerald-50 border-emerald-100 text-emerald-700",
+    "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",
 };
 
 const ALERT_ICONS: Record<
@@ -424,7 +424,7 @@ function normalizeMetric(
     color:
       typeof source.color === "string"
         ? source.color
-        : "bg-blue-100 text-blue-600",
+        : "bg-[#0B1F3A]/10 text-[#0B1F3A]",
 
     trend:
       trendSource &&
@@ -563,6 +563,7 @@ function normalizeMonitoringResponse(
             ),
 
           accuracy:
+            typeof source.accuracy === "number" &&
             Number.isFinite(
               source.accuracy
             )
@@ -570,6 +571,7 @@ function normalizeMonitoringResponse(
               : 0,
 
           latency:
+            typeof source.latency === "number" &&
             Number.isFinite(
               source.latency
             )
@@ -577,6 +579,7 @@ function normalizeMonitoringResponse(
               : 0,
 
           requests:
+            typeof source.requests === "number" &&
             Number.isFinite(
               source.requests
             )
@@ -774,8 +777,9 @@ function MetricCard({
       className="
         rounded-3xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-5
         shadow-sm
         transition
@@ -797,7 +801,7 @@ function MetricCard({
             className="
               text-sm
               font-semibold
-              text-slate-500
+              text-slate-400
             "
           >
             {title}
@@ -809,7 +813,7 @@ function MetricCard({
               text-3xl
               font-black
               tracking-tight
-              text-slate-900
+              text-white
             "
           >
             {value}
@@ -819,7 +823,7 @@ function MetricCard({
             className="
               mt-2
               text-sm
-              text-slate-500
+              text-slate-400
             "
           >
             {subtitle}
@@ -836,8 +840,8 @@ function MetricCard({
                 font-bold
                 ${
                   trend.positive
-                    ? "text-emerald-600"
-                    : "text-amber-600"
+                    ? "text-emerald-300"
+                    : "text-amber-300"
                 }
               `}
             >
@@ -895,8 +899,9 @@ function SectionCard({
         overflow-hidden
         rounded-3xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         shadow-sm
       "
     >
@@ -907,7 +912,7 @@ function SectionCard({
           justify-between
           gap-4
           border-b
-          border-slate-100
+          border-white/10
           px-6
           py-5
         "
@@ -916,7 +921,7 @@ function SectionCard({
           className="
             text-lg
             font-black
-            text-slate-900
+            text-white
           "
         >
           {title}
@@ -1004,8 +1009,8 @@ function InfrastructureRow({
       className="
         rounded-2xl
         border
-        border-slate-200
-        bg-white
+        border-white/10
+        bg-white/5
         p-4
       "
     >
@@ -1021,7 +1026,7 @@ function InfrastructureRow({
           <p
             className="
               font-bold
-              text-slate-800
+              text-slate-200
             "
           >
             {metric.label}
@@ -1035,7 +1040,7 @@ function InfrastructureRow({
                 h-2
                 overflow-hidden
                 rounded-full
-                bg-slate-200
+                bg-white/10
               "
               role="progressbar"
               aria-valuemin={0}
@@ -1051,7 +1056,7 @@ function InfrastructureRow({
                 className="
                   h-full
                   rounded-full
-                  bg-blue-600
+                  bg-[#C6A15B]
                   transition-all
                   duration-500
                 "
@@ -1095,7 +1100,7 @@ function LoadingSkeleton() {
     <main
       className="
         min-h-screen
-        bg-slate-50
+        w-full
         p-4
         sm:p-6
         lg:p-8
@@ -1103,8 +1108,7 @@ function LoadingSkeleton() {
     >
       <div
         className="
-          mx-auto
-          max-w-7xl
+          w-full
           space-y-6
         "
       >
@@ -1113,7 +1117,7 @@ function LoadingSkeleton() {
             h-56
             animate-pulse
             rounded-[32px]
-            bg-slate-200
+            bg-white/10
           "
         />
 
@@ -1134,7 +1138,7 @@ function LoadingSkeleton() {
                 h-40
                 animate-pulse
                 rounded-3xl
-                bg-slate-200
+                bg-white/10
               "
             />
           ))}
@@ -1152,7 +1156,7 @@ function LoadingSkeleton() {
               h-96
               animate-pulse
               rounded-3xl
-              bg-slate-200
+              bg-white/10
             "
           />
 
@@ -1161,7 +1165,7 @@ function LoadingSkeleton() {
               h-96
               animate-pulse
               rounded-3xl
-              bg-slate-200
+              bg-white/10
             "
           />
         </div>
@@ -1202,8 +1206,8 @@ function EmptyState({
           items-center
           justify-center
           rounded-2xl
-          bg-slate-100
-          text-slate-500
+          bg-white/10
+          text-slate-400
         "
       >
         <Icon size={24} />
@@ -1213,7 +1217,7 @@ function EmptyState({
         className="
           mt-3
           font-bold
-          text-slate-800
+          text-white
         "
       >
         {title}
@@ -1226,7 +1230,7 @@ function EmptyState({
           max-w-md
           text-sm
           leading-6
-          text-slate-500
+          text-slate-400
         "
       >
         {description}
@@ -1630,7 +1634,6 @@ export default function AIModelMonitoringPage() {
       <main
         className="
           min-h-screen
-          bg-slate-50
           p-4
           sm:p-6
           lg:p-8
@@ -1656,8 +1659,8 @@ export default function AIModelMonitoringPage() {
               items-center
               justify-center
               rounded-2xl
-              bg-red-100
-              text-red-600
+              bg-red-500/10
+              text-red-300
             "
           >
             <AlertTriangle
@@ -1670,7 +1673,7 @@ export default function AIModelMonitoringPage() {
               mt-5
               text-2xl
               font-black
-              text-slate-900
+              text-white
             "
           >
             Unable to load AI
@@ -1682,7 +1685,7 @@ export default function AIModelMonitoringPage() {
               mt-3
               text-sm
               leading-6
-              text-slate-500
+              text-slate-400
             "
           >
             {error}
@@ -1699,16 +1702,18 @@ export default function AIModelMonitoringPage() {
               items-center
               gap-2
               rounded-2xl
-              bg-slate-900
+              border
+              border-white/15
+              bg-white/10
               px-5
               py-3
               font-bold
               text-white
               transition
-              hover:bg-slate-700
+              hover:bg-white/20
               focus:outline-none
               focus:ring-2
-              focus:ring-slate-500
+              focus:ring-[#C6A15B]
               focus:ring-offset-2
             "
           >
@@ -1731,7 +1736,7 @@ export default function AIModelMonitoringPage() {
     <main
       className="
         min-h-screen
-        bg-slate-50
+        w-full
         p-4
         sm:p-6
         lg:p-8
@@ -1739,8 +1744,7 @@ export default function AIModelMonitoringPage() {
     >
       <div
         className="
-          mx-auto
-          max-w-7xl
+          w-full
         "
       >
         {/* ================================================================
@@ -1752,10 +1756,10 @@ export default function AIModelMonitoringPage() {
             mb-8
             overflow-hidden
             rounded-[32px]
-            bg-gradient-to-r
-            from-slate-950
-            via-slate-900
-            to-blue-900
+            bg-gradient-to-br
+            from-[#071426]
+            via-[#0B1F3A]
+            to-[#3C4C61]
             p-6
             text-white
             shadow-2xl
@@ -1785,13 +1789,13 @@ export default function AIModelMonitoringPage() {
                 <div
                   className="
                     rounded-2xl
-                    bg-blue-400/20
+                    bg-[#C6A15B]/15
                     p-3
                   "
                 >
                   <BrainCircuit
                     size={28}
-                    className="text-blue-300"
+                    className="text-[#C6A15B]"
                   />
                 </div>
 
@@ -1842,7 +1846,7 @@ export default function AIModelMonitoringPage() {
                   max-w-3xl
                   text-sm
                   leading-7
-                  text-blue-100
+                  text-slate-300
                   sm:text-base
                 "
               >
@@ -1875,8 +1879,8 @@ export default function AIModelMonitoringPage() {
                 }
                 onClick={() =>
                   void handleAction(
-                    "DEPLOY_MODEL",
-                    "Deploy model"
+                    "RESET_METRICS",
+                    "Reset metrics"
                   )
                 }
                 className="
@@ -1884,34 +1888,38 @@ export default function AIModelMonitoringPage() {
                   items-center
                   gap-2
                   rounded-2xl
-                  bg-blue-400
+                  bg-gradient-to-r
+                  from-[#C6A15B]
+                  to-[#D4B984]
                   px-5
                   py-3
                   font-bold
-                  text-slate-950
+                  text-[#071426]
                   shadow-lg
                   transition
-                  hover:bg-blue-300
+                  hover:-translate-y-0.5
+                  hover:shadow-xl
                   disabled:cursor-not-allowed
                   disabled:opacity-50
+                  disabled:hover:translate-y-0
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-blue-300
+                  focus:ring-[#C6A15B]
                   focus:ring-offset-2
-                  focus:ring-offset-slate-900
+                  focus:ring-offset-[#071426]
                 "
               >
-                {actionLoading ===
-                "DEPLOY_MODEL" ? (
-                  <RefreshCw
-                    size={17}
-                    className="animate-spin"
-                  />
-                ) : (
-                  <Cpu size={17} />
-                )}
+                <RefreshCw
+                  size={17}
+                  className={
+                    actionLoading ===
+                    "RESET_METRICS"
+                      ? "animate-spin"
+                      : ""
+                  }
+                />
 
-                Deploy Model
+                Reset Metrics
               </button>
 
               <button
@@ -2014,8 +2022,8 @@ export default function AIModelMonitoringPage() {
               font-semibold
               ${
                 error
-                  ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  ? "border-red-500/30 bg-red-500/10 text-red-300"
+                  : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
               }
             `}
           >
@@ -2083,8 +2091,9 @@ export default function AIModelMonitoringPage() {
               className="
                 rounded-3xl
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-white/5
+                backdrop-blur-xl
                 p-6
                 sm:col-span-2
                 xl:col-span-4
@@ -2137,20 +2146,20 @@ export default function AIModelMonitoringPage() {
                   gap-2
                   rounded-xl
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/15
+                  bg-white/5
                   px-3
                   py-2
                   text-sm
                   font-semibold
-                  text-slate-700
+                  text-slate-200
                   transition
-                  hover:bg-slate-50
+                  hover:bg-white/10
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-blue-500
+                  focus:ring-[#C6A15B]
                   focus:ring-offset-2
                 "
               >
@@ -2183,12 +2192,12 @@ export default function AIModelMonitoringPage() {
                       className="
                         rounded-2xl
                         border
-                        border-slate-200
-                        bg-white
+                        border-white/10
+                        bg-white/5
                         p-4
                         transition
-                        hover:border-blue-200
-                        hover:bg-blue-50/30
+                        hover:border-[#C6A15B]/40
+                        hover:bg-[#C6A15B]/10
                       "
                     >
                       <div
@@ -2213,7 +2222,7 @@ export default function AIModelMonitoringPage() {
                             <h3
                               className="
                                 font-bold
-                                text-slate-900
+                                text-white
                               "
                             >
                               {
@@ -2224,12 +2233,12 @@ export default function AIModelMonitoringPage() {
                             <span
                               className="
                                 rounded-md
-                                bg-slate-100
+                                bg-white/10
                                 px-2
                                 py-1
                                 text-[10px]
                                 font-bold
-                                text-slate-500
+                                text-slate-400
                               "
                             >
                               v
@@ -2247,12 +2256,12 @@ export default function AIModelMonitoringPage() {
                               gap-x-4
                               gap-y-1
                               text-sm
-                              text-slate-500
+                              text-slate-400
                             "
                           >
                             <span>
                               Accuracy:{" "}
-                              <strong className="text-slate-700">
+                              <strong className="text-slate-200">
                                 {formatPercentage(
                                   model.accuracy
                                 )}
@@ -2261,7 +2270,7 @@ export default function AIModelMonitoringPage() {
 
                             <span>
                               Latency:{" "}
-                              <strong className="text-slate-700">
+                              <strong className="text-slate-200">
                                 {formatLatency(
                                   model.latency
                                 )}
@@ -2270,7 +2279,7 @@ export default function AIModelMonitoringPage() {
 
                             <span>
                               Requests:{" "}
-                              <strong className="text-slate-700">
+                              <strong className="text-slate-200">
                                 {formatNumber(
                                   model.requests
                                 )}
@@ -2353,12 +2362,12 @@ export default function AIModelMonitoringPage() {
               <span
                 className="
                   rounded-full
-                  bg-slate-100
+                  bg-white/10
                   px-3
                   py-1.5
                   text-xs
                   font-bold
-                  text-slate-600
+                  text-slate-300
                 "
               >
                 {safeData.alerts.length}{" "}
@@ -2498,20 +2507,20 @@ export default function AIModelMonitoringPage() {
                           group
                           rounded-2xl
                           border
-                          border-slate-200
-                          bg-white
+                          border-white/10
+                          bg-white/5
                           p-5
                           text-left
                           transition
                           duration-200
                           hover:-translate-y-0.5
-                          hover:border-blue-300
+                          hover:border-[#C6A15B]/50
                           hover:shadow-lg
                           disabled:cursor-not-allowed
                           disabled:opacity-60
                           focus:outline-none
                           focus:ring-2
-                          focus:ring-blue-500
+                          focus:ring-[#C6A15B]
                           focus:ring-offset-2
                         "
                       >
@@ -2524,11 +2533,11 @@ export default function AIModelMonitoringPage() {
                             items-center
                             justify-center
                             rounded-xl
-                            bg-blue-50
-                            text-blue-600
+                            bg-white/10
+                            text-slate-300
                             transition
-                            group-hover:bg-blue-600
-                            group-hover:text-white
+                            group-hover:bg-[#C6A15B]/15
+                            group-hover:text-[#C6A15B]
                           "
                         >
                           {isLoading ? (
@@ -2546,7 +2555,7 @@ export default function AIModelMonitoringPage() {
                         <p
                           className="
                             font-bold
-                            text-slate-900
+                            text-white
                           "
                         >
                           {item.label}
@@ -2557,7 +2566,7 @@ export default function AIModelMonitoringPage() {
                             mt-2
                             text-sm
                             leading-6
-                            text-slate-500
+                            text-slate-400
                           "
                         >
                           {
@@ -2585,12 +2594,13 @@ export default function AIModelMonitoringPage() {
             gap-3
             rounded-2xl
             border
-            border-slate-200
-            bg-white
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             px-5
             py-4
             text-sm
-            text-slate-500
+            text-slate-400
             sm:flex-row
             sm:items-center
             sm:justify-between

@@ -29,7 +29,10 @@ import java.util.List;
  * Catalogue reads only - a Pathway is impersonal regulatory knowledge (never
  * a person's application), so these endpoints need only authentication, no
  * case-level authorization. Personalized evaluation lives on
- * {@link PathwayAssessmentController}.
+ * {@link PathwayAssessmentController}. Authoring (create/update/publish)
+ * lives separately on {@code PathwayAdminController}
+ * ({@code /api/admin/pathways}, ROLE_ADMIN only) - this controller remains
+ * read-only and continues to return PUBLISHED pathways exclusively.
  *
  * Endpoints:
  *

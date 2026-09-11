@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Brand palette: Dark Navy + Warm Gold */
+:root {
+  --color-navy: #0B1F3A;
+  --color-navy-dark: #050E1A;
+  --color-navy-light: #1F314A;
+  --color-navy-accent: #3C4C61;
+  --color-gold: #C6A15B;
+  --color-gold-dark: #A8894D;
+  --color-gold-light: #D4B984;
+  --color-gold-pale: #E5D5B5;
+  --color-gold-faint: #F6F1E6;
+}
+
+/* ============================================================================
+   GLOBAL PAGE BACKGROUND
+   ============================================================================
+
+   Single source of truth for the background painted behind every route.
+
+   Previously each layout (LandingLayout, AuthLayout, DashboardLayout,
+   AdminLayout) and many individual pages painted their own full-screen
+   background independently, so different areas of the app didn't share a
+   consistent canvas. This replaces all of that with one soft, brand-toned
+   mesh gradient applied once here.
+
+   Layouts/pages should no longer set their own page-level background —
+   only component-level surfaces (cards, headers, badges) should.
+   ============================================================================ */
+
+@layer base {
+  html,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    color: #f1f5f9;
+    background-color: #0B1F3A;
+    background-image:
+      radial-gradient(1100px circle at 10% -12%, rgba(198, 161, 91, 0.10), transparent 46%),
+      radial-gradient(950px circle at 96% -10%, rgba(59, 130, 246, 0.18), transparent 44%),
+      radial-gradient(1300px circle at 50% 118%, rgba(59, 130, 246, 0.10), transparent 55%),
+      linear-gradient(180deg, #1F314A 0%, #0B1F3A 45%, #050E1A 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+}

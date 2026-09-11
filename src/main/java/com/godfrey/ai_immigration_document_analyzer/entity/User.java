@@ -87,6 +87,18 @@ public class User implements UserDetails {
     )
     private String email;
 
+    @Column(
+            name = "PHONE",
+            length = 30
+    )
+    private String phone;
+
+    @Column(
+            name = "COUNTRY",
+            length = 100
+    )
+    private String country;
+
     @JsonIgnore
     @Column(
             name = "PASSWORD",
@@ -226,6 +238,14 @@ public class User implements UserDetails {
 
         if (role == null) {
             role = Role.USER;
+        }
+
+        if (phone != null) {
+            phone = phone.trim();
+        }
+
+        if (country != null) {
+            country = country.trim();
         }
     }
 

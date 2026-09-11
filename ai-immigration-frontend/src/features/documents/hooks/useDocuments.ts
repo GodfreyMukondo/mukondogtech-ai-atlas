@@ -81,6 +81,8 @@ export interface UseDocumentsReturn {
 
   loading: boolean;
 
+  refreshing: boolean;
+
   error: string | null;
 
   fetchDocuments: () => Promise<void>;
@@ -282,6 +284,11 @@ export function useDocuments(): UseDocumentsReturn {
   ] = useState(false);
 
   const [
+    refreshing,
+    setRefreshing,
+  ] = useState(false);
+
+  const [
     error,
     setError,
   ] = useState<string | null>(null);
@@ -350,13 +357,27 @@ export function useDocuments(): UseDocumentsReturn {
   useEffect(() => {
     mountedRef.current = true;
 
+    /**
+     * Do NOT bump fetchRequestIdRef here.
+     *
+     * In React 18 development Strict Mode, this effect's cleanup also
+     * runs as part of the deliberate mount -> cleanup -> re-mount cycle
+     * used to surface unsafe effects, even though the component never
+     * actually unmounts. Incrementing the request ID during that
+     * synthetic cleanup poisoned the still in-flight initial
+     * fetchDocuments() request: by the time its response arrived,
+     * fetchRequestIdRef no longer matched the request's captured
+     * requestId, so the "stale response" guard below discarded a
+     * perfectly valid result and left the document list empty.
+     *
+     * fetchRequestIdRef exists to ignore a genuinely superseded fetch
+     * (e.g. a newer fetchDocuments() call for a different account) -
+     * that invariant is already maintained inside fetchDocuments()
+     * itself each time it starts a new request. mountedRef alone is
+     * sufficient to avoid updating state after a real unmount.
+     */
     return () => {
       mountedRef.current = false;
-
-      /**
-       * Invalidate any request that finishes after unmount.
-       */
-      fetchRequestIdRef.current += 1;
     };
   }, []);
 
@@ -473,9 +494,20 @@ export function useDocuments(): UseDocumentsReturn {
       fetchRequestIdRef.current =
         requestId;
 
+      /**
+       * A request for a user whose documents were already loaded once is a
+       * manual refresh rather than the initial page load.
+       */
+      const isRefresh =
+        loadedUserIdRef.current !== null;
+
       if (mountedRef.current) {
         setLoading(true);
         setError(null);
+
+        if (isRefresh) {
+          setRefreshing(true);
+        }
       }
 
       try {
@@ -576,6 +608,7 @@ export function useDocuments(): UseDocumentsReturn {
 
         if (mountedRef.current) {
           setLoading(false);
+          setRefreshing(false);
         }
       }
     }, [
@@ -1196,6 +1229,7 @@ export function useDocuments(): UseDocumentsReturn {
   return {
     documents,
     loading,
+    refreshing,
     error,
     fetchDocuments,
     upload,

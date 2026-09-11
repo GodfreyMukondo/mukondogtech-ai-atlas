@@ -277,46 +277,46 @@ const STATUS_STYLES: Record<
 > = {
     SECURE: {
         badge:
-            "bg-emerald-100 text-emerald-700",
+            "bg-emerald-500/10 text-emerald-300",
         icon:
-            "bg-emerald-100 text-emerald-700",
+            "bg-emerald-500/10 text-emerald-300",
         text:
-            "text-emerald-600",
+            "text-emerald-400",
         background:
-            "bg-emerald-50",
+            "bg-emerald-500/10",
     },
 
     WARNING: {
         badge:
-            "bg-amber-100 text-amber-700",
+            "bg-amber-500/10 text-amber-300",
         icon:
-            "bg-amber-100 text-amber-700",
+            "bg-amber-500/10 text-amber-300",
         text:
-            "text-amber-600",
+            "text-amber-400",
         background:
-            "bg-amber-50",
+            "bg-amber-500/10",
     },
 
     CRITICAL: {
         badge:
-            "bg-red-100 text-red-700",
+            "bg-red-500/10 text-red-300",
         icon:
-            "bg-red-100 text-red-700",
+            "bg-red-500/10 text-red-300",
         text:
-            "text-red-600",
+            "text-red-400",
         background:
-            "bg-red-50",
+            "bg-red-500/10",
     },
 
     UNKNOWN: {
         badge:
-            "bg-slate-100 text-slate-600",
+            "bg-white/10 text-slate-400",
         icon:
-            "bg-slate-100 text-slate-600",
+            "bg-white/10 text-slate-400",
         text:
-            "text-slate-500",
+            "text-slate-400",
         background:
-            "bg-slate-50",
+            "bg-white/10",
     },
 };
 
@@ -426,8 +426,9 @@ function SecurityCard({
                 group
                 rounded-3xl
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-white/5
+                backdrop-blur-xl
                 p-6
                 shadow-sm
                 transition
@@ -440,7 +441,7 @@ function SecurityCard({
 
                 <div className="min-w-0">
 
-                    <p className="text-sm font-medium text-slate-500">
+                    <p className="text-sm font-medium text-slate-400">
                         {title}
                     </p>
 
@@ -450,7 +451,7 @@ function SecurityCard({
                             break-words
                             text-3xl
                             font-black
-                            text-[#071330]
+                            text-white
                         "
                     >
                         {value}
@@ -461,7 +462,7 @@ function SecurityCard({
                             mt-2
                             text-xs
                             leading-5
-                            text-slate-500
+                            text-slate-400
                         "
                     >
                         {description}
@@ -509,8 +510,9 @@ function Section({
             className="
                 rounded-3xl
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-white/5
+                backdrop-blur-xl
                 p-6
                 shadow-sm
             "
@@ -528,9 +530,9 @@ function Section({
                 <div
                     className="
                         rounded-xl
-                        bg-[#071330]
+                        bg-[#C6A15B]/15
                         p-2
-                        text-[#F4B81A]
+                        text-[#C6A15B]
                     "
                 >
                     <Icon size={20} />
@@ -540,7 +542,7 @@ function Section({
                     className="
                         text-lg
                         font-black
-                        text-[#071330]
+                        text-white
                     "
                 >
                     {title}
@@ -567,20 +569,20 @@ function LoadingCard() {
                 animate-pulse
                 rounded-3xl
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-white/5
                 p-6
             "
         >
             <div className="flex justify-between">
 
                 <div className="space-y-3">
-                    <div className="h-4 w-28 rounded bg-slate-200" />
-                    <div className="h-9 w-24 rounded bg-slate-200" />
-                    <div className="h-3 w-40 rounded bg-slate-200" />
+                    <div className="h-4 w-28 rounded bg-white/10" />
+                    <div className="h-9 w-24 rounded bg-white/10" />
+                    <div className="h-3 w-40 rounded bg-white/10" />
                 </div>
 
-                <div className="h-12 w-12 rounded-2xl bg-slate-200" />
+                <div className="h-12 w-12 rounded-2xl bg-white/10" />
 
             </div>
         </div>
@@ -613,7 +615,7 @@ function ControlRow({
                 flex-col
                 gap-3
                 rounded-2xl
-                bg-slate-50
+                bg-white/5
                 p-4
                 sm:flex-row
                 sm:items-center
@@ -621,7 +623,7 @@ function ControlRow({
             "
         >
 
-            <span className="text-sm text-slate-600">
+            <span className="text-sm text-slate-300">
                 {control.name}
             </span>
 
@@ -678,16 +680,16 @@ function SecurityAlertItem({
         string
     > = {
         LOW:
-            "bg-blue-50 text-blue-700 border-blue-100",
+            "bg-blue-500/10 text-blue-300 border-blue-500/30",
 
         MEDIUM:
-            "bg-amber-50 text-amber-700 border-amber-100",
+            "bg-amber-500/10 text-amber-300 border-amber-500/30",
 
         HIGH:
-            "bg-orange-50 text-orange-700 border-orange-100",
+            "bg-orange-500/10 text-orange-300 border-orange-500/30",
 
         CRITICAL:
-            "bg-red-50 text-red-700 border-red-100",
+            "bg-red-500/10 text-red-300 border-red-500/30",
     };
 
     return (
@@ -768,8 +770,8 @@ function EmptyState({
                 rounded-2xl
                 border
                 border-dashed
-                border-slate-300
-                bg-slate-50
+                border-white/15
+                bg-white/5
                 p-8
                 text-center
             "
@@ -779,7 +781,7 @@ function EmptyState({
                 className="mx-auto text-slate-400"
             />
 
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-400">
                 {message}
             </p>
         </div>
@@ -1097,17 +1099,12 @@ export default function SecurityCenterPage() {
         <div
             className="
                 min-h-screen
-                bg-gradient-to-br
-                from-[#F8F6F1]
-                via-white
-                to-blue-50
             "
         >
 
             <div
                 className="
-                    mx-auto
-                    max-w-[1700px]
+                    w-full
                     p-4
                     sm:p-6
                     lg:p-8
@@ -1143,14 +1140,14 @@ export default function SecurityCenterPage() {
                             <div
                                 className="
                                     rounded-2xl
-                                    bg-[#071330]
+                                    bg-[#C6A15B]/15
                                     p-3
                                     shadow-lg
                                 "
                             >
                                 <ShieldCheck
                                     size={28}
-                                    className="text-[#F4B81A]"
+                                    className="text-[#C6A15B]"
                                 />
                             </div>
 
@@ -1161,7 +1158,7 @@ export default function SecurityCenterPage() {
                                         text-3xl
                                         font-black
                                         tracking-tight
-                                        text-[#071330]
+                                        text-white
                                         sm:text-4xl
                                     "
                                 >
@@ -1174,7 +1171,7 @@ export default function SecurityCenterPage() {
                                         max-w-3xl
                                         text-sm
                                         leading-6
-                                        text-slate-600
+                                        text-slate-300
                                         sm:text-base
                                     "
                                 >
@@ -1233,22 +1230,22 @@ export default function SecurityCenterPage() {
                                 justify-center
                                 gap-2
                                 rounded-2xl
-                                bg-[#071330]
+                                bg-[#071426]
                                 px-5
                                 py-3
                                 text-sm
                                 font-bold
                                 text-white
                                 shadow-lg
-                                shadow-[#071330]/20
+                                shadow-[#071426]/20
                                 transition-all
                                 duration-200
                                 hover:-translate-y-0.5
-                                hover:bg-[#183B6B]
+                                hover:bg-[#3C4C61]
                                 hover:shadow-xl
                                 focus:outline-none
                                 focus:ring-2
-                                focus:ring-[#F4B81A]
+                                focus:ring-[#C6A15B]
                                 focus:ring-offset-2
                                 active:translate-y-0
                                 disabled:cursor-not-allowed
@@ -1297,23 +1294,23 @@ export default function SecurityCenterPage() {
                                 gap-2
                                 rounded-2xl
                                 border
-                                border-slate-300
-                                bg-white
+                                border-white/15
+                                bg-white/5
                                 px-5
                                 py-3
                                 text-sm
                                 font-semibold
-                                text-slate-700
+                                text-slate-200
                                 shadow-sm
                                 transition-all
                                 duration-200
                                 hover:-translate-y-0.5
-                                hover:border-slate-400
-                                hover:bg-slate-50
+                                hover:border-white/25
+                                hover:bg-white/10
                                 hover:shadow-md
                                 focus:outline-none
                                 focus:ring-2
-                                focus:ring-[#F4B81A]
+                                focus:ring-[#C6A15B]
                                 focus:ring-offset-2
                                 active:translate-y-0
                                 disabled:cursor-not-allowed
@@ -1354,10 +1351,10 @@ export default function SecurityCenterPage() {
                             gap-4
                             rounded-3xl
                             border
-                            border-red-200
-                            bg-red-50
+                            border-red-500/30
+                            bg-red-500/10
                             p-5
-                            text-red-700
+                            text-red-300
                             sm:flex-row
                             sm:items-center
                             sm:justify-between
@@ -1392,14 +1389,14 @@ export default function SecurityCenterPage() {
                             }
                             className="
                                 rounded-xl
-                                bg-red-700
+                                bg-red-500/15
                                 px-4
                                 py-2
                                 text-sm
                                 font-bold
-                                text-white
+                                text-red-200
                                 transition
-                                hover:bg-red-800
+                                hover:bg-red-500/25
                             "
                         >
                             Retry
@@ -1419,7 +1416,7 @@ export default function SecurityCenterPage() {
                             h-52
                             animate-pulse
                             rounded-3xl
-                            bg-[#071330]/10
+                            bg-[#071426]/10
                         "
                     />
                 ) : (
@@ -1429,9 +1426,9 @@ export default function SecurityCenterPage() {
                             overflow-hidden
                             rounded-3xl
                             bg-gradient-to-r
-                            from-[#071330]
-                            via-[#183B6B]
-                            to-[#0B1736]
+                            from-[#071426]
+                            via-[#3C4C61]
+                            to-[#0B1F3A]
                             p-6
                             text-white
                             shadow-xl
@@ -1476,7 +1473,7 @@ export default function SecurityCenterPage() {
                                         mt-2
                                         text-5xl
                                         font-black
-                                        text-[#F4B81A]
+                                        text-[#C6A15B]
                                         sm:text-6xl
                                     "
                                 >
@@ -1877,16 +1874,16 @@ export default function SecurityCenterPage() {
                                             className="
                                                 rounded-2xl
                                                 border
-                                                border-slate-200
-                                                bg-white
+                                                border-white/10
+                                                bg-white/5
                                                 p-4
                                                 text-left
                                                 font-semibold
-                                                text-slate-700
+                                                text-white
                                                 shadow-sm
                                                 transition
-                                                hover:border-[#F4B81A]
-                                                hover:bg-[#FFF4D1]
+                                                hover:border-[#C6A15B]/50
+                                                hover:bg-[#C6A15B]/10
                                                 hover:shadow-md
                                                 disabled:cursor-not-allowed
                                                 disabled:opacity-50
@@ -1913,8 +1910,8 @@ export default function SecurityCenterPage() {
                         mt-8
                         rounded-3xl
                         border
-                        border-blue-200
-                        bg-blue-50
+                        border-blue-500/20
+                        bg-blue-500/10
                         p-6
                     "
                 >
@@ -1926,7 +1923,7 @@ export default function SecurityCenterPage() {
                             className="
                                 mt-0.5
                                 shrink-0
-                                text-blue-700
+                                text-blue-300
                             "
                         />
 
@@ -1935,7 +1932,7 @@ export default function SecurityCenterPage() {
                             <h3
                                 className="
                                     font-bold
-                                    text-blue-900
+                                    text-white
                                 "
                             >
                                 Security data source
@@ -1946,7 +1943,7 @@ export default function SecurityCenterPage() {
                                     mt-1
                                     text-sm
                                     leading-6
-                                    text-blue-700
+                                    text-blue-200
                                 "
                             >
                                 Security metrics, alerts,
@@ -1966,7 +1963,7 @@ export default function SecurityCenterPage() {
                                         mt-2
                                         text-xs
                                         font-medium
-                                        text-blue-600
+                                        text-blue-300
                                     "
                                 >
                                     Dashboard updated:{" "}

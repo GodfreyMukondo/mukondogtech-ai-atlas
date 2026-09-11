@@ -112,8 +112,7 @@ export default function PricingPage() {
     <main
       className="
         min-h-screen
-        bg-[#F8F6F1]
-        text-[#0B1736]
+        text-slate-100
       "
     >
 
@@ -145,9 +144,10 @@ export default function PricingPage() {
               w-12
               h-12
               rounded-xl
-              bg-white
+              bg-white/5
+              backdrop-blur-sm
               border
-              border-[#E5DED1]
+              border-white/10
               flex
               items-center
               justify-center
@@ -156,7 +156,7 @@ export default function PricingPage() {
 
             <ScanSearch
               className="
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             />
 
@@ -174,7 +174,7 @@ export default function PricingPage() {
 
             <span
               className="
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             >
               AI
@@ -209,7 +209,7 @@ export default function PricingPage() {
           Simple pricing for
           <span
             className="
-              text-[#F4B81A]
+              text-[#C6A15B]
             "
           >
             {" "}AI-powered
@@ -228,7 +228,7 @@ export default function PricingPage() {
             mt-6
             max-w-2xl
             mx-auto
-            text-[#7D8CA3]
+            text-slate-300
             text-lg
           "
         >
@@ -247,11 +247,12 @@ export default function PricingPage() {
           className="
             mt-10
             inline-flex
-            bg-white
+            bg-white/5
+            backdrop-blur-sm
             rounded-full
             p-1
             border
-            border-[#E5DED1]
+            border-white/10
           "
         >
 
@@ -266,9 +267,9 @@ export default function PricingPage() {
               ${
                 !yearly
                 ?
-                "bg-[#0B1736] text-white"
+                "bg-gradient-to-r from-[#C6A15B] to-[#A8894D] text-[#071426]"
                 :
-                "text-[#7D8CA3]"
+                "text-slate-400"
               }
             `}
           >
@@ -287,9 +288,9 @@ export default function PricingPage() {
               ${
                 yearly
                 ?
-                "bg-[#0B1736] text-white"
+                "bg-gradient-to-r from-[#C6A15B] to-[#A8894D] text-[#071426]"
                 :
-                "text-[#7D8CA3]"
+                "text-slate-400"
               }
             `}
           >
@@ -298,7 +299,7 @@ export default function PricingPage() {
             <span
               className="
                 ml-2
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             >
               Save 20%
@@ -349,16 +350,17 @@ export default function PricingPage() {
 
               className={`
                 relative
-                bg-white
+                bg-white/5
+                backdrop-blur-xl
                 rounded-3xl
                 p-8
                 border
                 ${
                   plan.popular
                   ?
-                  "border-[#F4B81A] shadow-xl"
+                  "border-[#C6A15B] shadow-xl"
                   :
-                  "border-[#E5DED1]"
+                  "border-white/10"
                 }
               `}
             >
@@ -372,8 +374,8 @@ export default function PricingPage() {
                     -top-4
                     left-1/2
                     -translate-x-1/2
-                    bg-[#F4B81A]
-                    text-[#0B1736]
+                    bg-[#C6A15B]
+                    text-[#0B1F3A]
                     px-5
                     py-1
                     rounded-full
@@ -396,6 +398,7 @@ export default function PricingPage() {
                 className="
                   text-2xl
                   font-bold
+                  text-white
                 "
               >
 
@@ -408,7 +411,7 @@ export default function PricingPage() {
               <p
                 className="
                   mt-3
-                  text-[#7D8CA3]
+                  text-slate-300
                   min-h-14
                 "
               >
@@ -430,6 +433,7 @@ export default function PricingPage() {
                   className="
                     text-5xl
                     font-extrabold
+                    text-white
                   "
                 >
 
@@ -440,7 +444,7 @@ export default function PricingPage() {
 
                 <span
                   className="
-                    text-[#7D8CA3]
+                    text-slate-400
                   "
                 >
 
@@ -460,12 +464,14 @@ export default function PricingPage() {
                   mt-8
                   block
                   text-center
-                  bg-[#0B1736]
-                  text-white
+                  bg-gradient-to-r
+                  from-[#C6A15B]
+                  to-[#A8894D]
+                  text-[#071426]
                   py-3
                   rounded-xl
                   font-semibold
-                  hover:bg-[#152650]
+                  hover:opacity-90
                   transition
                 "
               >
@@ -493,14 +499,14 @@ export default function PricingPage() {
                     className="
                       flex
                       gap-3
-                      text-[#44546A]
+                      text-slate-300
                     "
                   >
 
                     <Check
                       size={20}
                       className="
-                        text-green-600
+                        text-emerald-400
                         shrink-0
                       "
                     />
@@ -533,7 +539,10 @@ export default function PricingPage() {
 
       <section
         className="
-          bg-white
+          bg-white/5
+          backdrop-blur-xl
+          border-y
+          border-white/10
           py-16
           px-6
         "
@@ -554,7 +563,7 @@ export default function PricingPage() {
             <ShieldCheck
               className="
                 mx-auto
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             />
 
@@ -562,6 +571,7 @@ export default function PricingPage() {
               className="
                 mt-3
                 font-bold
+                text-white
               "
             >
               Secure Documents
@@ -570,7 +580,7 @@ export default function PricingPage() {
             <p
               className="
                 text-sm
-                text-[#7D8CA3]
+                text-slate-400
               "
             >
               Enterprise-grade document protection.
@@ -585,7 +595,7 @@ export default function PricingPage() {
             <Sparkles
               className="
                 mx-auto
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             />
 
@@ -593,6 +603,7 @@ export default function PricingPage() {
               className="
                 mt-3
                 font-bold
+                text-white
               "
             >
               AI Powered
@@ -601,7 +612,7 @@ export default function PricingPage() {
             <p
               className="
                 text-sm
-                text-[#7D8CA3]
+                text-slate-400
               "
             >
               Advanced AI document intelligence.
@@ -616,7 +627,7 @@ export default function PricingPage() {
             <Zap
               className="
                 mx-auto
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             />
 
@@ -624,6 +635,7 @@ export default function PricingPage() {
               className="
                 mt-3
                 font-bold
+                text-white
               "
             >
               Fast Results
@@ -632,7 +644,7 @@ export default function PricingPage() {
             <p
               className="
                 text-sm
-                text-[#7D8CA3]
+                text-slate-400
               "
             >
               Receive analysis in seconds.

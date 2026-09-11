@@ -41,7 +41,11 @@ import {
 } from "react-router-dom";
 
 import {
+  AlertTriangle,
   Bell,
+  BellOff,
+  Briefcase,
+  CheckCircle2,
   ChevronRight,
   Command,
   FileText,
@@ -58,9 +62,12 @@ import {
   Scale,
   Activity,
   ClipboardList,
+  Compass,
 } from "lucide-react";
 
 import Sidebar from "../Sidebar";
+import notificationApi from "../../api/notificationApi";
+import type { Notification } from "../../types/notification";
 
 // ============================================================
 // TYPES
@@ -115,6 +122,12 @@ const ADMIN_PAGE_META: Record<string, AdminPageMeta> = {
       "Create and configure a new platform user account.",
   },
 
+  "/admin/cases/create": {
+    title: "Create Case",
+    description:
+      "Submit a new immigration application on behalf of a user.",
+  },
+
   "/admin/applications": {
     title: "Application Review",
     description:
@@ -137,6 +150,18 @@ const ADMIN_PAGE_META: Record<string, AdminPageMeta> = {
     title: "Immigration Rules",
     description:
       "Manage immigration rules, requirements, and regulatory information.",
+  },
+
+  "/admin/pathways": {
+    title: "Pathway Catalogue",
+    description:
+      "Create, review, and publish immigration pathways for assessment.",
+  },
+
+  "/admin/requirements": {
+    title: "Requirement Definitions",
+    description:
+      "Author reusable, regulatory-sourced requirement definitions.",
   },
 
   "/admin/security": {
@@ -242,6 +267,21 @@ const ADMIN_SEARCH_ITEMS: AdminSearchItem[] = [
   },
 
   {
+    title: "Create Case",
+    description:
+      "Submit a new immigration application on behalf of a user.",
+    path: "/admin/cases/create",
+    keywords: [
+      "create",
+      "new",
+      "case",
+      "application",
+      "immigration",
+    ],
+    icon: Briefcase,
+  },
+
+  {
     title: "Application Review",
     description:
       "Review and manage immigration applications.",
@@ -302,6 +342,35 @@ const ADMIN_SEARCH_ITEMS: AdminSearchItem[] = [
       "visa",
     ],
     icon: Scale,
+  },
+
+  {
+    title: "Pathway Catalogue",
+    description:
+      "Create, review, and publish immigration pathways.",
+    path: "/admin/pathways",
+    keywords: [
+      "pathway",
+      "pathways",
+      "catalogue",
+      "immigration",
+      "publish",
+    ],
+    icon: Compass,
+  },
+
+  {
+    title: "Requirement Definitions",
+    description:
+      "Author reusable, regulatory-sourced requirements.",
+    path: "/admin/requirements",
+    keywords: [
+      "requirement",
+      "requirements",
+      "eligibility",
+      "regulatory",
+    ],
+    icon: ClipboardList,
   },
 
   {
@@ -407,6 +476,59 @@ function getAdminPageMeta(
 }
 
 // ============================================================
+// NOTIFICATION HELPERS
+// ============================================================
+
+function resolveNotificationIcon(type: string) {
+  const normalized = type.trim().toUpperCase();
+
+  if (
+    normalized === "DOCUMENT_FLAGGED" ||
+    normalized === "APPLICATION_REJECTED"
+  ) {
+    return AlertTriangle;
+  }
+
+  if (
+    normalized === "DOCUMENT_PROCESSED" ||
+    normalized === "APPLICATION_SUBMITTED"
+  ) {
+    return FileText;
+  }
+
+  return CheckCircle2;
+}
+
+function formatRelativeTime(isoDate: string): string {
+  const date = new Date(isoDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const diffMs = Date.now() - date.getTime();
+  const diffMinutes = Math.round(diffMs / 60000);
+
+  if (diffMinutes < 1) {
+    return "Just now";
+  }
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes}m ago`;
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+
+  if (diffHours < 24) {
+    return `${diffHours}h ago`;
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+
+  return `${diffDays}d ago`;
+}
+
+// ============================================================
 // COMPONENT
 // ============================================================
 
@@ -426,6 +548,40 @@ export default function AdminLayout({
   ] = useState(false);
 
   // ==========================================================
+  // DESKTOP SIDEBAR COLLAPSE
+  //
+  // Owned here (rather than left to Sidebar's own internal state)
+  // so the header/content offset below can size itself to match the
+  // sidebar's actual current width. Previously this layout used a
+  // fixed lg:pl-[320px]/lg:pl-[336px] offset sized for the expanded
+  // sidebar only - collapsing the sidebar (which Sidebar still did
+  // internally) left a large dead gap between the collapsed 88px
+  // sidebar and the header/content, which still assumed 290px.
+  // ==========================================================
+
+  const [
+    sidebarCollapsed,
+    setSidebarCollapsed,
+  ] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(
+        "mgt-sidebar-collapsed",
+      );
+
+      if (stored === "true") {
+        setSidebarCollapsed(true);
+      }
+    } catch {
+      // Ignore storage failures - default to expanded.
+    }
+  }, []);
+
+  const sidebarContentOffset =
+    sidebarCollapsed ? "88px" : "290px";
+
+  // ==========================================================
   // SEARCH STATE
   // ==========================================================
 
@@ -441,6 +597,150 @@ export default function AdminLayout({
 
   const searchInputRef =
     useRef<HTMLInputElement | null>(null);
+
+  // ==========================================================
+  // NOTIFICATIONS STATE
+  // ==========================================================
+
+  const [
+    notificationsOpen,
+    setNotificationsOpen,
+  ] = useState(false);
+
+  const [
+    notifications,
+    setNotifications,
+  ] = useState<Notification[]>([]);
+
+  const [
+    unreadCount,
+    setUnreadCount,
+  ] = useState(0);
+
+  const [
+    notificationsLoading,
+    setNotificationsLoading,
+  ] = useState(false);
+
+  const notificationsRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const refreshUnreadCount = useCallback(async () => {
+    try {
+      const count = await notificationApi.getUnreadCount();
+      setUnreadCount(count);
+    } catch {
+      // Non-critical background refresh; the bell simply keeps its last count.
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshUnreadCount();
+
+    const intervalId = window.setInterval(
+      refreshUnreadCount,
+      60000,
+    );
+
+    return () => window.clearInterval(intervalId);
+  }, [refreshUnreadCount]);
+
+  const loadNotifications = useCallback(async () => {
+    setNotificationsLoading(true);
+
+    try {
+      const data = await notificationApi.getNotifications();
+      setNotifications(data);
+    } catch {
+      setNotifications([]);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }, []);
+
+  const handleMarkAsRead = useCallback(async (id: number) => {
+    setNotifications((previous) =>
+      previous.map((item) =>
+        item.id === id ? { ...item, read: true } : item,
+      ),
+    );
+
+    setUnreadCount((previous) => Math.max(0, previous - 1));
+
+    try {
+      await notificationApi.markAsRead(id);
+    } catch {
+      // The next refresh reconciles state if this call failed.
+    }
+  }, []);
+
+  const handleMarkAllAsRead = useCallback(async () => {
+    setNotifications((previous) =>
+      previous.map((item) => ({ ...item, read: true })),
+    );
+
+    setUnreadCount(0);
+
+    try {
+      await notificationApi.markAllAsRead();
+    } catch {
+      // The next refresh reconciles state if this call failed.
+    }
+  }, []);
+
+  const handleNotificationClick = useCallback(
+    (notification: Notification) => {
+      setNotificationsOpen(false);
+
+      if (!notification.read) {
+        handleMarkAsRead(notification.id);
+      }
+
+      navigate(notification.link ?? "/admin");
+    },
+    [handleMarkAsRead, navigate],
+  );
+
+  const toggleNotifications = useCallback(() => {
+    setNotificationsOpen((previous) => {
+      const next = !previous;
+
+      if (next) {
+        loadNotifications();
+      }
+
+      return next;
+    });
+  }, [loadNotifications]);
+
+  // Closing the panel on an outside click or Escape mirrors the same
+  // dropdown behavior already used for the dashboard header's bell.
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(target)
+      ) {
+        setNotificationsOpen(false);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setNotificationsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   // ==========================================================
   // PAGE METADATA
@@ -669,7 +969,7 @@ export default function AdminLayout({
       // ------------------------------------------------------
 
       if (
-        event.key.toLowerCase() ===
+        event.key?.toLowerCase() ===
           "k" &&
         (event.ctrlKey ||
           event.metaKey)
@@ -738,7 +1038,7 @@ export default function AdminLayout({
   // ==========================================================
 
   return (
-    <div className="min-h-screen bg-[#F8F6F1]">
+    <div className="min-h-screen">
       {/* ====================================================
           SHARED SIDEBAR
       ==================================================== */}
@@ -746,6 +1046,8 @@ export default function AdminLayout({
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         onClose={closeMobileSidebar}
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={setSidebarCollapsed}
       />
 
       {/* ====================================================
@@ -804,9 +1106,11 @@ export default function AdminLayout({
               overflow-hidden
               rounded-2xl
               border
-              border-slate-200
-              bg-white
+              border-white/10
+              bg-[#1F314A]
               shadow-2xl
+              shadow-black/40
+              backdrop-blur-xl
             "
             role="dialog"
             aria-modal="true"
@@ -820,7 +1124,7 @@ export default function AdminLayout({
                 items-center
                 gap-3
                 border-b
-                border-slate-200
+                border-white/10
                 px-4
                 py-4
               "
@@ -834,8 +1138,8 @@ export default function AdminLayout({
                   items-center
                   justify-center
                   rounded-xl
-                  bg-[#0B1736]
-                  text-[#F4B81A]
+                  bg-[#C6A15B]/15
+                  text-[#C6A15B]
                 "
               >
                 <Search
@@ -867,7 +1171,7 @@ export default function AdminLayout({
                   bg-transparent
                   text-base
                   font-semibold
-                  text-[#0B1736]
+                  text-white
                   outline-none
                   placeholder:text-slate-400
                 "
@@ -878,8 +1182,8 @@ export default function AdminLayout({
                   hidden
                   rounded-lg
                   border
-                  border-slate-200
-                  bg-slate-50
+                  border-white/10
+                  bg-white/5
                   px-2
                   py-1
                   text-[10px]
@@ -905,11 +1209,11 @@ export default function AdminLayout({
                   rounded-lg
                   text-slate-400
                   transition
-                  hover:bg-slate-100
-                  hover:text-slate-700
+                  hover:bg-white/10
+                  hover:text-white
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-[#F4B81A]
+                  focus:ring-[#C6A15B]
                 "
               >
                 <X
@@ -956,8 +1260,8 @@ export default function AdminLayout({
                             py-3
                             text-left
                             transition
-                            hover:bg-[#F8F6F1]
-                            focus:bg-[#F8F6F1]
+                            hover:bg-white/5
+                            focus:bg-white/5
                             focus:outline-none
                           "
                         >
@@ -970,11 +1274,11 @@ export default function AdminLayout({
                               items-center
                               justify-center
                               rounded-xl
-                              bg-slate-100
-                              text-slate-600
+                              bg-white/5
+                              text-slate-400
                               transition
-                              group-hover:bg-[#0B1736]
-                              group-hover:text-[#F4B81A]
+                              group-hover:bg-[#C6A15B]/15
+                              group-hover:text-[#C6A15B]
                             "
                           >
                             <Icon
@@ -989,7 +1293,7 @@ export default function AdminLayout({
                                 truncate
                                 text-sm
                                 font-black
-                                text-[#0B1736]
+                                text-white
                               "
                             >
                               {item.title}
@@ -999,7 +1303,7 @@ export default function AdminLayout({
                               className="
                                 truncate
                                 text-xs
-                                text-slate-500
+                                text-slate-400
                               "
                             >
                               {
@@ -1012,9 +1316,9 @@ export default function AdminLayout({
                             size={17}
                             className="
                               shrink-0
-                              text-slate-300
+                              text-slate-500
                               transition
-                              group-hover:text-[#0B1736]
+                              group-hover:text-[#C6A15B]
                             "
                             aria-hidden="true"
                           />
@@ -1041,7 +1345,7 @@ export default function AdminLayout({
                       items-center
                       justify-center
                       rounded-2xl
-                      bg-slate-100
+                      bg-white/5
                       text-slate-400
                     "
                   >
@@ -1055,7 +1359,7 @@ export default function AdminLayout({
                     className="
                       text-sm
                       font-black
-                      text-[#0B1736]
+                      text-white
                     "
                   >
                     No results found
@@ -1065,7 +1369,7 @@ export default function AdminLayout({
                     className="
                       mt-1
                       text-xs
-                      text-slate-500
+                      text-slate-400
                     "
                   >
                     Try searching for users,
@@ -1084,8 +1388,8 @@ export default function AdminLayout({
                 items-center
                 justify-between
                 border-t
-                border-slate-200
-                bg-slate-50
+                border-white/10
+                bg-white/5
                 px-4
                 py-3
               "
@@ -1133,24 +1437,40 @@ export default function AdminLayout({
       <div
         className="
           min-h-screen
+          pt-20
           transition-[padding]
           duration-300
-          lg:pl-[320px]
+          lg:pl-[var(--admin-content-offset)]
         "
+        style={
+          {
+            "--admin-content-offset":
+              sidebarContentOffset,
+          } as React.CSSProperties
+        }
       >
         {/* ==================================================
             ADMIN HEADER
+
+            Fixed to the true viewport edges (inset-x-0) rather than
+            sticky within the padded content column, so the header bar
+            reaches both the left and right edges of the screen. Its
+            own content no longer needs to be padded clear of the
+            sidebar - the shared Sidebar component now sits below this
+            header (top-20) rather than beside it, so the header spans
+            the full width uninterrupted on both mobile and desktop.
         ================================================== */}
 
         <header
           className="
-            sticky
+            fixed
+            inset-x-0
             top-0
-            z-30
+            z-40
             border-b
-            border-slate-200/80
-            bg-[#F8F6F1]/95
-            shadow-[0_4px_20px_rgba(11,23,54,0.04)]
+            border-white/10
+            bg-[#0B1F3A]/95
+            shadow-[0_4px_20px_rgba(7, 20, 38,0.25)]
             backdrop-blur-xl
           "
         >
@@ -1199,21 +1519,23 @@ export default function AdminLayout({
                   shrink-0
                   items-center
                   justify-center
-                  rounded-xl
+                  rounded-2xl
                   border
-                  border-slate-200
-                  bg-white
-                  text-[#0B1736]
+                  border-white/10
+                  bg-white/5
+                  backdrop-blur-sm
+                  text-white
                   shadow-sm
-                  transition
+                  transition-all
                   duration-200
-                  hover:border-slate-300
-                  hover:bg-slate-50
+                  hover:-translate-y-0.5
+                  hover:border-white/20
+                  hover:bg-white/10
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-[#F4B81A]
+                  focus:ring-[#C6A15B]
                   focus:ring-offset-2
-                  focus:ring-offset-[#F8F6F1]
+                  focus:ring-offset-[#0B1F3A]
                   lg:hidden
                 "
               >
@@ -1256,7 +1578,7 @@ export default function AdminLayout({
                   <span
                     className="
                       truncate
-                      text-slate-500
+                      text-slate-300
                     "
                   >
                     {pageMeta.title}
@@ -1271,7 +1593,7 @@ export default function AdminLayout({
                     text-lg
                     font-black
                     tracking-tight
-                    text-[#0B1736]
+                    text-white
                     sm:text-xl
                   "
                 >
@@ -1286,7 +1608,7 @@ export default function AdminLayout({
                     max-w-3xl
                     truncate
                     text-sm
-                    text-slate-500
+                    text-slate-300
                     md:block
                   "
                 >
@@ -1322,24 +1644,26 @@ export default function AdminLayout({
                   min-w-[150px]
                   items-center
                   gap-2
-                  rounded-xl
+                  rounded-2xl
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/10
+                  bg-white/5
+                  backdrop-blur-sm
                   px-3
                   text-sm
                   font-semibold
-                  text-slate-500
+                  text-slate-300
                   shadow-sm
-                  transition
+                  transition-all
                   duration-200
-                  hover:border-[#F4B81A]
-                  hover:text-[#0B1736]
+                  hover:-translate-y-0.5
+                  hover:border-[#C6A15B]/50
+                  hover:text-white
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-[#F4B81A]
+                  focus:ring-[#C6A15B]
                   focus:ring-offset-2
-                  focus:ring-offset-[#F8F6F1]
+                  focus:ring-offset-[#0B1F3A]
                   sm:flex
                 "
               >
@@ -1357,13 +1681,13 @@ export default function AdminLayout({
                     hidden
                     rounded-md
                     border
-                    border-slate-200
-                    bg-slate-50
+                    border-white/10
+                    bg-white/10
                     px-1.5
                     py-0.5
                     text-[10px]
                     font-bold
-                    text-slate-400
+                    text-slate-300
                     md:inline-block
                   "
                 >
@@ -1383,22 +1707,24 @@ export default function AdminLayout({
                   w-10
                   items-center
                   justify-center
-                  rounded-xl
+                  rounded-2xl
                   border
-                  border-slate-200
-                  bg-white
-                  text-slate-600
+                  border-white/10
+                  bg-white/5
+                  backdrop-blur-sm
+                  text-slate-300
                   shadow-sm
-                  transition
+                  transition-all
                   duration-200
-                  hover:border-[#F4B81A]
-                  hover:bg-slate-50
-                  hover:text-[#0B1736]
+                  hover:-translate-y-0.5
+                  hover:border-[#C6A15B]/50
+                  hover:bg-white/10
+                  hover:text-white
                   focus:outline-none
                   focus:ring-2
-                  focus:ring-[#F4B81A]
+                  focus:ring-[#C6A15B]
                   focus:ring-offset-2
-                  focus:ring-offset-[#F8F6F1]
+                  focus:ring-offset-[#0B1F3A]
                   sm:hidden
                 "
               >
@@ -1412,54 +1738,199 @@ export default function AdminLayout({
                   NOTIFICATIONS
               ================================================== */}
 
-              <button
-                type="button"
-                aria-label="View notifications"
-                className="
-                  relative
-                  flex
-                  h-10
-                  w-10
-                  items-center
-                  justify-center
-                  rounded-xl
-                  border
-                  border-slate-200
-                  bg-white
-                  text-slate-600
-                  shadow-sm
-                  transition
-                  duration-200
-                  hover:border-slate-300
-                  hover:bg-slate-50
-                  hover:text-[#0B1736]
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-[#F4B81A]
-                  focus:ring-offset-2
-                  focus:ring-offset-[#F8F6F1]
-                "
+              <div
+                className="relative"
+                ref={notificationsRef}
               >
-                <Bell
-                  size={18}
-                  aria-hidden="true"
-                />
-
-                <span
+                <button
+                  type="button"
+                  onClick={toggleNotifications}
+                  aria-label="View notifications"
+                  aria-expanded={notificationsOpen}
                   className="
-                    absolute
-                    right-2
-                    top-2
-                    h-2
-                    w-2
-                    rounded-full
-                    bg-[#F4B81A]
-                    ring-2
-                    ring-white
+                    relative
+                    flex
+                    h-10
+                    w-10
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    border
+                    border-white/10
+                    bg-white/5
+                    backdrop-blur-sm
+                    text-slate-300
+                    shadow-sm
+                    transition-all
+                    duration-200
+                    hover:-translate-y-0.5
+                    hover:border-white/20
+                    hover:bg-white/10
+                    hover:text-white
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-[#C6A15B]
+                    focus:ring-offset-2
+                    focus:ring-offset-[#0B1F3A]
                   "
-                  aria-hidden="true"
-                />
-              </button>
+                >
+                  <Bell
+                    size={18}
+                    aria-hidden="true"
+                  />
+
+                  {unreadCount > 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="
+                        absolute
+                        right-1
+                        top-1
+                        flex
+                        h-4
+                        min-w-4
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-red-500
+                        px-1
+                        text-[9px]
+                        font-extrabold
+                        text-white
+                        ring-2
+                        ring-[#0B1F3A]
+                      "
+                    >
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <div
+                    role="menu"
+                    aria-label="Notifications"
+                    className="
+                      absolute
+                      right-0
+                      top-[calc(100%+10px)]
+                      z-40
+                      w-80
+                      max-w-[calc(100vw-2rem)]
+                      overflow-hidden
+                      rounded-3xl
+                      border
+                      border-white/10
+                      bg-[#1F314A]
+                      shadow-2xl
+                      shadow-black/40
+                      backdrop-blur-xl
+                    "
+                  >
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                      <p className="text-sm font-bold text-white">
+                        Notifications
+                      </p>
+
+                      {notifications.some((item) => !item.read) && (
+                        <button
+                          type="button"
+                          onClick={handleMarkAllAsRead}
+                          className="text-xs font-semibold text-slate-400 transition hover:text-white"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-96 overflow-y-auto">
+                      {notificationsLoading ? (
+                        <div className="flex flex-col items-center gap-2 px-6 py-8 text-center">
+                          <p className="text-xs text-slate-400">
+                            Loading notifications...
+                          </p>
+                        </div>
+                      ) : notifications.length === 0 ? (
+                        <div className="flex flex-col items-center gap-2 px-6 py-8 text-center">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-slate-400">
+                            <BellOff size={18} />
+                          </span>
+
+                          <p className="text-sm font-semibold text-white">
+                            You&apos;re all caught up
+                          </p>
+
+                          <p className="text-xs text-slate-400">
+                            No new notifications right now.
+                          </p>
+                        </div>
+                      ) : (
+                        <ul className="divide-y divide-white/10">
+                          {notifications.map((notification) => {
+                            const Icon = resolveNotificationIcon(
+                              notification.type,
+                            );
+
+                            return (
+                              <li key={notification.id}>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleNotificationClick(notification)
+                                  }
+                                  className={`
+                                    flex w-full items-start gap-3 px-4 py-3.5 text-left transition hover:bg-white/5
+                                    ${notification.read ? "" : "bg-[#C6A15B]/[0.06]"}
+                                  `}
+                                >
+                                  <span
+                                    className={`
+                                      mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full
+                                      ${
+                                        notification.type === "DOCUMENT_FLAGGED" ||
+                                        notification.type === "APPLICATION_REJECTED"
+                                          ? "bg-amber-500/15 text-amber-300"
+                                          : "bg-white/10 text-slate-300"
+                                      }
+                                    `}
+                                  >
+                                    <Icon size={15} />
+                                  </span>
+
+                                  <span className="min-w-0 flex-1">
+                                    <span className="flex items-center gap-2">
+                                      <span className="truncate text-sm font-semibold text-white">
+                                        {notification.title}
+                                      </span>
+
+                                      {!notification.read && (
+                                        <span
+                                          aria-hidden="true"
+                                          className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#C6A15B]"
+                                        />
+                                      )}
+                                    </span>
+
+                                    {notification.message && (
+                                      <span className="mt-0.5 block text-xs leading-5 text-slate-400">
+                                        {notification.message}
+                                      </span>
+                                    )}
+
+                                    <span className="mt-1 block text-[11px] font-medium text-slate-500">
+                                      {formatRelativeTime(notification.createdAt)}
+                                    </span>
+                                  </span>
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* ==================================================
                   ADMIN ACCESS
@@ -1470,10 +1941,11 @@ export default function AdminLayout({
                   hidden
                   items-center
                   gap-2
-                  rounded-xl
+                  rounded-2xl
                   border
-                  border-slate-200
-                  bg-white
+                  border-white/10
+                  bg-white/5
+                  backdrop-blur-sm
                   px-3
                   py-2
                   shadow-sm
@@ -1487,9 +1959,11 @@ export default function AdminLayout({
                     w-8
                     items-center
                     justify-center
-                    rounded-lg
-                    bg-[#0B1736]
-                    text-[#F4B81A]
+                    rounded-xl
+                    bg-gradient-to-br
+                    from-[#C6A15B]
+                    to-[#A8894D]
+                    text-[#071426]
                     shadow-sm
                   "
                 >
@@ -1516,7 +1990,7 @@ export default function AdminLayout({
                     className="
                       text-xs
                       font-black
-                      text-[#0B1736]
+                      text-white
                     "
                   >
                     Administrator
@@ -1541,15 +2015,7 @@ export default function AdminLayout({
             lg:px-8
           "
         >
-          <div
-            className="
-              mx-auto
-              w-full
-              max-w-[1800px]
-            "
-          >
-            {children ?? <Outlet />}
-          </div>
+          {children ?? <Outlet />}
         </main>
 
         {/* ====================================================
@@ -1559,8 +2025,9 @@ export default function AdminLayout({
         <footer
           className="
             border-t
-            border-slate-200/80
-            bg-white/50
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             px-4
             py-4
             sm:px-6
@@ -1569,10 +2036,8 @@ export default function AdminLayout({
         >
           <div
             className="
-              mx-auto
               flex
               w-full
-              max-w-[1800px]
               flex-col
               gap-2
               text-xs

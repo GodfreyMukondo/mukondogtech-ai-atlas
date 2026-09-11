@@ -627,7 +627,25 @@ export async function uploadKnowledgeDocument(
     const response =
         await API.post<KnowledgeUploadResponse>(
             `${KNOWLEDGE_BASE_API}/upload`,
-            formData
+            formData,
+            {
+                /**
+                 * The shared `API` axios instance sets a hard
+                 * "Content-Type: application/json" default header.
+                 *
+                 * Axios only lets FormData pass through untouched when it
+                 * does NOT already see a JSON content type; otherwise it
+                 * silently JSON.stringifies the FormData while still
+                 * sending "Content-Type: application/json", which the
+                 * backend's multipart endpoint rejects.
+                 *
+                 * Clearing it here lets the browser generate the correct
+                 * multipart/form-data boundary for this request only.
+                 */
+                headers: {
+                    "Content-Type": undefined,
+                },
+            }
         );
 
     return response.data;

@@ -1,4 +1,4 @@
-import {
+import type {
   InputHTMLAttributes,
 } from "react";
 
@@ -35,7 +35,7 @@ className="
 block
 text-sm
 font-medium
-text-[#0B1736]
+text-slate-200
 "
 >
 
@@ -55,15 +55,18 @@ px-4
 py-3
 rounded-xl
 border
+bg-white/5
+text-white
 outline-none
 transition
+placeholder:text-slate-500
 
 ${
 error
 ?
 "border-red-400 focus:ring-red-300"
 :
-"border-[#D9DDE5] focus:ring-[#F4B81A]"
+"border-white/15 focus:ring-[#C6A15B]"
 }
 
 focus:ring-2

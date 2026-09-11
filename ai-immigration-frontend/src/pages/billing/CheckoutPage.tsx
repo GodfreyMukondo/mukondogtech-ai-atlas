@@ -99,10 +99,9 @@ return (
 <div
 className="
 min-h-screen
-bg-[#F8F6F1]
 px-6
 py-16
-text-[#0B1736]
+text-slate-100
 "
 >
 
@@ -125,7 +124,7 @@ items-center
 gap-2
 text-sm
 mb-8
-hover:text-[#F4B81A]
+hover:text-[#C6A15B]
 "
 
 >
@@ -162,11 +161,13 @@ gap-8
 
 <div
 className="
-bg-white
+bg-white/5
+backdrop-blur-xl
 rounded-3xl
 p-8
 shadow-sm
 border
+border-white/10
 "
 >
 
@@ -176,6 +177,7 @@ className="
 text-3xl
 font-bold
 mb-4
+text-white
 "
 >
 
@@ -186,7 +188,7 @@ Complete Checkout
 
 <p
 className="
-text-gray-600
+text-slate-300
 mb-8
 "
 >
@@ -200,6 +202,7 @@ Secure your MukondoGTech AI subscription.
 <div
 className="
 border
+border-white/10
 rounded-2xl
 p-6
 "
@@ -210,6 +213,7 @@ p-6
 className="
 font-semibold
 text-xl
+text-white
 "
 >
 
@@ -223,6 +227,7 @@ className="
 text-4xl
 font-bold
 mt-3
+text-white
 "
 >
 
@@ -232,7 +237,7 @@ ${selectedPlan.price}
 className="
 text-base
 font-normal
-text-gray-500
+text-slate-400
 "
 >
 /month
@@ -259,14 +264,14 @@ className="
 flex
 gap-2
 items-center
-text-gray-700
+text-slate-200
 "
 >
 
 <CheckCircle
 size={18}
 className="
-text-green-600
+text-emerald-400
 "
 />
 
@@ -295,11 +300,13 @@ text-green-600
 
 <div
 className="
-bg-white
+bg-white/5
+backdrop-blur-xl
 rounded-3xl
 p-8
 shadow-sm
 border
+border-white/10
 "
 >
 
@@ -310,6 +317,7 @@ flex
 items-center
 gap-3
 mb-6
+text-white
 "
 >
 
@@ -333,7 +341,7 @@ Payment
 
 <div
 className="
-bg-gray-50
+bg-white/5
 rounded-xl
 p-5
 mb-6
@@ -343,7 +351,7 @@ mb-6
 <p
 className="
 text-sm
-text-gray-600
+text-slate-400
 "
 >
 Payment provider
@@ -353,6 +361,7 @@ Payment provider
 <p
 className="
 font-semibold
+text-white
 "
 >
 Flutterwave
@@ -371,7 +380,8 @@ disabled={loading}
 
 className="
 w-full
-bg-[#F4B81A]
+bg-[#C6A15B]
+text-[#071426]
 py-4
 rounded-xl
 font-semibold
@@ -412,7 +422,7 @@ Pay Securely
 <p
 className="
 text-xs
-text-gray-500
+text-slate-500
 mt-5
 text-center
 "

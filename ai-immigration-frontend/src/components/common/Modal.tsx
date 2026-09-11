@@ -1,6 +1,9 @@
 import {
-ReactNode,
 useEffect
+} from "react";
+
+import type {
+ReactNode
 } from "react";
 
 import {
@@ -91,12 +94,16 @@ onClick={onClose}
 <div
 
 className="
-bg-white
 rounded-3xl
+border
+border-white/10
+bg-[#1F314A]
 max-w-lg
 w-full
 p-6
-shadow-xl
+shadow-2xl
+shadow-black/40
+backdrop-blur-xl
 "
 
 onClick={
@@ -120,7 +127,7 @@ mb-5
 className="
 text-xl
 font-bold
-text-[#0B1736]
+text-white
 "
 >
 
@@ -131,6 +138,7 @@ text-[#0B1736]
 
 <button
 onClick={onClose}
+className="text-slate-400 hover:text-white"
 >
 
 <X/>

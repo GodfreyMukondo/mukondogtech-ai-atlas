@@ -56,7 +56,6 @@ export default function SecurityPage() {
     <main
       className="
         min-h-screen
-        bg-[#FFFDF5]
       "
     >
 
@@ -83,7 +82,7 @@ export default function SecurityPage() {
             h-72
             w-72
             rounded-full
-            bg-[#F4B81A]/10
+            bg-[#C6A15B]/10
             blur-3xl
           "
         />
@@ -118,14 +117,14 @@ export default function SecurityPage() {
               items-center
               justify-center
               rounded-full
-              bg-[#FFF4D1]
+              bg-[#C6A15B]/15
               shadow-lg
             "
           >
 
             <ShieldCheck
               size={38}
-              className="text-[#F4B81A]"
+              className="text-[#C6A15B]"
             />
 
           </motion.div>
@@ -139,7 +138,7 @@ export default function SecurityPage() {
               text-4xl
               font-bold
               leading-tight
-              text-[#0B1736]
+              text-white
               md:text-6xl
             "
           >
@@ -158,7 +157,7 @@ export default function SecurityPage() {
               max-w-3xl
               text-lg
               leading-relaxed
-              text-[#7D8CA3]
+              text-slate-300
               md:text-xl
             "
           >
@@ -234,8 +233,9 @@ export default function SecurityPage() {
                   className="
                     rounded-3xl
                     border
-                    border-[#F4B81A]/10
-                    bg-white
+                    border-white/10
+                    bg-white/5
+                    backdrop-blur-xl
                     p-8
                     shadow-lg
                     transition-all
@@ -255,13 +255,13 @@ export default function SecurityPage() {
                       items-center
                       justify-center
                       rounded-2xl
-                      bg-[#FFF4D1]
+                      bg-[#C6A15B]/15
                     "
                   >
 
                     <Icon
                       size={28}
-                      className="text-[#F4B81A]"
+                      className="text-[#C6A15B]"
                     />
 
                   </div>
@@ -273,7 +273,7 @@ export default function SecurityPage() {
                       mb-3
                       text-xl
                       font-semibold
-                      text-[#0B1736]
+                      text-white
                     "
                   >
                     {feature.title}
@@ -284,7 +284,7 @@ export default function SecurityPage() {
                   <p
                     className="
                       leading-relaxed
-                      text-gray-600
+                      text-slate-300
                     "
                   >
                     {feature.description}
@@ -314,7 +314,8 @@ export default function SecurityPage() {
         className="
           relative
           overflow-hidden
-          bg-[#FFF4D1]
+          bg-[#C6A15B]/10
+          backdrop-blur-xl
           px-6
           py-24
         "
@@ -331,7 +332,7 @@ export default function SecurityPage() {
             h-80
             w-80
             rounded-full
-            bg-[#F4B81A]/20
+            bg-[#C6A15B]/20
             blur-3xl
           "
         />
@@ -375,7 +376,7 @@ export default function SecurityPage() {
                 text-3xl
                 font-bold
                 leading-tight
-                text-[#0B1736]
+                text-white
                 md:text-4xl
               "
             >
@@ -394,7 +395,7 @@ export default function SecurityPage() {
                 max-w-3xl
                 text-lg
                 leading-relaxed
-                text-[#64748B]
+                text-slate-300
               "
             >
 

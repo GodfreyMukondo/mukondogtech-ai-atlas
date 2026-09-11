@@ -1,595 +1,1005 @@
 import {
+  useId,
+  useRef,
   useState,
   type ChangeEvent,
   type DragEvent,
 } from "react";
 
 import {
-  UploadCloud,
+  CheckCircle2,
+  FileImage,
   FileText,
+  Loader2,
+  UploadCloud,
   X,
 } from "lucide-react";
 
 import Button from "../../../components/common/Button";
-
 import UploadProgressBar from "./UploadProgressBar";
-
 import FileTypeError from "./FileTypeError";
 
-
 interface Props {
-
   onUpload: (
     file: File,
-    onProgress?: (
-      progress: number
-    ) => void
+    onProgress?: (progress: number) => void
   ) => Promise<void>;
-
 }
 
+/**
+ * Maximum file size accepted by the client.
+ *
+ * IMPORTANT:
+ * The backend should enforce the same limit independently.
+ */
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE_MB = 10;
 
-const MAX_FILE_SIZE =
-  10 * 1024 * 1024;
-
-
-const ALLOWED_TYPES = [
+/**
+ * MIME types accepted by the application.
+ *
+ * PDF:
+ *   application/pdf
+ *
+ * PNG:
+ *   image/png
+ *
+ * JPEG:
+ *   image/jpeg
+ */
+const ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
   "image/png",
   "image/jpeg",
-];
+]);
 
+/**
+ * Extensions are checked as a fallback because some browsers,
+ * operating systems, or drag/drop sources can provide an empty
+ * or unreliable MIME type.
+ */
+const ALLOWED_EXTENSIONS = new Set([
+  ".pdf",
+  ".png",
+  ".jpg",
+  ".jpeg",
+]);
 
-const extractUploadError = (
-  error: unknown
-): string => {
+const ACCEPT_ATTRIBUTE =
+  ".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg";
 
-  if (
-    error &&
-    typeof error === "object"
-  ) {
+type UploadErrorKind =
+  | "validation"
+  | "server"
+  | "network"
+  | "authentication"
+  | "unknown";
 
-    const axiosError =
-      error as {
-        response?: {
-          status?: number;
+interface NormalizedUploadError {
+  kind: UploadErrorKind;
+  message: string;
+  status?: number;
+}
 
-          data?: {
-            message?: string;
+interface AxiosLikeError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+      error?: string;
+      detail?: string;
+    };
+  };
+  request?: unknown;
+  message?: string;
+}
 
-            error?: string;
+/**
+ * Safely extracts a file extension.
+ */
+const getFileExtension = (fileName: string): string => {
+  const lastDot = fileName.lastIndexOf(".");
 
-            detail?: string;
-          };
-        };
-
-        message?: string;
-      };
-
-
-    const status =
-      axiosError.response?.status;
-
-
-    const message =
-      axiosError.response?.data?.message
-      ||
-      axiosError.response?.data?.detail
-      ||
-      axiosError.response?.data?.error;
-
-
-    /**
-     * HTTP 500 is a server-side problem.
-     *
-     * Do NOT describe it as a file-type problem.
-     */
-    if (
-      status &&
-      status >= 500
-    ) {
-
-      return (
-        message ||
-        "The server could not process this document. Please try again."
-      );
-
-    }
-
-
-    if (message) {
-
-      return message;
-
-    }
-
-
-    if (
-      typeof axiosError.message ===
-      "string"
-    ) {
-
-      return axiosError.message;
-
-    }
-
+  if (lastDot === -1) {
+    return "";
   }
 
-
-  if (
-    error instanceof Error
-  ) {
-
-    return error.message;
-
-  }
-
-
-  return (
-    "Upload failed. Please try again."
-  );
-
+  return fileName.slice(lastDot).toLowerCase();
 };
 
+/**
+ * Returns a human-readable file size.
+ */
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+};
+
+/**
+ * Extracts a useful error message from Axios-style errors,
+ * Fetch-style errors, or regular JavaScript errors.
+ *
+ * Server errors are deliberately classified separately from
+ * file validation errors.
+ */
+const extractUploadError = (
+  error: unknown
+): NormalizedUploadError => {
+  if (error && typeof error === "object") {
+    const axiosError = error as AxiosLikeError;
+
+    const status = axiosError.response?.status;
+
+    const serverMessage =
+      axiosError.response?.data?.message ||
+      axiosError.response?.data?.detail ||
+      axiosError.response?.data?.error;
+
+    if (status === 401 || status === 403) {
+      return {
+        kind: "authentication",
+        status,
+        message:
+          serverMessage ||
+          "Your session has expired or you do not have permission to upload this document.",
+      };
+    }
+
+    if (status && status >= 500) {
+      return {
+        kind: "server",
+        status,
+        message:
+          serverMessage ||
+          "The server could not process this document. Please try again.",
+      };
+    }
+
+    if (status === 413) {
+      return {
+        kind: "validation",
+        status,
+        message:
+          "The document is too large. Please select a file smaller than 10MB.",
+      };
+    }
+
+    if (status === 400 || status === 415 || status === 422) {
+      return {
+        kind: "validation",
+        status,
+        message:
+          serverMessage ||
+          "The document could not be accepted. Please check the file and try again.",
+      };
+    }
+
+    if (serverMessage) {
+      return {
+        kind: "unknown",
+        status,
+        message: serverMessage,
+      };
+    }
+
+    if (axiosError.request) {
+      return {
+        kind: "network",
+        message:
+          "Unable to reach the server. Please check your connection and try again.",
+      };
+    }
+
+    if (typeof axiosError.message === "string") {
+      return {
+        kind: "unknown",
+        message: axiosError.message,
+      };
+    }
+  }
+
+  if (error instanceof Error) {
+    return {
+      kind: "unknown",
+      message:
+        error.message || "Upload failed. Please try again.",
+    };
+  }
+
+  return {
+    kind: "unknown",
+    message: "Upload failed. Please try again.",
+  };
+};
+
+/**
+ * Validates the selected document before upload.
+ *
+ * Both MIME type and extension are considered.
+ * This provides better browser compatibility while the backend
+ * remains the authoritative security validation layer.
+ */
+const validateFile = (
+  selected: File
+): string => {
+  const fileName = selected.name.trim();
+
+  if (!fileName) {
+    return "Please select a valid document.";
+  }
+
+  if (selected.size <= 0) {
+    return "The selected file is empty.";
+  }
+
+  if (selected.size > MAX_FILE_SIZE) {
+    return `File size must be ${MAX_FILE_SIZE_MB}MB or smaller.`;
+  }
+
+  const extension = getFileExtension(fileName);
+  const mimeType = selected.type.toLowerCase().trim();
+
+  const extensionAllowed =
+    ALLOWED_EXTENSIONS.has(extension);
+
+  const mimeAllowed =
+    mimeType.length === 0 ||
+    ALLOWED_MIME_TYPES.has(mimeType);
+
+  /**
+   * If a browser reports no MIME type, allow the extension
+   * to determine the client-side result.
+   *
+   * If a MIME type is explicitly supplied and is unsupported,
+   * reject it even if the extension appears valid.
+   */
+  if (!extensionAllowed) {
+    return (
+      "Unsupported file type. Please select a PDF, PNG, or JPEG document."
+    );
+  }
+
+  if (!mimeAllowed) {
+    return (
+      "The selected file type is not supported. Please select a PDF, PNG, or JPEG document."
+    );
+  }
+
+  return "";
+};
 
 export default function UploadBox({
   onUpload,
 }: Props) {
+  const inputId = useId();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const [
-    file,
-    setFile,
-  ] = useState<File | null>(null);
+  const [file, setFile] =
+    useState<File | null>(null);
 
+  const [loading, setLoading] =
+    useState(false);
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+  const [progress, setProgress] =
+    useState(0);
 
+  const [error, setError] =
+    useState("");
 
-  const [
-    progress,
-    setProgress,
-  ] = useState(0);
+  const [errorKind, setErrorKind] =
+    useState<UploadErrorKind>("validation");
 
+  const [dragActive, setDragActive] =
+    useState(false);
 
-  const [
-    error,
-    setError,
-  ] = useState("");
+  const [uploadComplete, setUploadComplete] =
+    useState(false);
 
-
-  const [
-    dragActive,
-    setDragActive,
-  ] = useState(false);
-
-
-  const validateFile = (
-    selected: File
-  ): string => {
-
-    if (
-      !ALLOWED_TYPES.includes(
-        selected.type
-      )
-    ) {
-
-      return (
-        "Unsupported file type. Please select a PDF, PNG, or JPEG file."
-      );
-
+  const clearSelection = () => {
+    if (loading) {
+      return;
     }
 
+    setFile(null);
+    setError("");
+    setProgress(0);
+    setUploadComplete(false);
 
-    if (
-      selected.size <= 0
-    ) {
-
-      return (
-        "The selected file is empty."
-      );
-
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
-
-
-    if (
-      selected.size >
-      MAX_FILE_SIZE
-    ) {
-
-      return (
-        "File size must be 10MB or smaller."
-      );
-
-    }
-
-
-    return "";
-
   };
-
 
   const selectFile = (
     selected: File | undefined
   ) => {
-
-    if (!selected) {
+    if (!selected || loading) {
       return;
     }
 
-
-    const validation =
-      validateFile(
-        selected
-      );
-
+    const validation = validateFile(selected);
 
     if (validation) {
-
-      setError(
-        validation
-      );
-
       setFile(null);
-
+      setProgress(0);
+      setUploadComplete(false);
+      setError(validation);
+      setErrorKind("validation");
       return;
-
     }
 
-
-    setError("");
-
-    setProgress(0);
-
     setFile(selected);
-
+    setError("");
+    setProgress(0);
+    setUploadComplete(false);
   };
-
 
   const handleFileChange = (
     event: ChangeEvent<HTMLInputElement>
   ) => {
-
-    selectFile(
-      event.target.files?.[0]
-    );
+    selectFile(event.target.files?.[0]);
 
     /**
-     * Allow the user to select the same file again after an error.
+     * Reset the input so the same file can be selected again
+     * after an upload failure.
      */
     event.target.value = "";
-
   };
-
 
   const handleDragOver = (
     event: DragEvent<HTMLDivElement>
   ) => {
-
     event.preventDefault();
 
-    event.dataTransfer.dropEffect =
-      "copy";
+    if (loading) {
+      return;
+    }
 
+    event.dataTransfer.dropEffect = "copy";
     setDragActive(true);
-
   };
 
+  const handleDragLeave = (
+    event: DragEvent<HTMLDivElement>
+  ) => {
+    event.preventDefault();
 
-  const handleDragLeave = () => {
-
-    setDragActive(false);
-
+    /**
+     * Avoid flickering when moving between children inside
+     * the drop zone.
+     */
+    if (
+      event.currentTarget ===
+      event.target
+    ) {
+      setDragActive(false);
+    }
   };
-
 
   const handleDrop = (
     event: DragEvent<HTMLDivElement>
   ) => {
-
     event.preventDefault();
 
     setDragActive(false);
 
+    if (loading) {
+      return;
+    }
 
-    selectFile(
-      event.dataTransfer.files?.[0]
-    );
+    const droppedFiles =
+      event.dataTransfer.files;
 
+    if (!droppedFiles?.length) {
+      return;
+    }
+
+    if (droppedFiles.length > 1) {
+      setFile(null);
+      setError(
+        "Please select only one document at a time."
+      );
+      setErrorKind("validation");
+      return;
+    }
+
+    selectFile(droppedFiles[0]);
   };
 
+  const handleBrowseClick = () => {
+    if (loading) {
+      return;
+    }
+
+    inputRef.current?.click();
+  };
 
   const submit = async () => {
-
     if (!file || loading) {
       return;
     }
 
+    /**
+     * Revalidate immediately before sending.
+     *
+     * This protects against a File object changing unexpectedly
+     * between selection and submission.
+     */
+    const validation = validateFile(file);
+
+    if (validation) {
+      setError(validation);
+      setErrorKind("validation");
+      return;
+    }
 
     try {
-
       setLoading(true);
-
       setError("");
-
       setProgress(0);
-
+      setUploadComplete(false);
 
       await onUpload(
         file,
-        (
-          value: number
-        ) => {
+        (value: number) => {
+          const numericValue =
+            Number.isFinite(value)
+              ? value
+              : 0;
 
-          const safeProgress =
-            Math.min(
-              100,
-              Math.max(
-                0,
-                Math.round(value)
-              )
-            );
-
-
-          setProgress(
-            safeProgress
+          const safeProgress = Math.min(
+            100,
+            Math.max(
+              0,
+              Math.round(numericValue)
+            )
           );
 
+          setProgress(safeProgress);
         }
       );
 
-
       setProgress(100);
-
-      setFile(null);
-
-
-    } catch (error: unknown) {
+      setUploadComplete(true);
+      setError("");
+    } catch (uploadError: unknown) {
+      const normalizedError =
+        extractUploadError(uploadError);
 
       setError(
-        extractUploadError(
-          error
-        )
+        normalizedError.message
       );
 
+      setErrorKind(
+        normalizedError.kind
+      );
+
+      setUploadComplete(false);
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
+  const getFileIcon = () => {
+    if (!file) {
+      return (
+        <UploadCloud
+          size={48}
+          strokeWidth={1.7}
+          aria-hidden="true"
+        />
+      );
+    }
+
+    const extension =
+      getFileExtension(file.name);
+
+    if (
+      extension === ".png" ||
+      extension === ".jpg" ||
+      extension === ".jpeg"
+    ) {
+      return (
+        <FileImage
+          size={42}
+          strokeWidth={1.7}
+          aria-hidden="true"
+        />
+      );
+    }
+
+    return (
+      <FileText
+        size={42}
+        strokeWidth={1.7}
+        aria-hidden="true"
+      />
+    );
+  };
 
   return (
-
-    <div
+    <section
+      aria-label="Document upload"
       className="
         rounded-3xl
         border
-        border-[#E5DED1]
-        bg-white
-        p-8
-        shadow-sm
+        border-white/10
+        bg-white/[0.04]
+        p-5
+        shadow-2xl
+        shadow-black/20
+        backdrop-blur-xl
+        sm:p-7
+        lg:p-8
       "
     >
-
       <div
-        onDragOver={
-          handleDragOver
-        }
-        onDragLeave={
-          handleDragLeave
-        }
-        onDrop={
-          handleDrop
-        }
+        role="button"
+        tabIndex={loading ? -1 : 0}
+        aria-label="Document upload drop zone"
+        aria-disabled={loading}
+        onClick={handleBrowseClick}
+        onKeyDown={(event) => {
+          if (
+            loading
+          ) {
+            return;
+          }
+
+          if (
+            event.key === "Enter" ||
+            event.key === " "
+          ) {
+            event.preventDefault();
+            handleBrowseClick();
+          }
+        }}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         className={`
+          relative
           rounded-2xl
           border-2
           border-dashed
-          p-12
+          p-7
           text-center
-          transition
+          transition-all
+          duration-200
+          sm:p-10
+          lg:p-12
 
           ${
             dragActive
-              ? "border-[#F4B81A] bg-yellow-50"
-              : "border-[#D9DDE5]"
+              ? `
+                border-[#C6A15B]
+                bg-[#C6A15B]/10
+                shadow-lg
+                shadow-[#C6A15B]/10
+              `
+              : `
+                border-white/15
+                bg-black/5
+                hover:border-white/25
+                hover:bg-white/[0.03]
+              `
           }
+
+          ${
+            loading
+              ? "cursor-not-allowed opacity-80"
+              : "cursor-pointer"
+          }
+
+          focus:outline-none
+          focus-visible:ring-2
+          focus-visible:ring-[#C6A15B]
+          focus-visible:ring-offset-2
+          focus-visible:ring-offset-slate-950
         `}
       >
-
-        <UploadCloud
-          size={50}
+        <div
           className="
             mx-auto
-            text-[#F4B81A]
+            flex
+            h-16
+            w-16
+            items-center
+            justify-center
+            rounded-2xl
+            bg-[#C6A15B]/10
+            text-[#C6A15B]
+            ring-1
+            ring-[#C6A15B]/20
           "
-        />
-
+        >
+          {loading ? (
+            <Loader2
+              size={42}
+              className="animate-spin"
+              aria-hidden="true"
+            />
+          ) : (
+            getFileIcon()
+          )}
+        </div>
 
         <h3
           className="
             mt-5
             text-xl
             font-bold
-            text-[#0B1736]
+            tracking-tight
+            text-white
           "
         >
-          Upload Document
+          {loading
+            ? "Uploading document…"
+            : uploadComplete
+              ? "Document uploaded"
+              : "Upload your document"}
         </h3>
-
 
         <p
           className="
+            mx-auto
             mt-2
-            text-[#7D8CA3]
+            max-w-xl
+            text-sm
+            leading-6
+            text-slate-300
           "
         >
-          Drag & drop or select PDF,
-          passport, visa or image files
+          {loading
+            ? "Please keep this page open while your document is being uploaded."
+            : uploadComplete
+              ? "Your document has been successfully uploaded."
+              : "Drag and drop your document here, or choose a file from your device."}
         </p>
 
-
-        <input
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-          className="hidden"
-          id="document-upload"
-          onChange={
-            handleFileChange
-          }
-          disabled={loading}
-        />
-
-
-        <label
-          htmlFor="document-upload"
-          className="
-            inline-block
-            mt-6
-            cursor-pointer
-            rounded-xl
-            bg-[#0B1736]
-            px-5
-            py-3
-            font-medium
-            text-white
-            hover:opacity-90
-            has-[:disabled]:cursor-not-allowed
-          "
-        >
-          Choose File
-        </label>
-
-
-        {file && (
-
+        {!loading && !uploadComplete && (
           <div
             className="
-              mt-6
+              mt-5
               flex
+              flex-wrap
               items-center
               justify-center
-              gap-3
-              text-[#0B1736]
+              gap-2
+              text-xs
+              text-slate-400
             "
           >
-
-            <FileText
-              size={18}
-            />
+            <span
+              className="
+                rounded-full
+                border
+                border-white/10
+                bg-white/5
+                px-3
+                py-1.5
+              "
+            >
+              PDF
+            </span>
 
             <span
               className="
-                max-w-xs
-                truncate
+                rounded-full
+                border
+                border-white/10
+                bg-white/5
+                px-3
+                py-1.5
               "
             >
-              {file.name}
+              PNG
             </span>
 
+            <span
+              className="
+                rounded-full
+                border
+                border-white/10
+                bg-white/5
+                px-3
+                py-1.5
+              "
+            >
+              JPEG
+            </span>
+
+            <span
+              className="
+                rounded-full
+                border
+                border-white/10
+                bg-white/5
+                px-3
+                py-1.5
+              "
+            >
+              Max {MAX_FILE_SIZE_MB}MB
+            </span>
+          </div>
+        )}
+
+        <input
+          ref={inputRef}
+          id={inputId}
+          type="file"
+          accept={ACCEPT_ATTRIBUTE}
+          className="sr-only"
+          onChange={handleFileChange}
+          disabled={loading}
+          aria-describedby={`${inputId}-help`}
+        />
+
+        {!loading && !uploadComplete && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleBrowseClick();
+            }}
+            disabled={loading}
+            className="
+              mt-7
+              inline-flex
+              min-h-11
+              items-center
+              justify-center
+              rounded-xl
+              bg-[#C6A15B]
+              px-6
+              py-3
+              text-sm
+              font-semibold
+              text-black
+              shadow-lg
+              shadow-[#C6A15B]/10
+              transition
+              hover:bg-[#A8894D]
+              focus:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-[#C6A15B]
+              focus-visible:ring-offset-2
+              focus-visible:ring-offset-slate-950
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+            "
+          >
+            Choose File
+          </button>
+        )}
+
+        <p
+          id={`${inputId}-help`}
+          className="
+            mt-4
+            text-xs
+            text-slate-500
+          "
+        >
+          Supported document formats: PDF, PNG, and JPEG.
+        </p>
+
+        {file && !uploadComplete && (
+          <div
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            className="
+              mx-auto
+              mt-6
+              flex
+              max-w-xl
+              items-center
+              gap-3
+              rounded-xl
+              border
+              border-white/10
+              bg-white/[0.04]
+              p-3
+              text-left
+            "
+          >
+            <div
+              className="
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-lg
+                bg-white/5
+                text-slate-300
+              "
+            >
+              {getFileIcon()}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p
+                className="
+                  truncate
+                  text-sm
+                  font-medium
+                  text-white
+                "
+                title={file.name}
+              >
+                {file.name}
+              </p>
+
+              <p
+                className="
+                  mt-0.5
+                  text-xs
+                  text-slate-400
+                "
+              >
+                {formatFileSize(file.size)}
+              </p>
+            </div>
 
             <button
               type="button"
-              onClick={() => {
-
-                if (!loading) {
-
-                  setFile(null);
-
-                  setError("");
-
-                  setProgress(0);
-
-                }
-
-              }}
+              onClick={clearSelection}
               disabled={loading}
               className="
-                text-red-500
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-lg
+                text-slate-400
+                transition
+                hover:bg-red-400/10
+                hover:text-red-400
+                focus:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-red-400
                 disabled:cursor-not-allowed
-                disabled:opacity-50
+                disabled:opacity-40
               "
-              aria-label="Remove selected file"
+              aria-label={`Remove ${file.name}`}
+              title="Remove file"
             >
-
               <X
                 size={18}
+                aria-hidden="true"
               />
-
             </button>
-
           </div>
-
         )}
 
+        {uploadComplete && file && (
+          <div
+            className="
+              mx-auto
+              mt-6
+              flex
+              max-w-xl
+              items-center
+              gap-3
+              rounded-xl
+              border
+              border-emerald-400/20
+              bg-emerald-400/10
+              p-4
+              text-left
+            "
+          >
+            <CheckCircle2
+              size={22}
+              className="shrink-0 text-emerald-400"
+              aria-hidden="true"
+            />
+
+            <div className="min-w-0">
+              <p
+                className="
+                  text-sm
+                  font-semibold
+                  text-emerald-300
+                "
+              >
+                Upload successful
+              </p>
+
+              <p
+                className="
+                  mt-0.5
+                  truncate
+                  text-xs
+                  text-emerald-200/70
+                "
+                title={file.name}
+              >
+                {file.name}
+              </p>
+            </div>
+          </div>
+        )}
 
         {error && (
-
           <div
-            className="mt-5"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            className="mx-auto mt-6 max-w-xl"
           >
-
             <FileTypeError
               message={error}
+              kind={errorKind}
+              fileName={file?.name}
               allowedTypes={[
                 "PDF",
                 "PNG",
                 "JPEG",
               ]}
+              onRetry={
+                errorKind === "server" ||
+                errorKind === "network" ||
+                errorKind === "unknown"
+                  ? submit
+                  : undefined
+              }
+              onChooseAnother={() => {
+                clearSelection();
+                requestAnimationFrame(() => {
+                  inputRef.current?.click();
+                });
+              }}
             />
-
           </div>
-
         )}
-
 
         {loading && file && (
-
           <div
-            className="mt-6"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+            className="mx-auto mt-6 max-w-xl"
           >
-
             <UploadProgressBar
-              fileName={
-                file.name
-              }
-              progress={
-                progress
-              }
+              fileName={file.name}
+              progress={progress}
               status="uploading"
             />
-
           </div>
-
         )}
-
       </div>
-
 
       <Button
         loading={loading}
         disabled={
           !file ||
-          loading
+          loading ||
+          uploadComplete
         }
         className="
           mt-6
           w-full
         "
-        onClick={
-          submit
-        }
+        onClick={submit}
       >
-        Upload Document
+        {uploadComplete
+          ? "Document Uploaded"
+          : "Upload Document"}
       </Button>
-
-    </div>
-
+    </section>
   );
-
 }
+

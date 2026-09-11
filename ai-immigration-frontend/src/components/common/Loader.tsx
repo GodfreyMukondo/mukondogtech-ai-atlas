@@ -41,7 +41,7 @@ size={size}
 
 className="
 animate-spin
-text-[#F4B81A]
+text-[#C6A15B]
 "
 
 />
@@ -52,7 +52,7 @@ text && (
 
 <p
 className="
-text-gray-500
+text-slate-400
 "
 >
 

@@ -2,7 +2,7 @@ import {
   useState,
   useRef,
   useEffect,
-  KeyboardEvent,
+  type KeyboardEvent,
 } from "react";
 
 import {
@@ -129,7 +129,7 @@ export default function AIChatWidgetContent() {
         className="
           flex-1
           overflow-y-auto
-          bg-[#FAFBFC]
+          bg-transparent
           p-4
         "
       >
@@ -147,7 +147,7 @@ export default function AIChatWidgetContent() {
             >
               <Sparkles
                 size={14}
-                className="text-[#F4B81A]"
+                className="text-[#C6A15B]"
               />
 
               <p
@@ -156,7 +156,7 @@ export default function AIChatWidgetContent() {
                   font-semibold
                   uppercase
                   tracking-wide
-                  text-[#667085]
+                  text-slate-400
                 "
               >
                 Suggested Questions
@@ -175,16 +175,16 @@ export default function AIChatWidgetContent() {
                     className="
                       rounded-full
                       border
-                      border-[#E7EAF0]
-                      bg-white
+                      border-white/15
+                      bg-white/5
                       px-3
                       py-2
                       text-xs
-                      text-[#475467]
+                      text-slate-300
                       transition-all
-                      hover:border-[#F4B81A]
-                      hover:bg-[#FFF8E6]
-                      hover:text-[#0B1736]
+                      hover:border-[#C6A15B]/50
+                      hover:bg-[#C6A15B]/10
+                      hover:text-[#C6A15B]
                     "
                   >
                     {question}
@@ -219,13 +219,13 @@ export default function AIChatWidgetContent() {
                     justify-center
                     rounded-xl
                     bg-gradient-to-br
-                    from-[#0B1736]
-                    to-[#183B6B]
+                    from-[#0B1F3A]
+                    to-[#3C4C61]
                   "
                 >
                   <Bot
                     size={16}
-                    className="text-[#F4B81A]"
+                    className="text-[#C6A15B]"
                   />
                 </div>
               )}
@@ -244,14 +244,14 @@ export default function AIChatWidgetContent() {
                     message.role ===
                     "user"
                       ? `
-                        bg-[#0B1736]
+                        bg-[#3C4C61]
                         text-white
                       `
                       : `
                         border
-                        border-[#E7EAF0]
-                        bg-white
-                        text-[#0B1736]
+                        border-white/10
+                        bg-white/5
+                        text-white
                       `
                   }
                 `}
@@ -270,12 +270,12 @@ export default function AIChatWidgetContent() {
                     items-center
                     justify-center
                     rounded-xl
-                    bg-[#EEF2F7]
+                    bg-white/10
                   "
                 >
                   <User
                     size={16}
-                    className="text-[#0B1736]"
+                    className="text-white"
                   />
                 </div>
               )}
@@ -293,13 +293,13 @@ export default function AIChatWidgetContent() {
                   justify-center
                   rounded-xl
                   bg-gradient-to-br
-                  from-[#0B1736]
-                  to-[#183B6B]
+                  from-[#0B1F3A]
+                  to-[#3C4C61]
                 "
               >
                 <Bot
                   size={16}
-                  className="text-[#F4B81A]"
+                  className="text-[#C6A15B]"
                 />
               </div>
 
@@ -310,12 +310,12 @@ export default function AIChatWidgetContent() {
                   gap-2
                   rounded-2xl
                   border
-                  border-[#E7EAF0]
-                  bg-white
+                  border-white/10
+                  bg-white/5
                   px-4
                   py-3
                   text-sm
-                  text-[#667085]
+                  text-slate-300
                 "
               >
                 <Loader2
@@ -333,11 +333,11 @@ export default function AIChatWidgetContent() {
               className="
                 rounded-xl
                 border
-                border-red-200
-                bg-red-50
+                border-red-500/30
+                bg-red-500/10
                 p-3
                 text-sm
-                text-red-600
+                text-red-300
               "
             >
               {error}
@@ -353,8 +353,8 @@ export default function AIChatWidgetContent() {
       <div
         className="
           border-t
-          border-[#E7EAF0]
-          bg-white
+          border-white/10
+          bg-transparent
           p-4
         "
       >
@@ -371,16 +371,19 @@ export default function AIChatWidgetContent() {
               flex-1
               rounded-xl
               border
-              border-[#D8DFEA]
+              border-white/15
+              bg-white/5
               px-4
               py-3
               text-sm
+              text-white
               outline-none
               transition
-              focus:border-[#F4B81A]
+              placeholder:text-slate-500
+              focus:border-[#C6A15B]
               focus:ring-2
-              focus:ring-[#F4B81A]/20
-              disabled:bg-gray-50
+              focus:ring-[#C6A15B]/20
+              disabled:opacity-50
             "
           />
 
@@ -399,10 +402,12 @@ export default function AIChatWidgetContent() {
               items-center
               justify-center
               rounded-xl
-              bg-[#0B1736]
-              text-white
+              bg-gradient-to-br
+              from-[#C6A15B]
+              to-[#A8894D]
+              text-[#071426]
               transition
-              hover:bg-[#183B6B]
+              hover:-translate-y-0.5
               disabled:cursor-not-allowed
               disabled:opacity-50
             "
@@ -416,7 +421,7 @@ export default function AIChatWidgetContent() {
             mt-3
             text-center
             text-[11px]
-            text-[#98A2B3]
+            text-slate-500
           "
         >
           AI-generated guidance should be

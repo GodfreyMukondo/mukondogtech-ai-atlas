@@ -162,8 +162,7 @@ export default function TermsOfServicePage() {
     <div
       className="
         min-h-screen
-        bg-[#F8F6F1]
-        text-[#0B1736]
+        text-slate-100
         py-16
         px-6
       "
@@ -185,7 +184,7 @@ export default function TermsOfServicePage() {
             text-sm
             font-medium
             mb-10
-            hover:text-[#F4B81A]
+            hover:text-[#C6A15B]
             transition
           "
         >
@@ -224,7 +223,7 @@ export default function TermsOfServicePage() {
           <p
             className="
               mt-4
-              text-gray-600
+              text-slate-300
             "
           >
             Last updated: July 25, 2026
@@ -278,12 +277,13 @@ export default function TermsOfServicePage() {
                 }}
 
                 className="
-                  bg-white
+                  bg-white/5
+                  backdrop-blur-xl
                   rounded-2xl
                   shadow-sm
                   p-8
                   border
-                  border-gray-100
+                  border-white/10
                 "
               >
 
@@ -298,7 +298,7 @@ export default function TermsOfServicePage() {
 
                   <Icon
                     className="
-                      text-[#F4B81A]
+                      text-[#C6A15B]
                     "
                   />
 
@@ -318,7 +318,7 @@ export default function TermsOfServicePage() {
                   className="
                     whitespace-pre-line
                     leading-relaxed
-                    text-gray-700
+                    text-slate-300
                   "
                 >
                   {content}

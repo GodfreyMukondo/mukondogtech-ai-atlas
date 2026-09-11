@@ -13,6 +13,8 @@ import com.godfrey.ai_immigration_document_analyzer.repository.UserRepository;
 
 import com.godfrey.ai_immigration_document_analyzer.security.JwtService;
 
+import com.godfrey.ai_immigration_document_analyzer.service.validation.PasswordPolicyValidator;
+
 import jakarta.transaction.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +30,6 @@ import java.util.Locale;
 @Slf4j
 public class AuthService {
 
-    private static final int MIN_PASSWORD_LENGTH = 12;
-
     private static final String INVALID_CREDENTIALS =
             "Invalid email or password.";
 
@@ -39,14 +39,18 @@ public class AuthService {
 
     private final JwtService jwtService;
 
+    private final PasswordPolicyValidator passwordPolicyValidator;
+
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            PasswordPolicyValidator passwordPolicyValidator
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.passwordPolicyValidator = passwordPolicyValidator;
     }
 
     /**
@@ -361,23 +365,17 @@ public class AuthService {
 
     /**
      * Central password policy.
+     *
+     * Delegates to the shared {@link PasswordPolicyValidator} so the
+     * register and change-password flows enforce the exact same rules
+     * (length, uppercase, digit) as the forgot-password flow and the
+     * frontend's client-side validation.
      */
     private void validatePassword(
             String password
     ) {
 
-        if (
-                password == null
-                        ||
-                        password.length() < MIN_PASSWORD_LENGTH
-        ) {
-
-            throw new IllegalArgumentException(
-                    "Password must contain at least "
-                            + MIN_PASSWORD_LENGTH
-                            + " characters."
-            );
-        }
+        passwordPolicyValidator.validate(password);
     }
 
     /**

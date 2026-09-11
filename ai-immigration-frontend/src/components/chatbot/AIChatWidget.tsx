@@ -101,8 +101,8 @@ export default function AIChatWidget() {
                 inset-[-10px]
                 rounded-full
                 bg-gradient-to-r
-                from-[#F4B81A]
-                via-[#FFD96A]
+                from-[#C6A15B]
+                via-[#D4B984]
                 to-[#2563EB]
                 blur-md
               "
@@ -129,7 +129,7 @@ export default function AIChatWidget() {
                 inset-[-5px]
                 rounded-full
                 border-2
-                border-[#F4B81A]/60
+                border-[#C6A15B]/60
               "
             />
 
@@ -170,17 +170,17 @@ export default function AIChatWidget() {
                 border
                 border-white/30
                 bg-gradient-to-br
-                from-[#F4B81A]
-                via-[#FFD96A]
+                from-[#C6A15B]
+                via-[#D4B984]
                 to-[#2563EB]
-                text-[#071330]
-                shadow-[0_12px_40px_rgba(7,19,48,0.35)]
+                text-[#071426]
+                shadow-[0_12px_40px_rgba(7, 20, 38,0.35)]
                 outline-none
                 transition-shadow
                 duration-300
-                hover:shadow-[0_16px_50px_rgba(244,184,26,0.45)]
+                hover:shadow-[0_16px_50px_rgba(198, 161, 91,0.45)]
                 focus-visible:ring-4
-                focus-visible:ring-[#F4B81A]/40
+                focus-visible:ring-[#C6A15B]/40
               "
             >
               {/* ------------------------------------------------
@@ -293,7 +293,7 @@ export default function AIChatWidget() {
                 rounded-full
                 border
                 border-white/20
-                bg-[#071330]/95
+                bg-[#071426]/95
                 px-3
                 py-1.5
                 text-xs
@@ -345,7 +345,7 @@ export default function AIChatWidget() {
                 absolute
                 -right-1
                 -top-2
-                text-[#F4B81A]
+                text-[#C6A15B]
               "
             >
               <Sparkles
@@ -395,9 +395,10 @@ export default function AIChatWidget() {
               overflow-hidden
               rounded-[28px]
               border
-              border-white/20
-              bg-white
-              shadow-[0_25px_80px_rgba(7,19,48,0.35)]
+              border-white/10
+              bg-[#1F314A]
+              backdrop-blur-xl
+              shadow-[0_25px_80px_rgba(7, 20, 38,0.35)]
               sm:bottom-6
               sm:right-6
             "
@@ -419,9 +420,9 @@ export default function AIChatWidget() {
                 justify-between
                 overflow-hidden
                 bg-gradient-to-r
-                from-[#071330]
-                via-[#0B1736]
-                to-[#183B6B]
+                from-[#071426]
+                via-[#0B1F3A]
+                to-[#3C4C61]
                 px-5
                 text-white
               "
@@ -444,7 +445,7 @@ export default function AIChatWidget() {
                   w-32
                   bg-gradient-to-r
                   from-transparent
-                  via-[#F4B81A]/10
+                  via-[#C6A15B]/10
                   to-transparent
                   blur-xl
                 "
@@ -474,9 +475,9 @@ export default function AIChatWidget() {
                     justify-center
                     rounded-2xl
                     bg-gradient-to-br
-                    from-[#F4B81A]
-                    to-[#FFD96A]
-                    text-[#071330]
+                    from-[#C6A15B]
+                    to-[#D4B984]
+                    text-[#071426]
                     shadow-lg
                   "
                 >
@@ -503,7 +504,7 @@ export default function AIChatWidget() {
                       w-3
                       rounded-full
                       border-2
-                      border-[#071330]
+                      border-[#071426]
                       bg-emerald-400
                     "
                   />
@@ -517,7 +518,7 @@ export default function AIChatWidget() {
 
                     <Sparkles
                       size={14}
-                      className="text-[#F4B81A]"
+                      className="text-[#C6A15B]"
                     />
                   </div>
 
@@ -574,7 +575,7 @@ export default function AIChatWidget() {
                   hover:text-white
                   focus-visible:outline-none
                   focus-visible:ring-2
-                  focus-visible:ring-[#F4B81A]
+                  focus-visible:ring-[#C6A15B]
                 "
               >
                 <X size={21} />
@@ -585,7 +586,7 @@ export default function AIChatWidget() {
                 CHAT CONTENT
             -------------------------------------------------- */}
 
-            <div className="min-h-0 flex-1 bg-[#F8F6F1]">
+            <div className="min-h-0 flex-1 bg-transparent">
               <AIChatWidgetContent />
             </div>
 
@@ -611,9 +612,9 @@ export default function AIChatWidget() {
                 h-1
                 shrink-0
                 bg-gradient-to-r
-                from-[#F4B81A]
+                from-[#C6A15B]
                 via-[#2563EB]
-                to-[#F4B81A]
+                to-[#C6A15B]
                 bg-[length:200%_100%]
               "
             />

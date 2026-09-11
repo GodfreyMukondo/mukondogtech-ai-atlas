@@ -2,6 +2,7 @@ package com.godfrey.ai_immigration_document_analyzer.controller;
 
 
 import com.godfrey.ai_immigration_document_analyzer.dto.response.AdminDashboardResponse;
+import com.godfrey.ai_immigration_document_analyzer.security.AuthenticatedUser;
 import com.godfrey.ai_immigration_document_analyzer.service.DashboardService;
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -97,7 +99,8 @@ public class DashboardController {
      */
     @GetMapping
     public ResponseEntity<AdminDashboardResponse> getDashboard(
-            Authentication authentication) {
+            Authentication authentication,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
         String username = getAuthenticatedUsername(authentication);
 
@@ -107,7 +110,11 @@ public class DashboardController {
         );
 
         AdminDashboardResponse response =
-                dashboardService.getDashboard();
+                dashboardService.getDashboard(
+                        authenticatedUser != null
+                                ? authenticatedUser.getUserId()
+                                : null
+                );
 
         log.info(
                 "Dashboard request completed | endpoint=/api/dashboard | user={}",
@@ -137,7 +144,8 @@ public class DashboardController {
      */
     @GetMapping("/summary")
     public ResponseEntity<AdminDashboardResponse> getDashboardSummary(
-            Authentication authentication) {
+            Authentication authentication,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
         String username = getAuthenticatedUsername(authentication);
 
@@ -147,7 +155,11 @@ public class DashboardController {
         );
 
         AdminDashboardResponse response =
-                dashboardService.getDashboard();
+                dashboardService.getDashboard(
+                        authenticatedUser != null
+                                ? authenticatedUser.getUserId()
+                                : null
+                );
 
         log.info(
                 "Dashboard summary request completed | endpoint=/api/dashboard/summary | user={}",
@@ -178,7 +190,8 @@ public class DashboardController {
      */
     @GetMapping("/activity")
     public ResponseEntity<AdminDashboardResponse> getDashboardActivity(
-            Authentication authentication) {
+            Authentication authentication,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
         String username = getAuthenticatedUsername(authentication);
 
@@ -188,7 +201,11 @@ public class DashboardController {
         );
 
         AdminDashboardResponse response =
-                dashboardService.getDashboard();
+                dashboardService.getDashboard(
+                        authenticatedUser != null
+                                ? authenticatedUser.getUserId()
+                                : null
+                );
 
         log.info(
                 "Dashboard activity request completed | endpoint=/api/dashboard/activity | user={}",
@@ -219,7 +236,8 @@ public class DashboardController {
      */
     @GetMapping("/status")
     public ResponseEntity<AdminDashboardResponse> getDashboardStatus(
-            Authentication authentication) {
+            Authentication authentication,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
         String username = getAuthenticatedUsername(authentication);
 
@@ -229,7 +247,11 @@ public class DashboardController {
         );
 
         AdminDashboardResponse response =
-                dashboardService.getDashboard();
+                dashboardService.getDashboard(
+                        authenticatedUser != null
+                                ? authenticatedUser.getUserId()
+                                : null
+                );
 
         log.info(
                 "Dashboard status request completed | endpoint=/api/dashboard/status | user={}",

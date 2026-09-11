@@ -9,6 +9,7 @@ import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentGoalType;
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentGroundingState;
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentRun;
 import com.godfrey.ai_immigration_document_analyzer.agent.entity.AgentRunStatus;
+import com.godfrey.ai_immigration_document_analyzer.agent.entity.AiExplanationStatus;
 import com.godfrey.ai_immigration_document_analyzer.agent.repository.AgentRunRepository;
 import com.godfrey.ai_immigration_document_analyzer.agent.tool.AgentToolName;
 import com.godfrey.ai_immigration_document_analyzer.agent.tool.EvidenceGraphContextTool;
@@ -65,6 +66,20 @@ import java.util.Map;
  * - No hidden chain-of-thought is ever persisted - only the fixed plan
  *   summary, the tool names actually invoked, and a concise reasoning
  *   summary.
+ * - GRACEFUL AI DEGRADATION (Phase 5.1 Production Hardening): the LLM is a
+ *   presentation-layer enhancement on top of an already-complete
+ *   deterministic requirement result, never a precondition for returning
+ *   one. Any failure while calling the LLM or interpreting its response
+ *   (provider outage, timeout, rate limiting, exhausted quota/credit
+ *   balance, an empty or unparsable reply) is caught narrowly around the
+ *   LLM step ONLY and downgrades {@link AiExplanationStatus} to {@code
+ *   UNAVAILABLE}/{@code FAILED} - it never aborts the request, never
+ *   discards the already-loaded {@code RequirementExplanationTool.Output},
+ *   and never fabricates an explanation to fill the gap. The run is still
+ *   recorded as {@code COMPLETED} because the authoritative requirement
+ *   result itself succeeded; only {@link
+ *   ExplainRequirementResult#aiExplanationStatus()} reflects the degraded
+ *   AI step. See {@link #attemptLlmExplanation}.
  * ============================================================================
  */
 @Service
@@ -157,6 +172,7 @@ public class ExplainRequirementAgentService {
                         requirementContext,
                         provenance,
                         AgentGroundingState.INSUFFICIENT_EVIDENCE,
+                        AiExplanationStatus.NOT_ATTEMPTED,
                         INSUFFICIENT_EVIDENCE_EXPLANATION,
                         buildFallbackNextStep(requirementContext)
                 );
@@ -169,26 +185,32 @@ public class ExplainRequirementAgentService {
             } else {
 
                 // ---- STEP 4: LLM EXPLAINS THE ALREADY-COMPUTED STATUS ----------
-                // model stays null: LlmService.ask() intentionally exposes only
-                // the final text to callers - the real provider-reported model
-                // name is visible solely to AIModelMonitoringService, which
+                // Never lets an LLM failure abort this request - see
+                // attemptLlmExplanation()'s own javadoc and the class-level
+                // "GRACEFUL AI DEGRADATION" note above. model stays null:
+                // LlmService.ask() intentionally exposes only the final text
+                // to callers - the real provider-reported model name is
+                // visible solely to AIModelMonitoringService, which
                 // LlmService already records every call against. Recording a
                 // guessed model name here would be exactly the kind of
                 // fabricated detail this run must never contain.
-                LlmExplanationSection llmSection = explainWithLlm(requirementContext);
+                LlmAttemptOutcome aiOutcome = attemptLlmExplanation(requirementContext);
 
                 result = buildResult(
                         requirementContext,
                         provenance,
                         AgentGroundingState.GROUNDED,
-                        llmSection.explanation(),
-                        llmSection.recommendedNextStep()
+                        aiOutcome.status(),
+                        aiOutcome.explanation(),
+                        aiOutcome.recommendedNextStep()
                 );
 
-                reasoningSummary = "Explained using " + requirementContext.contributingFacts().size()
-                        + " contributing fact(s) and " + requirementContext.unresolvedConflictIds().size()
-                        + " unresolved conflict(s), grounded in the existing Requirement/Evidence Graph data.";
+                reasoningSummary = aiOutcome.reasoningSummary();
 
+                // Always COMPLETED here: the authoritative deterministic
+                // requirement result succeeded regardless of whether the
+                // optional AI explanation did - see aiOutcome.status() for
+                // that separate outcome.
                 run.setStatus(AgentRunStatus.COMPLETED);
             }
 
@@ -270,7 +292,110 @@ public class ExplainRequirementAgentService {
     // LLM
     // =========================================================================
 
+    /**
+     * Thrown when the call to the LLM provider itself did not complete -
+     * network/connection failure, timeout, rate limiting (HTTP 429), or an
+     * exhausted quota/credit balance. Caught ONLY by {@link
+     * #attemptLlmExplanation} and converted to {@link
+     * AiExplanationStatus#UNAVAILABLE} - it never propagates out of this
+     * service and never aborts the request.
+     */
+    private static final class LlmUnavailableException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        LlmUnavailableException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    /**
+     * Thrown when the LLM call completed but its response could not be
+     * used - empty text, or a payload that did not parse into the expected
+     * explanation/recommendedNextStep shape. Caught ONLY by {@link
+     * #attemptLlmExplanation} and converted to {@link
+     * AiExplanationStatus#FAILED} - it never propagates out of this service
+     * and never aborts the request.
+     */
+    private static final class LlmResponseUnusableException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        LlmResponseUnusableException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
     private record LlmExplanationSection(String explanation, String recommendedNextStep) {
+    }
+
+    private record LlmAttemptOutcome(
+            AiExplanationStatus status,
+            String explanation,
+            String recommendedNextStep,
+            String reasoningSummary
+    ) {
+    }
+
+    /**
+     * Attempts the optional AI explanation step and NEVER lets it fail the
+     * request - narrow, intentional handling of exactly the two failure
+     * modes {@link #explainWithLlm} can raise (see their own javadoc),
+     * never a blind {@code catch (Exception)}. Every failure is logged in
+     * full server-side (never returned to the caller) before this method
+     * returns a deterministic-safe fallback: no fabricated explanation, and
+     * - per Phase 5.1 Production Hardening section 6 - the existing
+     * deterministic {@link #buildFallbackNextStep} (derived purely from
+     * {@code missingFactKeys}, already used for the ungrounded case) reused
+     * as the only permitted non-AI fallback next step.
+     */
+    private LlmAttemptOutcome attemptLlmExplanation(RequirementExplanationTool.Output data) {
+
+        try {
+
+            LlmExplanationSection section = explainWithLlm(data);
+
+            return new LlmAttemptOutcome(
+                    AiExplanationStatus.GENERATED,
+                    section.explanation(),
+                    section.recommendedNextStep(),
+                    "Explained using " + data.contributingFacts().size() + " contributing fact(s) and "
+                            + data.unresolvedConflictIds().size() + " unresolved conflict(s), grounded in the "
+                            + "existing Requirement/Evidence Graph data."
+            );
+
+        } catch (LlmUnavailableException exception) {
+
+            log.warn(
+                    "AI explanation unavailable for requirement {} (assessment {}) - deterministic result is "
+                            + "still returned successfully | reason={}",
+                    data.requirementId(), data.pathwayAssessmentId(), exception.getMessage(), exception
+            );
+
+            return new LlmAttemptOutcome(
+                    AiExplanationStatus.UNAVAILABLE,
+                    null,
+                    buildFallbackNextStep(data),
+                    "The deterministic requirement result completed successfully. The AI explanation could not "
+                            + "be generated because the AI provider was unavailable."
+            );
+
+        } catch (LlmResponseUnusableException exception) {
+
+            log.warn(
+                    "AI explanation response unusable for requirement {} (assessment {}) - deterministic result "
+                            + "is still returned successfully | reason={}",
+                    data.requirementId(), data.pathwayAssessmentId(), exception.getMessage(), exception
+            );
+
+            return new LlmAttemptOutcome(
+                    AiExplanationStatus.FAILED,
+                    null,
+                    buildFallbackNextStep(data),
+                    "The deterministic requirement result completed successfully. The AI explanation could not "
+                            + "be generated because the AI provider's response could not be used."
+            );
+        }
     }
 
     private LlmExplanationSection explainWithLlm(RequirementExplanationTool.Output data) {
@@ -285,12 +410,12 @@ public class ExplainRequirementAgentService {
 
         } catch (Exception exception) {
 
-            throw new AiServiceException("The AI explanation service is currently unavailable.", exception);
+            throw new LlmUnavailableException("The AI provider call failed.", exception);
         }
 
         if (!StringUtils.hasText(rawResponse)) {
 
-            throw new AiServiceException("The AI explanation service returned no response.");
+            throw new LlmResponseUnusableException("The AI provider returned an empty response.", null);
         }
 
         LlmJsonPayload payload = parseJsonPayload(rawResponse);
@@ -321,8 +446,8 @@ public class ExplainRequirementAgentService {
 
         } catch (Exception exception) {
 
-            throw new AiServiceException(
-                    "The AI explanation service returned a response that could not be interpreted.",
+            throw new LlmResponseUnusableException(
+                    "The AI provider response could not be interpreted.",
                     exception
             );
         }
@@ -410,6 +535,7 @@ public class ExplainRequirementAgentService {
             RequirementExplanationTool.Output data,
             EvidenceGraphResponse provenance,
             AgentGroundingState groundingState,
+            AiExplanationStatus aiExplanationStatus,
             String explanation,
             String recommendedNextStep
     ) {
@@ -427,6 +553,7 @@ public class ExplainRequirementAgentService {
                 data.supportStatus(),
                 data.existingExplanation(),
                 explanation,
+                aiExplanationStatus,
                 data.contributingFacts(),
                 evidenceConsidered,
                 data.missingFactKeys(),

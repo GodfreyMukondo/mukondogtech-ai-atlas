@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -425,5 +426,23 @@ public interface UserRepository extends
      */
     Page<User> findAllByOrderByCreatedAtDesc(
             Pageable pageable
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GROWTH ANALYTICS
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Count users registered within a date range.
+     *
+     * Used to compute real period-over-period registration growth for the
+     * admin dashboard, rather than a fabricated constant.
+     */
+    long countByCreatedAtBetween(
+            LocalDateTime start,
+            LocalDateTime end
     );
 }

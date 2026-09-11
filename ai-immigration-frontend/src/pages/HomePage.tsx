@@ -41,11 +41,10 @@ export default function HomePage() {
       className="
         min-h-screen
         overflow-x-hidden
-        bg-[#F7F9FC]
-        text-[#0B1736]
+        text-slate-100
         antialiased
-        selection:bg-[#F4B81A]/30
-        selection:text-[#071330]
+        selection:bg-[#C6A15B]/30
+        selection:text-[#071426]
       "
     >
       <main className="relative flex flex-col">
@@ -61,7 +60,7 @@ export default function HomePage() {
             relative
             scroll-mt-24
             overflow-hidden
-            bg-[#071330]
+            bg-[#071426]
           "
         >
           <div
@@ -70,7 +69,7 @@ export default function HomePage() {
               pointer-events-none
               absolute
               inset-0
-              bg-[radial-gradient(circle_at_top_right,_rgba(244,184,26,0.14),_transparent_34%)]
+              bg-[radial-gradient(circle_at_top_right,_rgba(198, 161, 91,0.14),_transparent_34%)]
             "
           />
 
@@ -83,7 +82,7 @@ export default function HomePage() {
               left-0
               h-72
               w-72
-              bg-[radial-gradient(circle,_rgba(24,59,107,0.45),_transparent_70%)]
+              bg-[radial-gradient(circle,_rgba(60, 76, 97,0.45),_transparent_70%)]
             "
           />
 
@@ -101,8 +100,7 @@ export default function HomePage() {
           className="
             relative
             border-b
-            border-slate-200
-            bg-white
+            border-white/10
           "
         >
           <TrustSection />
@@ -131,7 +129,7 @@ export default function HomePage() {
               top-1/4
               h-80
               w-80
-              bg-[radial-gradient(circle,_rgba(24,59,107,0.05),_transparent_70%)]
+              bg-[radial-gradient(circle,_rgba(60, 76, 97,0.05),_transparent_70%)]
             "
           />
 
@@ -165,7 +163,7 @@ export default function HomePage() {
               top-0
               h-96
               w-96
-              bg-[radial-gradient(circle,_rgba(244,184,26,0.07),_transparent_70%)]
+              bg-[radial-gradient(circle,_rgba(198, 161, 91,0.07),_transparent_70%)]
             "
           />
 
@@ -185,7 +183,7 @@ export default function HomePage() {
             relative
             scroll-mt-24
             overflow-hidden
-            bg-[#071330]
+            bg-[#071426]
           "
         >
           <div
@@ -194,7 +192,7 @@ export default function HomePage() {
               pointer-events-none
               absolute
               inset-0
-              bg-[radial-gradient(circle_at_bottom_left,_rgba(24,59,107,0.5),_transparent_42%)]
+              bg-[radial-gradient(circle_at_bottom_left,_rgba(60, 76, 97,0.5),_transparent_42%)]
             "
           />
 
@@ -207,7 +205,7 @@ export default function HomePage() {
               top-0
               h-96
               w-96
-              bg-[radial-gradient(circle,_rgba(244,184,26,0.08),_transparent_70%)]
+              bg-[radial-gradient(circle,_rgba(198, 161, 91,0.08),_transparent_70%)]
             "
           />
 
@@ -227,8 +225,7 @@ export default function HomePage() {
             relative
             scroll-mt-24
             border-y
-            border-slate-200
-            bg-[#F7F9FC]
+            border-white/10
           "
         >
           <UseCasesSection />
@@ -257,7 +254,7 @@ export default function HomePage() {
               top-0
               h-96
               w-96
-              bg-[radial-gradient(circle,_rgba(24,59,107,0.05),_transparent_70%)]
+              bg-[radial-gradient(circle,_rgba(60, 76, 97,0.05),_transparent_70%)]
             "
           />
 
@@ -278,8 +275,7 @@ export default function HomePage() {
             scroll-mt-24
             overflow-hidden
             border-y
-            border-slate-200
-            bg-[#F7F9FC]
+            border-white/10
           "
         >
           <div
@@ -291,7 +287,7 @@ export default function HomePage() {
               top-0
               h-96
               w-96
-              bg-[radial-gradient(circle,_rgba(244,184,26,0.06),_transparent_70%)]
+              bg-[radial-gradient(circle,_rgba(198, 161, 91,0.06),_transparent_70%)]
             "
           />
 
@@ -309,7 +305,7 @@ export default function HomePage() {
           className="
             relative
             overflow-hidden
-            bg-[#071330]
+            bg-[#071426]
           "
         >
           <div
@@ -318,7 +314,7 @@ export default function HomePage() {
               pointer-events-none
               absolute
               inset-0
-              bg-[radial-gradient(circle_at_center,_rgba(244,184,26,0.12),_transparent_48%)]
+              bg-[radial-gradient(circle_at_center,_rgba(198, 161, 91,0.12),_transparent_48%)]
             "
           />
 
@@ -331,7 +327,7 @@ export default function HomePage() {
               left-0
               h-80
               w-80
-              bg-[radial-gradient(circle,_rgba(24,59,107,0.5),_transparent_70%)]
+              bg-[radial-gradient(circle,_rgba(60, 76, 97,0.5),_transparent_70%)]
             "
           />
 

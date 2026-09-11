@@ -20,9 +20,9 @@ export default function HowItWorks() {
       description:
         "Our AI analyzes content, detects issues, and evaluates document quality.",
       accent: {
-        badge: "from-[#F7C948] to-[#FFD978]",
-        glow: "bg-[#F4B81A]/15",
-        border: "from-[#F7C948] to-[#FFD978]"
+        badge: "from-[#D4B984] to-[#D4B984]",
+        glow: "bg-[#C6A15B]/15",
+        border: "from-[#D4B984] to-[#D4B984]"
       }
     },
     {
@@ -44,10 +44,6 @@ export default function HowItWorks() {
         relative
         overflow-hidden
         py-28
-        bg-gradient-to-b
-        from-[#FAFBFF]
-        via-[#F5F8FF]
-        to-[#EEF4FF]
       "
     >
       {/* Top Glow */}
@@ -73,7 +69,7 @@ export default function HowItWorks() {
           h-[500px]
           w-[500px]
           rounded-full
-          bg-[#FFD978]/15
+          bg-[#D4B984]/10
           blur-3xl
         "
       />
@@ -84,7 +80,7 @@ export default function HowItWorks() {
           absolute
           inset-0
           opacity-[0.03]
-          [background-image:linear-gradient(#0B1736_1px,transparent_1px),linear-gradient(to_right,#0B1736_1px,transparent_1px)]
+          [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(to_right,#fff_1px,transparent_1px)]
           [background-size:48px_48px]
         "
       />
@@ -95,12 +91,7 @@ export default function HowItWorks() {
             text-center
             text-5xl
             font-bold
-            bg-gradient-to-r
-            from-[#071330]
-            via-[#12306D]
-            to-[#1A4EA1]
-            bg-clip-text
-            text-transparent
+            text-white
           "
         >
           How It Works
@@ -113,7 +104,7 @@ export default function HowItWorks() {
             mx-auto
             text-center
             text-lg
-            text-[#66758F]
+            text-[#9DBBFF]
             leading-relaxed
           "
         >
@@ -134,7 +125,7 @@ export default function HowItWorks() {
               h-[2px]
               bg-gradient-to-r
               from-[#4F7DF3]
-              via-[#F4B81A]
+              via-[#C6A15B]
               to-[#10B981]
             "
           />
@@ -149,15 +140,15 @@ export default function HowItWorks() {
                   overflow-hidden
                   rounded-3xl
                   border
-                  border-[#E7ECF5]
-                  bg-white/80
+                  border-white/10
+                  bg-white/5
                   backdrop-blur-xl
                   p-10
-                  shadow-[0_12px_35px_rgba(15,23,42,0.06)]
+                  shadow-2xl
+                  shadow-black/20
                   transition-all
                   duration-500
                   hover:-translate-y-3
-                  hover:shadow-[0_30px_70px_rgba(15,23,42,0.14)]
                 "
               >
                 {/* Left Accent Border */}
@@ -247,7 +238,7 @@ export default function HowItWorks() {
                       mt-8
                       text-2xl
                       font-bold
-                      text-[#071330]
+                      text-[#7EA5FF]
                     "
                   >
                     {step.title}
@@ -256,7 +247,7 @@ export default function HowItWorks() {
                   <p
                     className="
                       mt-4
-                      text-[#66758F]
+                      text-[#9DBBFF]
                       leading-relaxed
                     "
                   >
@@ -277,8 +268,8 @@ export default function HowItWorks() {
               gap-4
               rounded-2xl
               border
-              border-[#E7ECF5]
-              bg-white/70
+              border-white/10
+              bg-white/5
               px-6
               py-5
               text-center
@@ -299,7 +290,7 @@ export default function HowItWorks() {
                     justify-center
                     rounded-full
                     border-2
-                    border-white
+                    border-[#1F314A]
                     bg-gradient-to-br
                     from-[#4F7DF3]
                     to-[#1A4EA1]
@@ -312,12 +303,12 @@ export default function HowItWorks() {
               ))}
             </div>
 
-            <p className="text-sm text-[#66758F]">
+            <p className="text-sm text-[#9DBBFF]">
               Not sure about a result? A real document specialist can walk
               through it with you —{" "}
               <Link
                 to="/contact"
-                className="font-semibold text-[#1A4EA1] underline-offset-4 hover:underline"
+                className="font-semibold text-[#C6A15B] underline-offset-4 hover:underline"
               >
                 talk to our team
               </Link>

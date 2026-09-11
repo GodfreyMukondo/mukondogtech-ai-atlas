@@ -16,12 +16,15 @@ import {
   ArrowRight,
   BarChart3,
   CheckCircle2,
+  ClipboardCheck,
   Clock3,
   FileCheck,
+  FileText,
   Loader2,
   MessageCircle,
   RefreshCw,
   Server,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   TrendingUp,
@@ -31,6 +34,11 @@ import {
 
 import API from "@/api/axios";
 import env from "@/config/env";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+
+import { useDocuments } from "../../features/documents/hooks/useDocuments";
+
+import type { Document } from "../../types/document";
 
 /* ============================================================================
  * CONFIGURATION
@@ -127,6 +135,12 @@ type QuickAction = {
   link: string;
   requiresAdmin?: boolean;
 };
+
+/**
+ * NOTE: The "My Documents" section below shares the same Document shape
+ * (and the same useDocuments() hook) as the dedicated /dashboard/documents
+ * page, so both views always stay in sync from one fetch implementation.
+ */
 
 /* ============================================================================
  * ICONS
@@ -501,7 +515,7 @@ async function fetchDashboardData(
     API.get(
       DASHBOARD_ACTIVITY_ENDPOINT,
       { signal },
-    ).catch((error) => {
+    ).catch((error: unknown) => {
       if (isAbortError(error)) {
         throw error;
       }
@@ -516,7 +530,7 @@ async function fetchDashboardData(
     API.get(
       DASHBOARD_STATUS_ENDPOINT,
       { signal },
-    ).catch((error) => {
+    ).catch((error: unknown) => {
       if (isAbortError(error)) {
         throw error;
       }
@@ -674,7 +688,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     description:
       "Securely upload passports, visas, permits, certificates, and supporting immigration documents.",
     icon: UploadCloud,
-    link: "/dashboard/upload",
+    link: "/dashboard/documents",
   },
 
   {
@@ -684,6 +698,15 @@ const QUICK_ACTIONS: QuickAction[] = [
       "Get intelligent immigration guidance, document explanations, and compliance assistance.",
     icon: MessageCircle,
     link: "/dashboard/chat",
+  },
+
+  {
+    id: "applications",
+    title: "My Applications",
+    description:
+      "Track the status of your submitted immigration applications and cases.",
+    icon: ClipboardCheck,
+    link: "/dashboard/applications",
   },
 
   {
@@ -742,7 +765,7 @@ function SectionHeader({
               font-bold
               uppercase
               tracking-[0.18em]
-              text-[#F4B81A]
+              text-[#C6A15B]
             "
           >
             {eyebrow}
@@ -767,8 +790,8 @@ function SectionHeader({
                 items-center
                 justify-center
                 rounded-xl
-                bg-[#071330]
-                text-[#F4B81A]
+                bg-[#071426]
+                text-[#C6A15B]
               "
             >
               <Icon size={20} />
@@ -780,7 +803,7 @@ function SectionHeader({
               text-2xl
               font-black
               tracking-tight
-              text-[#071330]
+              text-white
               sm:text-3xl
             "
           >
@@ -795,7 +818,7 @@ function SectionHeader({
               max-w-2xl
               text-sm
               leading-6
-              text-slate-500
+              text-slate-400
             "
           >
             {description}
@@ -836,8 +859,9 @@ function StatCard({
         overflow-hidden
         rounded-[26px]
         border
-        border-slate-200/80
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-sm
         transition-shadow
@@ -852,7 +876,7 @@ function StatCard({
           h-32
           w-32
           rounded-full
-          bg-[#F4B81A]/10
+          bg-[#C6A15B]/10
           blur-3xl
         "
       />
@@ -873,8 +897,8 @@ function StatCard({
               items-center
               justify-center
               rounded-2xl
-              bg-[#071330]
-              text-[#F4B81A]
+              bg-[#071426]
+              text-[#C6A15B]
               shadow-md
               transition-transform
               duration-300
@@ -898,8 +922,8 @@ function StatCard({
                 font-bold
                 ${
                   metric.trend.positive
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-amber-50 text-amber-700"
+                    ? "bg-emerald-500/10 text-emerald-300"
+                    : "bg-amber-500/10 text-amber-300"
                 }
               `}
             >
@@ -921,7 +945,7 @@ function StatCard({
             text-3xl
             font-black
             tracking-tight
-            text-[#071330]
+            text-white
           "
         >
           {metric.value}
@@ -932,7 +956,7 @@ function StatCard({
             mt-2
             text-sm
             font-bold
-            text-slate-800
+            text-slate-200
           "
         >
           {metric.title}
@@ -944,7 +968,7 @@ function StatCard({
               mt-1.5
               text-xs
               leading-5
-              text-slate-500
+              text-slate-400
             "
           >
             {metric.description}
@@ -957,7 +981,7 @@ function StatCard({
               mt-3
               text-[11px]
               font-medium
-              text-slate-400
+              text-slate-500
             "
           >
             {metric.trend.label}
@@ -987,13 +1011,13 @@ function PerformanceCard({
         group
         rounded-2xl
         border
-        border-slate-200
-        bg-slate-50/70
+        border-white/10
+        bg-white/5
         p-5
         transition-all
         duration-200
-        hover:border-slate-300
-        hover:bg-white
+        hover:border-white/20
+        hover:bg-white/10
         hover:shadow-sm
       "
     >
@@ -1013,8 +1037,8 @@ function PerformanceCard({
             items-center
             justify-center
             rounded-xl
-            bg-white
-            text-[#071330]
+            bg-white/10
+            text-white
             shadow-sm
           "
         >
@@ -1028,8 +1052,8 @@ function PerformanceCard({
               font-bold
               ${
                 metric.trend.positive
-                  ? "text-emerald-600"
-                  : "text-amber-600"
+                  ? "text-emerald-400"
+                  : "text-amber-400"
               }
             `}
           >
@@ -1047,7 +1071,7 @@ function PerformanceCard({
           text-2xl
           font-black
           tracking-tight
-          text-[#071330]
+          text-white
         "
       >
         {metric.value}
@@ -1058,7 +1082,7 @@ function PerformanceCard({
           mt-1
           text-sm
           font-semibold
-          text-slate-700
+          text-slate-200
         "
       >
         {metric.title}
@@ -1070,7 +1094,7 @@ function PerformanceCard({
             mt-2
             text-xs
             leading-5
-            text-slate-400
+            text-slate-500
           "
         >
           {metric.description}
@@ -1109,11 +1133,11 @@ function ActivityItem({
           items-center
           justify-center
           rounded-xl
-          bg-blue-50
-          text-blue-600
+          bg-blue-500/10
+          text-blue-300
           transition-colors
-          group-hover:bg-[#071330]
-          group-hover:text-[#F4B81A]
+          group-hover:bg-[#C6A15B]/15
+          group-hover:text-[#C6A15B]
         "
         aria-hidden="true"
       >
@@ -1125,7 +1149,7 @@ function ActivityItem({
           className="
             text-sm
             font-bold
-            text-[#071330]
+            text-white
           "
         >
           {activity.title}
@@ -1137,7 +1161,7 @@ function ActivityItem({
               mt-1
               text-xs
               leading-5
-              text-slate-500
+              text-slate-400
             "
           >
             {activity.description}
@@ -1154,7 +1178,7 @@ function ActivityItem({
             block
             text-[11px]
             font-medium
-            text-slate-400
+            text-slate-500
           "
         >
           {formatRelativeTime(
@@ -1162,6 +1186,167 @@ function ActivityItem({
           )}
         </time>
       </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+ * DOCUMENT STATUS BADGE
+ * ========================================================================== */
+
+function DocumentStatusBadge({
+  document,
+}: {
+  document: Document;
+}) {
+  if (
+    document.fraudDetected ||
+    document.riskLevel === "HIGH"
+  ) {
+    return (
+      <span
+        className="
+          inline-flex
+          shrink-0
+          items-center
+          gap-1
+          rounded-full
+          bg-red-500/10
+          px-2.5
+          py-1
+          text-[10px]
+          font-bold
+          uppercase
+          tracking-wide
+          text-red-300
+        "
+      >
+        <ShieldAlert size={11} />
+        Flagged
+      </span>
+    );
+  }
+
+  if (document.status === "COMPLETED") {
+    return (
+      <span
+        className="
+          inline-flex
+          shrink-0
+          items-center
+          gap-1
+          rounded-full
+          bg-emerald-500/10
+          px-2.5
+          py-1
+          text-[10px]
+          font-bold
+          uppercase
+          tracking-wide
+          text-emerald-300
+        "
+      >
+        <CheckCircle2 size={11} />
+        Verified
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="
+        inline-flex
+        shrink-0
+        items-center
+        gap-1
+        rounded-full
+        bg-amber-500/10
+        px-2.5
+        py-1
+        text-[10px]
+        font-bold
+        uppercase
+        tracking-wide
+        text-amber-300
+      "
+    >
+      <Clock3 size={11} />
+      Processing
+    </span>
+  );
+}
+
+/* ============================================================================
+ * DOCUMENT ROW
+ * ========================================================================== */
+
+function DocumentRow({
+  document,
+}: {
+  document: Document;
+}) {
+  return (
+    <div
+      className="
+        group
+        flex
+        items-start
+        gap-4
+      "
+    >
+      <div
+        className="
+          relative
+          mt-0.5
+          flex
+          h-10
+          w-10
+          shrink-0
+          items-center
+          justify-center
+          rounded-xl
+          bg-white/5
+          text-slate-400
+          transition-colors
+          group-hover:bg-[#C6A15B]/15
+          group-hover:text-[#C6A15B]
+        "
+        aria-hidden="true"
+      >
+        <FileText size={17} />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p
+          className="
+            truncate
+            text-sm
+            font-bold
+            text-white
+          "
+          title={document.fileName}
+        >
+          {document.fileName}
+        </p>
+
+        <p
+          className="
+            mt-1
+            text-xs
+            text-slate-400
+          "
+        >
+          {document.documentType}
+          {" · "}
+          {formatRelativeTime(
+            document.uploadedAt,
+          )}
+        </p>
+      </div>
+
+      <DocumentStatusBadge
+        document={document}
+      />
     </div>
   );
 }
@@ -1185,8 +1370,8 @@ function EmptyState({
         rounded-2xl
         border
         border-dashed
-        border-slate-200
-        bg-slate-50/60
+        border-white/15
+        bg-white/5
         px-6
         py-10
         text-center
@@ -1201,7 +1386,7 @@ function EmptyState({
           items-center
           justify-center
           rounded-2xl
-          bg-slate-100
+          bg-white/10
           text-slate-400
         "
       >
@@ -1213,7 +1398,7 @@ function EmptyState({
           mt-4
           text-sm
           font-bold
-          text-slate-800
+          text-slate-200
         "
       >
         {title}
@@ -1226,7 +1411,7 @@ function EmptyState({
           max-w-md
           text-xs
           leading-6
-          text-slate-500
+          text-slate-400
         "
       >
         {description}
@@ -1252,7 +1437,7 @@ function DashboardSkeleton() {
         className="
           h-14
           rounded-2xl
-          bg-slate-200
+          bg-white/10
         "
       />
 
@@ -1260,7 +1445,7 @@ function DashboardSkeleton() {
         className="
           h-[360px]
           rounded-[32px]
-          bg-slate-200
+          bg-white/10
         "
       />
 
@@ -1280,7 +1465,7 @@ function DashboardSkeleton() {
             className="
               h-48
               rounded-[26px]
-              bg-slate-200
+              bg-white/10
             "
           />
         ))}
@@ -1291,7 +1476,7 @@ function DashboardSkeleton() {
           h-10
           w-48
           rounded-xl
-          bg-slate-200
+          bg-white/10
         "
       />
 
@@ -1311,7 +1496,7 @@ function DashboardSkeleton() {
             className="
               h-60
               rounded-[26px]
-              bg-slate-200
+              bg-white/10
             "
           />
         ))}
@@ -1328,7 +1513,7 @@ function DashboardSkeleton() {
           className="
             h-[430px]
             rounded-[28px]
-            bg-slate-200
+            bg-white/10
             xl:col-span-2
           "
         />
@@ -1337,7 +1522,7 @@ function DashboardSkeleton() {
           className="
             h-[430px]
             rounded-[28px]
-            bg-slate-200
+            bg-white/10
           "
         />
       </div>
@@ -1356,15 +1541,15 @@ function SystemStatusBadge({
 }) {
   const styles = {
     OPERATIONAL:
-      "bg-emerald-50 text-emerald-700 border-emerald-100",
+      "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
     DEGRADED:
-      "bg-amber-50 text-amber-700 border-amber-100",
+      "bg-amber-500/10 text-amber-300 border-amber-500/30",
     MAINTENANCE:
-      "bg-blue-50 text-blue-700 border-blue-100",
+      "bg-blue-500/10 text-blue-300 border-blue-500/30",
     UNAVAILABLE:
-      "bg-red-50 text-red-700 border-red-100",
+      "bg-red-500/10 text-red-300 border-red-500/30",
     UNKNOWN:
-      "bg-slate-100 text-slate-600 border-slate-200",
+      "bg-white/10 text-slate-300 border-white/15",
   };
 
   const style =
@@ -1452,18 +1637,19 @@ function QuickActionCard({
           overflow-hidden
           rounded-[26px]
           border
-          border-slate-200
-          bg-white
+          border-white/10
+          bg-white/5
+          backdrop-blur-xl
           p-6
           shadow-sm
           transition-all
           duration-300
           hover:-translate-y-1
-          hover:border-slate-300
+          hover:border-white/20
           hover:shadow-xl
           focus:outline-none
           focus:ring-2
-          focus:ring-[#F4B81A]
+          focus:ring-[#C6A15B]
           focus:ring-offset-2
         "
       >
@@ -1472,7 +1658,7 @@ function QuickActionCard({
             absolute
             inset-0
             bg-gradient-to-br
-            from-[#F4B81A]/5
+            from-[#C6A15B]/5
             via-transparent
             to-blue-500/5
             opacity-0
@@ -1498,8 +1684,8 @@ function QuickActionCard({
               items-center
               justify-center
               rounded-2xl
-              bg-[#071330]
-              text-[#F4B81A]
+              bg-[#071426]
+              text-[#C6A15B]
               shadow-md
               transition-transform
               duration-300
@@ -1517,11 +1703,11 @@ function QuickActionCard({
               items-center
               justify-center
               rounded-full
-              bg-slate-50
+              bg-white/10
               text-slate-400
               transition-all
-              group-hover:bg-[#F4B81A]
-              group-hover:text-[#071330]
+              group-hover:bg-[#C6A15B]
+              group-hover:text-[#071426]
             "
           >
             <ArrowRight size={16} />
@@ -1533,7 +1719,7 @@ function QuickActionCard({
             className="
               text-lg
               font-black
-              text-[#071330]
+              text-white
             "
           >
             {action.title}
@@ -1544,7 +1730,7 @@ function QuickActionCard({
               mt-2
               text-sm
               leading-6
-              text-slate-500
+              text-slate-400
             "
           >
             {action.description}
@@ -1560,7 +1746,7 @@ function QuickActionCard({
             font-bold
             uppercase
             tracking-wider
-            text-[#071330]
+            text-white
           "
         >
           Open workspace
@@ -1599,12 +1785,18 @@ export default function DashboardPage() {
     null,
   );
 
-  const [
-    userRole,
-    setUserRole,
-  ] = useState<UserRole | null>(
-    null,
-  );
+  /*
+   * The role must come from AuthContext (the single source of truth for
+   * the authenticated session), not a hand-parsed localStorage read.
+   *
+   * This previously read a "authUser" key that AuthContext never writes
+   * (it writes "user"), so userRole was always null and the admin-only
+   * "Administration" quick action never appeared for real admins.
+   */
+  const { user: authUser } = useAuth();
+
+  const userRole: UserRole | null =
+    authUser?.role ?? null;
 
   const abortControllerRef =
     useRef<AbortController | null>(
@@ -1612,40 +1804,82 @@ export default function DashboardPage() {
     );
 
   /* ------------------------------------------------------------------------
-   * ROLE
+   * MY DOCUMENTS
+   *
+   * Shares useDocuments() with the dedicated /dashboard/documents page
+   * (GET /api/documents, scoped to the authenticated user) instead of
+   * maintaining a second, independent fetch of the same endpoint. That
+   * previously meant this preview and the full library page could each
+   * hold their own copy of the document list and drift out of sync.
    * ---------------------------------------------------------------------- */
 
+  const {
+    documents,
+    loading: documentsLoading,
+    error: documentsError,
+    fetchDocuments,
+  } = useDocuments();
+
   useEffect(() => {
-    try {
-      const storedUser =
-        localStorage.getItem(
-          "authUser",
-        );
+    void fetchDocuments();
+  }, [fetchDocuments]);
 
-      if (!storedUser) {
-        return;
-      }
+  const documentStats =
+    useMemo(() => {
+      const total =
+        documents.length;
 
-      const parsed =
-        JSON.parse(storedUser) as {
-          role?: UserRole;
-        };
+      const flagged =
+        documents.filter(
+          (document) =>
+            document.fraudDetected ||
+            document.riskLevel ===
+              "HIGH",
+        ).length;
 
-      if (
-        typeof parsed.role ===
-        "string"
-      ) {
-        setUserRole(
-          parsed.role,
-        );
-      }
-    } catch {
-      /*
-       * Invalid local authentication metadata must not crash the dashboard.
-       * The backend remains the authority for authorization.
-       */
-    }
-  }, []);
+      const completed =
+        documents.filter(
+          (document) =>
+            document.status ===
+              "COMPLETED" &&
+            !document.fraudDetected &&
+            document.riskLevel !==
+              "HIGH",
+        ).length;
+
+      const processing =
+        total -
+        completed -
+        flagged;
+
+      return {
+        total,
+        completed,
+        processing:
+          Math.max(
+            processing,
+            0,
+          ),
+        flagged,
+      };
+    }, [documents]);
+
+  const recentDocuments =
+    useMemo(
+      () =>
+        [...documents]
+          .sort(
+            (a, b) =>
+              new Date(
+                b.uploadedAt,
+              ).getTime() -
+              new Date(
+                a.uploadedAt,
+              ).getTime(),
+          )
+          .slice(0, 5),
+      [documents],
+    );
 
   /* ------------------------------------------------------------------------
    * LOAD DASHBOARD
@@ -1828,19 +2062,13 @@ export default function DashboardPage() {
       <main
         className="
           min-h-screen
-          bg-[#F8F6F1]
           px-4
           py-6
           sm:px-6
           lg:px-8
         "
       >
-        <div
-          className="
-            mx-auto
-            max-w-[1600px]
-          "
-        >
+        <div className="w-full">
           <DashboardSkeleton />
         </div>
       </main>
@@ -1862,7 +2090,6 @@ export default function DashboardPage() {
           min-h-screen
           items-center
           justify-center
-          bg-[#F8F6F1]
           px-6
         "
       >
@@ -1872,8 +2099,9 @@ export default function DashboardPage() {
             max-w-lg
             rounded-[32px]
             border
-            border-red-100
-            bg-white
+            border-red-500/20
+            bg-white/5
+            backdrop-blur-xl
             p-8
             text-center
             shadow-xl
@@ -1889,8 +2117,8 @@ export default function DashboardPage() {
               items-center
               justify-center
               rounded-2xl
-              bg-red-50
-              text-red-600
+              bg-red-500/10
+              text-red-300
             "
           >
             <AlertTriangle
@@ -1903,7 +2131,7 @@ export default function DashboardPage() {
               mt-5
               text-2xl
               font-black
-              text-slate-900
+              text-white
             "
           >
             Unable to load dashboard
@@ -1914,7 +2142,7 @@ export default function DashboardPage() {
               mt-3
               text-sm
               leading-6
-              text-slate-500
+              text-slate-300
             "
           >
             {error}
@@ -1931,16 +2159,16 @@ export default function DashboardPage() {
               items-center
               gap-2
               rounded-2xl
-              bg-[#071330]
+              bg-[#071426]
               px-5
               py-3
               font-bold
               text-white
               transition
-              hover:bg-[#183B6B]
+              hover:bg-[#3C4C61]
               focus:outline-none
               focus:ring-2
-              focus:ring-[#F4B81A]
+              focus:ring-[#C6A15B]
               focus:ring-offset-2
             "
           >
@@ -1961,7 +2189,6 @@ export default function DashboardPage() {
     <main
       className="
         min-h-screen
-        bg-[#F8F6F1]
         px-4
         py-5
         sm:px-6
@@ -1969,12 +2196,7 @@ export default function DashboardPage() {
         lg:py-7
       "
     >
-      <div
-        className="
-          mx-auto
-          max-w-[1600px]
-        "
-      >
+      <div className="w-full">
         {/* ================================================================
             TOP TOOLBAR
         ================================================================ */}
@@ -1987,8 +2209,8 @@ export default function DashboardPage() {
             gap-4
             rounded-2xl
             border
-            border-slate-200/80
-            bg-white/90
+            border-white/10
+            bg-white/5
             px-5
             py-4
             shadow-sm
@@ -2011,7 +2233,7 @@ export default function DashboardPage() {
                   h-2
                   w-2
                   rounded-full
-                  bg-[#F4B81A]
+                  bg-[#C6A15B]
                 "
               />
 
@@ -2021,7 +2243,7 @@ export default function DashboardPage() {
                   font-bold
                   uppercase
                   tracking-[0.18em]
-                  text-slate-500
+                  text-slate-400
                 "
               >
                 Workspace
@@ -2043,7 +2265,7 @@ export default function DashboardPage() {
                   text-xl
                   font-black
                   tracking-tight
-                  text-[#071330]
+                  text-white
                 "
               >
                 Dashboard
@@ -2054,7 +2276,7 @@ export default function DashboardPage() {
                   hidden
                   h-4
                   w-px
-                  bg-slate-200
+                  bg-white/10
                   sm:block
                 "
               />
@@ -2101,22 +2323,22 @@ export default function DashboardPage() {
                 gap-2
                 rounded-xl
                 border
-                border-slate-200
-                bg-white
+                border-white/15
+                bg-white/5
                 px-4
                 py-2.5
                 text-xs
                 font-bold
-                text-slate-700
+                text-slate-200
                 shadow-sm
                 transition
-                hover:border-slate-300
-                hover:bg-slate-50
+                hover:border-white/25
+                hover:bg-white/10
                 disabled:cursor-not-allowed
                 disabled:opacity-60
                 focus:outline-none
                 focus:ring-2
-                focus:ring-[#F4B81A]
+                focus:ring-[#C6A15B]
                 focus:ring-offset-2
               "
               aria-label="Refresh dashboard"
@@ -2149,12 +2371,12 @@ export default function DashboardPage() {
               gap-3
               rounded-2xl
               border
-              border-amber-200
-              bg-amber-50
+              border-amber-500/30
+              bg-amber-500/10
               px-5
               py-4
               text-sm
-              text-amber-800
+              text-amber-300
             "
           >
             <AlertTriangle
@@ -2195,9 +2417,9 @@ export default function DashboardPage() {
             overflow-hidden
             rounded-[32px]
             bg-gradient-to-br
-            from-[#071330]
-            via-[#0B1736]
-            to-[#183B6B]
+            from-[#071426]
+            via-[#0B1F3A]
+            to-[#3C4C61]
             shadow-2xl
           "
         >
@@ -2209,7 +2431,7 @@ export default function DashboardPage() {
               h-96
               w-96
               rounded-full
-              bg-[#F4B81A]/10
+              bg-[#C6A15B]/10
               blur-3xl
             "
           />
@@ -2249,11 +2471,11 @@ export default function DashboardPage() {
                   gap-2
                   rounded-full
                   border
-                  border-[#F4B81A]/20
-                  bg-[#F4B81A]/10
+                  border-[#C6A15B]/20
+                  bg-[#C6A15B]/10
                   px-3.5
                   py-2
-                  text-[#F4B81A]
+                  text-[#C6A15B]
                 "
               >
                 <Sparkles size={15} />
@@ -2313,29 +2535,29 @@ export default function DashboardPage() {
                 "
               >
                 <Link
-                  to="/dashboard/upload"
+                  to="/dashboard/documents"
                   className="
                     inline-flex
                     items-center
                     gap-2
                     rounded-xl
                     bg-gradient-to-r
-                    from-[#F4B81A]
-                    to-[#FFD96A]
+                    from-[#C6A15B]
+                    to-[#D4B984]
                     px-5
                     py-3
                     text-sm
                     font-black
-                    text-[#071330]
+                    text-[#071426]
                     shadow-lg
                     transition
                     hover:-translate-y-0.5
                     hover:shadow-xl
                     focus:outline-none
                     focus:ring-2
-                    focus:ring-[#F4B81A]
+                    focus:ring-[#C6A15B]
                     focus:ring-offset-2
-                    focus:ring-offset-[#071330]
+                    focus:ring-offset-[#071426]
                   "
                 >
                   Upload Documents
@@ -2547,6 +2769,218 @@ export default function DashboardPage() {
         </section>
 
         {/* ================================================================
+            MY DOCUMENTS
+        ================================================================ */}
+
+        <section
+          className="mt-12"
+          aria-label="My documents"
+        >
+          <SectionHeader
+            eyebrow="Workspace"
+            title="My Documents"
+            description="Documents you have uploaded and their verification status."
+            icon={FileCheck}
+            action={
+              <Link
+                to="/dashboard/documents"
+                className="
+                  inline-flex
+                  items-center
+                  gap-2
+                  rounded-xl
+                  border
+                  border-white/15
+                  bg-white/5
+                  px-4
+                  py-2.5
+                  text-xs
+                  font-bold
+                  text-slate-200
+                  shadow-sm
+                  transition
+                  hover:border-white/25
+                  hover:bg-white/10
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-[#C6A15B]
+                  focus:ring-offset-2
+                "
+              >
+                View all documents
+                <ArrowRight size={14} />
+              </Link>
+            }
+          />
+
+          <div
+            className="
+              mt-5
+              grid
+              grid-cols-2
+              gap-4
+              sm:grid-cols-4
+            "
+          >
+            {[
+              {
+                label: "Total",
+                value:
+                  documentStats.total,
+                icon: FileText,
+              },
+              {
+                label: "Verified",
+                value:
+                  documentStats.completed,
+                icon: CheckCircle2,
+              },
+              {
+                label: "Processing",
+                value:
+                  documentStats.processing,
+                icon: Clock3,
+              },
+              {
+                label: "Flagged",
+                value:
+                  documentStats.flagged,
+                icon: ShieldAlert,
+              },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="
+                  rounded-2xl
+                  border
+                  border-white/10
+                  bg-white/5
+                  px-4
+                  py-4
+                  shadow-sm
+                "
+              >
+                <div
+                  className="
+                    flex
+                    h-9
+                    w-9
+                    items-center
+                    justify-center
+                    rounded-xl
+                    bg-white/10
+                    text-slate-400
+                  "
+                >
+                  <stat.icon
+                    size={16}
+                  />
+                </div>
+
+                <p
+                  className="
+                    mt-3
+                    text-2xl
+                    font-black
+                    text-white
+                  "
+                >
+                  {documentsLoading
+                    ? "—"
+                    : stat.value}
+                </p>
+
+                <p
+                  className="
+                    mt-0.5
+                    text-xs
+                    font-semibold
+                    text-slate-400
+                  "
+                >
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="
+              mt-5
+              rounded-[28px]
+              border
+              border-white/10
+              bg-white/5
+              p-6
+              shadow-sm
+            "
+          >
+            {documentsLoading ? (
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-center
+                  py-10
+                  text-slate-400
+                "
+              >
+                <Loader2
+                  size={22}
+                  className="animate-spin"
+                />
+              </div>
+            ) : documentsError ? (
+              <EmptyState
+                title="Unable to load documents"
+                description={
+                  documentsError
+                }
+                icon={AlertTriangle}
+              />
+            ) : recentDocuments.length ===
+              0 ? (
+              <EmptyState
+                title="No documents uploaded yet"
+                description="Upload your first document to see it tracked here."
+                icon={FileText}
+              />
+            ) : (
+              <div
+                className="
+                  divide-y
+                  divide-white/10
+                "
+              >
+                {recentDocuments.map(
+                  (
+                    document,
+                    index,
+                  ) => (
+                    <div
+                      key={
+                        document.id
+                      }
+                      className={
+                        index === 0
+                          ? "pb-5"
+                          : "py-5"
+                      }
+                    >
+                      <DocumentRow
+                        document={
+                          document
+                        }
+                      />
+                    </div>
+                  ),
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ================================================================
             MONITORING
         ================================================================ */}
 
@@ -2579,8 +3013,8 @@ export default function DashboardPage() {
               className="
                 rounded-[28px]
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-white/5
                 p-6
                 shadow-sm
                 xl:col-span-2
@@ -2611,8 +3045,8 @@ export default function DashboardPage() {
                         items-center
                         justify-center
                         rounded-xl
-                        bg-[#071330]
-                        text-[#F4B81A]
+                        bg-[#071426]
+                        text-[#C6A15B]
                       "
                     >
                       <TrendingUp
@@ -2625,7 +3059,7 @@ export default function DashboardPage() {
                       className="
                         text-lg
                         font-black
-                        text-[#071330]
+                        text-white
                       "
                     >
                       Performance Overview
@@ -2637,7 +3071,7 @@ export default function DashboardPage() {
                       mt-2
                       text-xs
                       leading-5
-                      text-slate-500
+                      text-slate-400
                     "
                   >
                     Live performance
@@ -2651,7 +3085,7 @@ export default function DashboardPage() {
                   className="
                     hidden
                     rounded-lg
-                    bg-slate-50
+                    bg-white/10
                     px-2.5
                     py-1.5
                     text-[10px]
@@ -2709,8 +3143,8 @@ export default function DashboardPage() {
               className="
                 rounded-[28px]
                 border
-                border-slate-200
-                bg-white
+                border-white/10
+                bg-white/5
                 p-6
                 shadow-sm
               "
@@ -2740,8 +3174,8 @@ export default function DashboardPage() {
                         items-center
                         justify-center
                         rounded-xl
-                        bg-blue-50
-                        text-blue-600
+                        bg-blue-500/10
+                        text-blue-300
                       "
                     >
                       <Activity
@@ -2754,7 +3188,7 @@ export default function DashboardPage() {
                       className="
                         text-lg
                         font-black
-                        text-[#071330]
+                        text-white
                       "
                     >
                       Recent Activity
@@ -2766,7 +3200,7 @@ export default function DashboardPage() {
                       mt-2
                       text-xs
                       leading-5
-                      text-slate-500
+                      text-slate-400
                     "
                   >
                     Latest activity
@@ -2778,7 +3212,7 @@ export default function DashboardPage() {
                 <span
                   className="
                     rounded-full
-                    bg-slate-50
+                    bg-white/10
                     px-2.5
                     py-1
                     text-[10px]
@@ -2849,12 +3283,12 @@ export default function DashboardPage() {
             gap-3
             rounded-2xl
             border
-            border-slate-200
-            bg-white
+            border-white/10
+            bg-white/5
             px-5
             py-4
             text-xs
-            text-slate-500
+            text-slate-400
             shadow-sm
             sm:flex-row
             sm:items-center
@@ -2901,14 +3335,14 @@ export default function DashboardPage() {
               gap-2
             "
           >
-            <span className="text-slate-400">
+            <span className="text-slate-500">
               Last synchronization
             </span>
 
             <span
               className="
                 font-semibold
-                text-slate-600
+                text-slate-300
               "
             >
               {formatDate(

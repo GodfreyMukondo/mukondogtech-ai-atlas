@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import {
+  Bot,
   ChevronRight,
   Clock,
   History,
@@ -31,6 +32,7 @@ import Button from "../../components/common/Button";
 import Loader from "../../components/common/Loader";
 import ErrorAlert from "../../components/common/ErrorAlert";
 import EmptyState from "../../components/common/EmptyState";
+import CaseOverviewExplanationPanel from "../../components/agent/CaseOverviewExplanationPanel";
 
 /**
  * ============================================================================
@@ -63,6 +65,7 @@ export default function CaseTimelinePage() {
   const [signals, setSignals] = useState<CaseSignals | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [explainingCaseOverview, setExplainingCaseOverview] = useState(false);
 
   const load = useCallback(async () => {
 
@@ -152,6 +155,13 @@ export default function CaseTimelinePage() {
           Built fresh from your current case information as of{" "}
           {new Date(timeline.generatedAt).toLocaleString()}. {timeline.note}
         </p>
+
+        <div className="mt-4">
+          <Button variant="outline" onClick={() => setExplainingCaseOverview(true)}>
+            <Bot size={16} />
+            Explain My Case
+          </Button>
+        </div>
       </header>
 
       <SignalsSection signals={signals} />
@@ -239,6 +249,15 @@ export default function CaseTimelinePage() {
           </ul>
         )}
       </section>
+
+      {explainingCaseOverview && user?.id != null && (
+        <div className="fixed inset-y-0 right-0 z-40 h-full">
+          <CaseOverviewExplanationPanel
+            subjectUserId={user.id}
+            onClose={() => setExplainingCaseOverview(false)}
+          />
+        </div>
+      )}
     </motion.div>
   );
 }

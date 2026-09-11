@@ -30,23 +30,23 @@ const styles={
 
 
 primary:
-"bg-blue-100 text-blue-700",
+"bg-blue-400/10 text-blue-300 border border-blue-400/20",
 
 
 success:
-"bg-green-100 text-green-700",
+"bg-emerald-400/10 text-emerald-300 border border-emerald-400/20",
 
 
 warning:
-"bg-yellow-100 text-yellow-700",
+"bg-[#C6A15B]/10 text-[#C6A15B] border border-[#C6A15B]/20",
 
 
 danger:
-"bg-red-100 text-red-700",
+"bg-red-400/10 text-red-300 border border-red-400/20",
 
 
 neutral:
-"bg-gray-100 text-gray-700"
+"bg-white/10 text-slate-300 border border-white/15"
 
 
 };

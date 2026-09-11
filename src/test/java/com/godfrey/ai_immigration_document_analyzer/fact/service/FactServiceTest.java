@@ -524,4 +524,92 @@ class FactServiceTest {
         assertThatThrownBy(() -> factService.getConflict(actor, 999L))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
+
+    // =========================================================================
+    // APPLICANT CONFLICT CONFIRMATION
+    // =========================================================================
+
+    @Test
+    void applicantConfirmConflictThrowsResourceNotFoundWhenMissing() {
+
+        AuthenticatedUser actor = user(SUBJECT_ID, Role.USER);
+
+        when(conflictRepository.findById(999L)).thenReturn(Optional.empty());
+
+        var request = new com.godfrey.ai_immigration_document_analyzer.fact.dto.ConflictResolutionRequest();
+        request.setWinningFactId(1L);
+
+        assertThatThrownBy(() -> factService.applicantConfirmConflict(actor, 999L, request))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(factConflictService, never()).applicantConfirm(any(), any(), any(), any());
+    }
+
+    @Test
+    void applicantConfirmConflictAuthorizesUsingTheConflictsOwnSubjectIdNeverACallerSuppliedOne() {
+
+        com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConflict conflict =
+                com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConflict.builder()
+                        .id(50L).subjectUserId(SUBJECT_ID).factKey("IDENTITY.FULL_NAME")
+                        .factAId(1L).factBId(2L)
+                        .status(com.godfrey.ai_immigration_document_analyzer.fact.entity.ConflictStatus.OPEN)
+                        .build();
+
+        AuthenticatedUser subject = user(SUBJECT_ID, Role.USER);
+
+        when(conflictRepository.findById(50L)).thenReturn(Optional.of(conflict));
+
+        var request = new com.godfrey.ai_immigration_document_analyzer.fact.dto.ConflictResolutionRequest();
+        request.setWinningFactId(2L);
+        request.setNotes("This is correct.");
+
+        com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConflict resolved =
+                com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConflict.builder()
+                        .id(50L).subjectUserId(SUBJECT_ID).factKey("IDENTITY.FULL_NAME")
+                        .factAId(1L).factBId(2L)
+                        .status(com.godfrey.ai_immigration_document_analyzer.fact.entity.ConflictStatus.RESOLVED)
+                        .resolutionType(com.godfrey.ai_immigration_document_analyzer.fact.entity.ConflictResolutionType.APPLICANT_CONFIRMATION)
+                        .winningFactId(2L)
+                        .resolvedByUserId(SUBJECT_ID)
+                        .build();
+
+        when(factConflictService.applicantConfirm(conflict, 2L, SUBJECT_ID, "This is correct.")).thenReturn(resolved);
+
+        var response = factService.applicantConfirmConflict(subject, 50L, request);
+
+        assertThat(response.resolutionType())
+                .isEqualTo(com.godfrey.ai_immigration_document_analyzer.fact.entity.ConflictResolutionType.APPLICANT_CONFIRMATION);
+
+        // subjectUserId comes from the persisted conflict, never from the
+        // request body (which carries no such field at all).
+        verify(authorizationService).assertCanApplicantConfirmConflict(
+                eq(subject), eq(SUBJECT_ID), any(), any(), anyString()
+        );
+    }
+
+    @Test
+    void applicantConfirmConflictDeniesAStrangerBeforeAnyMutation() {
+
+        com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConflict conflict =
+                com.godfrey.ai_immigration_document_analyzer.fact.entity.FactConflict.builder()
+                        .id(50L).subjectUserId(SUBJECT_ID).factKey("IDENTITY.FULL_NAME")
+                        .factAId(1L).factBId(2L)
+                        .status(com.godfrey.ai_immigration_document_analyzer.fact.entity.ConflictStatus.OPEN)
+                        .build();
+
+        AuthenticatedUser stranger = user(STRANGER_ID, Role.USER);
+
+        when(conflictRepository.findById(50L)).thenReturn(Optional.of(conflict));
+
+        doThrow(new AccessDeniedException("denied")).when(authorizationService)
+                .assertCanApplicantConfirmConflict(eq(stranger), eq(SUBJECT_ID), any(), any(), anyString());
+
+        var request = new com.godfrey.ai_immigration_document_analyzer.fact.dto.ConflictResolutionRequest();
+        request.setWinningFactId(2L);
+
+        assertThatThrownBy(() -> factService.applicantConfirmConflict(stranger, 50L, request))
+                .isInstanceOf(AccessDeniedException.class);
+
+        verify(factConflictService, never()).applicantConfirm(any(), any(), any(), any());
+    }
 }

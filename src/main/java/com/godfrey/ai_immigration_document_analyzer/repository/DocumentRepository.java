@@ -34,6 +34,17 @@ public interface DocumentRepository
 
 
     /**
+     * A user's uploaded documents that are not yet attached to any
+     * application - the candidate evidence list when creating a new
+     * application (including an administrator creating one on a user's
+     * behalf).
+     */
+    List<Document> findByUserIdAndApplicationIdIsNullOrderByUploadedAtDesc(
+            Long userId
+    );
+
+
+    /**
      * Secure ownership-aware document lookup.
      *
      * This is preferable to:
@@ -51,6 +62,39 @@ public interface DocumentRepository
     long countByUserId(
             Long userId
     );
+
+
+    /**
+     * Removes every document owned by the user, including ones linked to
+     * that user's own applications - must run before the owning
+     * application rows are deleted (fk_document_application).
+     */
+    void deleteByUserId(
+            Long userId
+    );
+
+
+    // =========================================================================
+    // APPLICATION LINKAGE
+    // =========================================================================
+
+    List<Document> findByApplicationId(
+            Long applicationId
+    );
+
+
+    long countByApplicationId(
+            Long applicationId
+    );
+
+
+    @Query("""
+            SELECT COUNT(DISTINCT d.applicationId)
+            FROM Document d
+            WHERE d.applicationId IS NOT NULL
+            AND d.fraudDetected = true
+            """)
+    long countDistinctApplicationsWithFraudDetectedDocument();
 
 
     // =========================================================================
@@ -173,6 +217,18 @@ public interface DocumentRepository
     );
 
 
+    /**
+     * Counts fraud-flagged documents uploaded within a date range.
+     *
+     * Used alongside {@link #countByUploadedAtBetween} to compute a real
+     * period-over-period accuracy trend for the admin dashboard.
+     */
+    long countByFraudDetectedTrueAndUploadedAtBetween(
+            LocalDateTime start,
+            LocalDateTime end
+    );
+
+
     long countByUpdatedAtAfter(
             LocalDateTime date
     );
@@ -233,12 +289,25 @@ public interface DocumentRepository
     // SLA
     // =========================================================================
 
+    /**
+     * Counts documents still stuck in an in-progress upload status past the
+     * given threshold - a genuine SLA breach, rather than the previous
+     * always-zero stub.
+     */
     @Query("""
             SELECT COUNT(d)
             FROM Document d
-            WHERE 1 = 0
+            WHERE UPPER(d.uploadStatus) IN (
+                'PENDING',
+                'PROCESSING',
+                'ANALYZING'
+            )
+            AND d.uploadedAt < :threshold
             """)
-    long countSLABreaches();
+    long countSLABreaches(
+            @Param("threshold")
+            LocalDateTime threshold
+    );
 
 
     // =========================================================================
@@ -310,6 +379,14 @@ public interface DocumentRepository
     findTop10ByUserIdOrderByUploadedAtDesc(
             Long userId
     );
+
+
+    /**
+     * Most recently uploaded fraud-flagged documents, for the admin
+     * dashboard's system alerts feed.
+     */
+    List<Document>
+    findTop5ByFraudDetectedTrueOrderByUploadedAtDesc();
 
 
     // =========================================================================

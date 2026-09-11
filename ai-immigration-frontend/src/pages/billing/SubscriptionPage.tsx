@@ -62,10 +62,6 @@ interface Subscription {
   } | null;
 }
 
-interface SubscriptionResponse {
-  subscription?: Subscription | null;
-}
-
 interface ApiErrorResponse {
   message?: string;
   detail?: string;
@@ -469,23 +465,23 @@ function getStatusClasses(
 ): string {
   switch (status) {
     case "ACTIVE":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
 
     case "TRIALING":
-      return "border-blue-200 bg-blue-50 text-blue-700";
+      return "border-blue-500/30 bg-blue-500/10 text-blue-300";
 
     case "PAST_DUE":
-      return "border-amber-200 bg-amber-50 text-amber-700";
+      return "border-amber-500/30 bg-amber-500/10 text-amber-300";
 
     case "CANCELED":
-      return "border-red-200 bg-red-50 text-red-700";
+      return "border-red-500/30 bg-red-500/10 text-red-300";
 
     case "INCOMPLETE":
-      return "border-orange-200 bg-orange-50 text-orange-700";
+      return "border-orange-500/30 bg-orange-500/10 text-orange-300";
 
     case "INACTIVE":
     default:
-      return "border-slate-200 bg-slate-50 text-slate-700";
+      return "border-white/15 bg-white/5 text-slate-300";
   }
 }
 
@@ -538,18 +534,18 @@ function InformationCard({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
       <Icon
         size={22}
-        className="text-[#0B1736]"
+        className="text-[#C6A15B]"
         aria-hidden="true"
       />
 
-      <p className="mt-3 text-sm text-slate-500">
+      <p className="mt-3 text-sm text-slate-400">
         {label}
       </p>
 
-      <p className="mt-1 break-words text-lg font-bold text-[#0B1736]">
+      <p className="mt-1 break-words text-lg font-bold text-white">
         {value}
       </p>
     </div>
@@ -879,15 +875,15 @@ export default function SubscriptionPage() {
      ======================================================================== */
 
   return (
-    <main className="min-h-screen bg-[#F8F6F1] p-4 text-[#0B1736] sm:p-6">
-      <div className="mx-auto max-w-5xl">
+    <main className="min-h-screen p-4 text-slate-100 sm:p-6">
+      <div className="w-full">
         {/* ====================================================================
             HEADER
         ================================================================== */}
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#0B1736]/5 px-4 py-2 text-sm font-semibold text-[#0B1736]">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#C6A15B]/30 bg-[#C6A15B]/10 px-4 py-2 text-sm font-semibold text-[#C6A15B]">
               <Sparkles
                 size={16}
                 aria-hidden="true"
@@ -896,11 +892,11 @@ export default function SubscriptionPage() {
               Subscription Management
             </div>
 
-            <h1 className="text-3xl font-black sm:text-4xl">
+            <h1 className="text-3xl font-black text-white sm:text-4xl">
               Subscription
             </h1>
 
-            <p className="mt-2 max-w-2xl text-slate-600">
+            <p className="mt-2 max-w-2xl text-slate-300">
               Manage your current plan,
               billing information,
               renewal preferences, and
@@ -918,7 +914,7 @@ export default function SubscriptionPage() {
               refreshing ||
               actionLoading !== null
             }
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 font-semibold transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCcw
               size={18}
@@ -941,16 +937,16 @@ export default function SubscriptionPage() {
         {error && (
           <div
             role="alert"
-            className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-800"
+            className="mb-6 flex items-start gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-red-200"
           >
             <AlertTriangle
-              className="mt-0.5 shrink-0 text-red-600"
+              className="mt-0.5 shrink-0 text-red-300"
               size={20}
               aria-hidden="true"
             />
 
             <div>
-              <p className="font-bold">
+              <p className="font-bold text-red-100">
                 Unable to load subscription
               </p>
 
@@ -968,16 +964,16 @@ export default function SubscriptionPage() {
         {actionError && (
           <div
             role="alert"
-            className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-800"
+            className="mb-6 flex items-start gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-red-200"
           >
             <XCircle
-              className="mt-0.5 shrink-0 text-red-600"
+              className="mt-0.5 shrink-0 text-red-300"
               size={20}
               aria-hidden="true"
             />
 
             <div>
-              <p className="font-bold">
+              <p className="font-bold text-red-100">
                 Subscription action failed
               </p>
 
@@ -995,10 +991,10 @@ export default function SubscriptionPage() {
         {successMessage && (
           <div
             role="status"
-            className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-800"
+            className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-emerald-200"
           >
             <CheckCircle2
-              className="mt-0.5 shrink-0 text-emerald-600"
+              className="mt-0.5 shrink-0 text-emerald-300"
               size={20}
               aria-hidden="true"
             />
@@ -1015,10 +1011,10 @@ export default function SubscriptionPage() {
 
         {loading && (
           <div
-            className="flex min-h-[360px] items-center justify-center rounded-3xl border border-slate-200 bg-white shadow-sm"
+            className="flex min-h-[360px] items-center justify-center rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-sm"
             aria-live="polite"
           >
-            <div className="flex items-center gap-3 text-slate-600">
+            <div className="flex items-center gap-3 text-slate-300">
               <Loader2
                 size={24}
                 className="animate-spin"
@@ -1036,18 +1032,18 @@ export default function SubscriptionPage() {
 
         {!loading &&
           !subscription && (
-            <section className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
+            <section className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 text-center shadow-sm sm:p-12">
               <CreditCard
                 size={48}
-                className="mx-auto text-slate-300"
+                className="mx-auto text-slate-500"
                 aria-hidden="true"
               />
 
-              <h2 className="mt-5 text-2xl font-black">
+              <h2 className="mt-5 text-2xl font-black text-white">
                 No active subscription
               </h2>
 
-              <p className="mx-auto mt-2 max-w-xl text-slate-500">
+              <p className="mx-auto mt-2 max-w-xl text-slate-400">
                 Your account does not
                 currently have a subscription
                 available.
@@ -1071,22 +1067,22 @@ export default function SubscriptionPage() {
                   opacity: 1,
                   y: 0,
                 }}
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm sm:p-8"
               >
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <p className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                    <p className="text-sm font-semibold uppercase tracking-wider text-slate-400">
                       Current Plan
                     </p>
 
-                    <h2 className="mt-2 text-3xl font-black">
+                    <h2 className="mt-2 text-3xl font-black text-white">
                       {subscription.plan
                         .name || "—"}
                     </h2>
 
                     {subscription.plan
                       .description && (
-                      <p className="mt-2 max-w-2xl text-slate-500">
+                      <p className="mt-2 max-w-2xl text-slate-400">
                         {
                           subscription
                             .plan
@@ -1158,8 +1154,8 @@ export default function SubscriptionPage() {
                 -------------------------------------------------------------- */}
 
                 {subscription.paymentMethod && (
-                  <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                    <div className="flex items-center gap-3">
+                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div className="flex items-center gap-3 text-white">
                       <CreditCard
                         size={20}
                         aria-hidden="true"
@@ -1170,7 +1166,7 @@ export default function SubscriptionPage() {
                       </h3>
                     </div>
 
-                    <div className="mt-3 text-sm text-slate-600">
+                    <div className="mt-3 text-sm text-slate-300">
                       {[
                         subscription
                           .paymentMethod
@@ -1196,15 +1192,15 @@ export default function SubscriptionPage() {
 
                 {(subscription.currentPeriodStart ||
                   subscription.currentPeriodEnd) && (
-                  <div className="mt-6 rounded-2xl border border-slate-200 p-5">
+                  <div className="mt-6 rounded-2xl border border-white/10 p-5">
                     <div className="grid gap-5 sm:grid-cols-2">
                       <div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-400">
                           Current Period
                           Start
                         </p>
 
-                        <p className="mt-1 font-bold">
+                        <p className="mt-1 font-bold text-white">
                           {formatDate(
                             subscription.currentPeriodStart
                           )}
@@ -1212,12 +1208,12 @@ export default function SubscriptionPage() {
                       </div>
 
                       <div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-400">
                           Current Period
                           End
                         </p>
 
-                        <p className="mt-1 font-bold">
+                        <p className="mt-1 font-bold text-white">
                           {formatDate(
                             subscription.currentPeriodEnd
                           )}
@@ -1242,7 +1238,7 @@ export default function SubscriptionPage() {
                         "upgrade"
                       )
                     }
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0B1736] px-6 py-3 font-bold text-white transition hover:bg-[#16264A] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#C6A15B] to-[#A8894D] px-6 py-3 font-bold text-[#071426] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {actionLoading ===
                     "upgrade" ? (
@@ -1271,7 +1267,7 @@ export default function SubscriptionPage() {
                         "cancel"
                       )
                     }
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-6 py-3 font-bold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-6 py-3 font-bold text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {actionLoading ===
                     "cancel" ? (
@@ -1294,7 +1290,7 @@ export default function SubscriptionPage() {
                 </div>
 
                 {subscription.cancelAtPeriodEnd && (
-                  <p className="mt-4 text-sm text-amber-700">
+                  <p className="mt-4 text-sm text-amber-300">
                     Your subscription is
                     scheduled to end at the
                     end of the current billing
@@ -1319,23 +1315,23 @@ export default function SubscriptionPage() {
                 transition={{
                   delay: 0.1,
                 }}
-                className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+                className="mt-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-sm sm:p-8"
               >
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-[#0B1736]/5 p-3">
+                  <div className="rounded-xl bg-[#C6A15B]/15 p-3">
                     <Check
-                      className="text-[#0B1736]"
+                      className="text-[#C6A15B]"
                       size={20}
                       aria-hidden="true"
                     />
                   </div>
 
                   <div>
-                    <h2 className="text-xl font-black">
+                    <h2 className="text-xl font-black text-white">
                       Included Features
                     </h2>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-400">
                       Features provided by your
                       current subscription plan.
                     </p>
@@ -1345,7 +1341,7 @@ export default function SubscriptionPage() {
                 {subscription.plan
                   .features.length ===
                 0 ? (
-                  <div className="mt-6 rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">
+                  <div className="mt-6 rounded-2xl bg-white/5 p-6 text-center text-sm text-slate-400">
                     No feature information is
                     currently available.
                   </div>
@@ -1355,15 +1351,15 @@ export default function SubscriptionPage() {
                       (feature) => (
                         <li
                           key={feature}
-                          className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4"
+                          className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4"
                         >
                           <Check
                             size={18}
-                            className="mt-0.5 shrink-0 text-emerald-600"
+                            className="mt-0.5 shrink-0 text-emerald-400"
                             aria-hidden="true"
                           />
 
-                          <span className="text-sm font-medium text-slate-700">
+                          <span className="text-sm font-medium text-slate-200">
                             {feature}
                           </span>
                         </li>

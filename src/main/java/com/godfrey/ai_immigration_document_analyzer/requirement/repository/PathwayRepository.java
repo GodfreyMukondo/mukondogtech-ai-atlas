@@ -15,4 +15,12 @@ public interface PathwayRepository extends JpaRepository<Pathway, Long> {
     Optional<Pathway> findByPathwayKey(String pathwayKey);
 
     List<Pathway> findByStatus(PathwayStatus status);
+
+    /**
+     * The currently PUBLISHED row for a pathwayKey, if any - used by
+     * {@code PathwayAdminService} to auto-supersede the previous version
+     * when a new one is published. At most one row per key is ever
+     * PUBLISHED at a time; this is the invariant that method maintains.
+     */
+    Optional<Pathway> findByPathwayKeyAndStatus(String pathwayKey, PathwayStatus status);
 }

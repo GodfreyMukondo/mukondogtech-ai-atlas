@@ -8,12 +8,20 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 30s
 
+  # ==========================================================================
+  # FILE UPLOAD / MULTIPART
+  # ==========================================================================
+
   servlet:
     multipart:
       enabled: true
       max-file-size: 20MB
       max-request-size: 20MB
       file-size-threshold: 2KB
+
+  # ==========================================================================
+  # DATABASE
+  # ==========================================================================
 
   datasource:
     url: ${ORACLE_DATABASE_URL}
@@ -42,6 +50,10 @@ spring:
         oracle.net.CONNECT_TIMEOUT: ${ORACLE_CONNECT_TIMEOUT:10000}
         oracle.jdbc.ReadTimeout: ${ORACLE_READ_TIMEOUT:30000}
 
+  # ==========================================================================
+  # JPA / HIBERNATE
+  # ==========================================================================
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -57,22 +69,43 @@ spring:
         jdbc:
           time_zone: UTC
           batch_size: 50
+          batch_versioned_data: true
 
         order_inserts: true
         order_updates: true
 
-        jdbc.batch_versioned_data: true
+  # ==========================================================================
+  # FLYWAY DATABASE MIGRATIONS
+  # ==========================================================================
 
   flyway:
     enabled: true
+
     baseline-on-migrate: true
     validate-on-migrate: true
-    # Leave false normally. Only needed as a one-time catch-up when a
-    # lower-numbered migration is added/fixed after a higher-numbered one
-    # has already been applied (see db/migration/README.md).
+
+    # V2 already exists physically in the database but is intentionally
+    # recorded as ignored because V3 was previously applied.
+    #
+    # This prevents application startup from failing validation with:
+    # "Detected resolved migration not applied to database: 2."
+    #
+    # Do NOT enable out-of-order migration for this situation.
+    ignore-migration-patterns: "*:ignored"
+
+    # Leave false normally. Only enable temporarily when deliberately
+    # applying a lower-numbered migration after a higher-numbered migration
+    # has already been applied.
     out-of-order: ${FLYWAY_OUT_OF_ORDER:false}
+
+    # Never allow Flyway clean in this application.
     clean-disabled: true
+
     locations: classpath:db/migration
+
+  # ==========================================================================
+  # OPENAI / AI
+  # ==========================================================================
 
   ai:
     openai:
@@ -85,6 +118,10 @@ spring:
       embedding:
         options:
           model: text-embedding-3-small
+
+  # ==========================================================================
+  # EMAIL
+  # ==========================================================================
 
   mail:
     host: smtp.gmail.com
@@ -117,6 +154,10 @@ app:
   admin:
     email: ${APP_ADMIN_EMAIL:}
     password: ${APP_ADMIN_PASSWORD:}
+
+  # Public URL of the frontend application, used to build links sent in
+  # emails (e.g. password reset links). Must not have a trailing slash.
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
 
 
 # ============================================================================
@@ -160,9 +201,10 @@ management:
 # ============================================================================
 
 file:
-  # Enforced only for the raw multipart size limit (S3FileStorageService).
-  # Allowed file types/extensions are enforced in DocumentService, which
-  # additionally cross-checks the extension against the declared MIME type.
+  # Maximum raw multipart file size enforced by the storage layer.
+  #
+  # Allowed extensions and MIME types are validated separately by
+  # DocumentService.
   max-size: ${DOCUMENT_MAX_FILE_SIZE:10485760}
 
 
@@ -172,7 +214,6 @@ file:
 
 ocr:
   tessdata-path: ${TESSDATA_PATH:}
-
   language: ${OCR_LANGUAGE:eng}
 
 
@@ -188,13 +229,14 @@ aws:
 
 
 # ============================================================================
-# JWT
+# JWT SECURITY
 # ============================================================================
 
 security:
   jwt:
     secret: ${JWT_SECRET}
 
+    # 1 hour by default
     expiration: ${JWT_EXPIRATION:3600000}
 
 

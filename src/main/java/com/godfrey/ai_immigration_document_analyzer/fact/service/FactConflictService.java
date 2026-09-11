@@ -361,6 +361,96 @@ public class FactConflictService {
     }
 
     // =========================================================================
+    // APPLICANT CONFIRMATION (SELF-REPORTED, NOT VERIFICATION)
+    //
+    // Structurally a sibling of resolveManually above, not a variant of it:
+    // same state machine, same conflict record, but a DIFFERENT resolution
+    // type and a DIFFERENT actor. Authorization for this method is granted
+    // exclusively by FactAuthorizationService.assertCanApplicantConfirmConflict
+    // (SUBJECT only) - never by assertCanVerifyOrResolve, and this method is
+    // never reachable from the CASE_WORKER-facing resolveConflict endpoint.
+    //
+    // Deliberately does NOT call FactLifecycleService.verify(...) or set
+    // isVerified/verifiedAt/verificationMethod on either Fact - an
+    // applicant's confirmation is a statement, not documentary verification,
+    // and the winning Fact must remain distinguishable from independently
+    // verified data (isVerified stays exactly what it already was).
+    // =========================================================================
+
+    @Transactional
+    public FactConflict applicantConfirm(
+            FactConflict conflict,
+            Long confirmedFactId,
+            Long applicantUserId,
+            String notes
+    ) {
+
+        if (conflict.getStatus() != ConflictStatus.OPEN) {
+
+            throw new IllegalStateException("Conflict " + conflict.getId() + " is not open.");
+        }
+
+        if (!confirmedFactId.equals(conflict.getFactAId()) && !confirmedFactId.equals(conflict.getFactBId())) {
+
+            throw new IllegalArgumentException(
+                    "Confirmed fact must be one of the two conflicting facts."
+            );
+        }
+
+        Long otherFactId = confirmedFactId.equals(conflict.getFactAId())
+                ? conflict.getFactBId()
+                : conflict.getFactAId();
+
+        Fact confirmed = factRepository.findById(confirmedFactId).orElseThrow();
+        Fact other = factRepository.findById(otherFactId).orElseThrow();
+
+        lifecycleService.transition(
+                confirmed,
+                FactStatus.ACCEPTED,
+                AccessorType.SUBJECT,
+                applicantUserId,
+                TimelineEventType.FACT_RESOLVED,
+                "Applicant confirmed this value as correct. Self-reported provenance - not independent "
+                        + "documentary verification."
+                        + (notes != null && !notes.isBlank() ? " " + notes : "")
+        );
+
+        lifecycleService.transition(
+                other,
+                FactStatus.REJECTED,
+                AccessorType.SUBJECT,
+                applicantUserId,
+                TimelineEventType.FACT_RESOLVED,
+                "Not the value the applicant confirmed. CONFLICT DETECTED - this is not a fraud "
+                        + "determination, and the applicant's confirmation of the other value is not "
+                        + "independent verification of it."
+        );
+
+        conflict.setStatus(ConflictStatus.RESOLVED);
+        conflict.setResolvedAt(LocalDateTime.now());
+        conflict.setResolutionType(ConflictResolutionType.APPLICANT_CONFIRMATION);
+        conflict.setResolvedByUserId(applicantUserId);
+        conflict.setWinningFactId(confirmedFactId);
+        conflict.setResolutionNotes(notes);
+
+        FactConflict saved = conflictRepository.save(conflict);
+
+        timelineService.record(
+                confirmed.getSubjectUserId(),
+                TimelineEventType.FACT_RESOLVED,
+                null,
+                conflict.getId(),
+                AccessorType.SUBJECT,
+                applicantUserId,
+                ConflictStatus.OPEN.name(),
+                ConflictStatus.RESOLVED.name(),
+                "Applicant confirmed fact " + confirmedFactId + " via self-report (APPLICANT_CONFIRMATION)."
+        );
+
+        return saved;
+    }
+
+    // =========================================================================
     // HELPERS
     // =========================================================================
 

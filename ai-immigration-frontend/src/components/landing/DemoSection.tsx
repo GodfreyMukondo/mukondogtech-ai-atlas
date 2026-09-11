@@ -39,7 +39,7 @@ return (
 <section
 className="
 py-24
-bg-[#071330]
+bg-[#071426]
 text-white
 "
 >
@@ -106,7 +106,7 @@ p-6
 
 <step.icon
 size={30}
-className="text-[#F4B81A]"
+className="text-[#C6A15B]"
 />
 
 
@@ -169,11 +169,11 @@ items-center
 justify-center
 rounded-full
 border-2
-border-[#071330]
+border-[#071426]
 bg-gradient-to-br
-from-[#F7C948]
-to-[#F4B81A]
-text-[#071330]
+from-[#D4B984]
+to-[#C6A15B]
+text-[#071426]
 "
 >
 <UserRound size={18} />
@@ -186,7 +186,7 @@ Prefer a human check? A document specialist can review any
 flagged result with you —{" "}
 <Link
 to="/contact"
-className="font-semibold text-[#F4B81A] underline-offset-4 hover:underline"
+className="font-semibold text-[#C6A15B] underline-offset-4 hover:underline"
 >
 talk to our team
 </Link>

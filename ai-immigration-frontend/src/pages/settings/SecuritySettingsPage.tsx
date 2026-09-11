@@ -171,7 +171,7 @@ function normalizeAuditLog(
     );
 
   return {
-    id: item.id ?? item.auditId ?? crypto.randomUUID(),
+    id: (item.id ?? item.auditId ?? crypto.randomUUID()) as string | number,
     user: String(
       item.user ??
         item.username ??
@@ -377,8 +377,9 @@ function StatCard({
         overflow-hidden
         rounded-[1.75rem]
         border
-        border-slate-200/80
-        bg-white
+        border-white/10
+        bg-white/5
+        backdrop-blur-xl
         p-6
         shadow-[0_10px_40px_rgba(15,23,42,0.05)]
         transition-all
@@ -395,7 +396,7 @@ function StatCard({
           h-24
           w-24
           rounded-full
-          bg-slate-50
+          bg-white/5
           transition-transform
           duration-500
           group-hover:scale-150
@@ -404,7 +405,7 @@ function StatCard({
 
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-slate-500">
+          <p className="text-sm font-semibold text-slate-400">
             {title}
           </p>
 
@@ -414,14 +415,14 @@ function StatCard({
               text-3xl
               font-black
               tracking-tight
-              text-slate-950
+              text-white
             "
           >
             {value}
           </h2>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <p className="text-xs font-medium text-slate-400">
+            <p className="text-xs font-medium text-slate-500">
               {description}
             </p>
 
@@ -431,12 +432,12 @@ function StatCard({
                   inline-flex
                   items-center
                   rounded-full
-                  bg-emerald-50
+                  bg-emerald-500/10
                   px-2
                   py-1
                   text-[10px]
                   font-bold
-                  text-emerald-700
+                  text-emerald-300
                 "
               >
                 {trend}
@@ -486,19 +487,19 @@ function SeverityBadge({
   > = {
     INFO: {
       className:
-        "bg-emerald-50 text-emerald-700 ring-emerald-200",
+        "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30",
       icon: CheckCircle2,
       label: "Info",
     },
     WARNING: {
       className:
-        "bg-amber-50 text-amber-700 ring-amber-200",
+        "bg-amber-500/10 text-amber-300 ring-amber-500/30",
       icon: AlertTriangle,
       label: "Warning",
     },
     CRITICAL: {
       className:
-        "bg-rose-50 text-rose-700 ring-rose-200",
+        "bg-rose-500/10 text-rose-300 ring-rose-500/30",
       icon: ShieldAlert,
       label: "Critical",
     },
@@ -540,7 +541,7 @@ function SeverityBadge({
 
 function AuditTableSkeleton() {
   return (
-    <div className="divide-y divide-slate-100">
+    <div className="divide-y divide-white/10">
       {Array.from({ length: 6 }).map(
         (_, index) => (
           <div
@@ -548,25 +549,25 @@ function AuditTableSkeleton() {
             className="animate-pulse p-5 lg:px-6 lg:py-5"
           >
             <div className="hidden lg:grid lg:grid-cols-[1.2fr_2fr_1.3fr_1.1fr_1fr_0.8fr_0.6fr] lg:items-center lg:gap-4">
-              <div className="h-5 rounded-lg bg-slate-100" />
-              <div className="h-5 rounded-lg bg-slate-100" />
-              <div className="h-5 rounded-lg bg-slate-100" />
-              <div className="h-5 rounded-lg bg-slate-100" />
-              <div className="h-5 rounded-lg bg-slate-100" />
-              <div className="h-7 rounded-full bg-slate-100" />
-              <div className="mx-auto h-9 w-9 rounded-xl bg-slate-100" />
+              <div className="h-5 rounded-lg bg-white/10" />
+              <div className="h-5 rounded-lg bg-white/10" />
+              <div className="h-5 rounded-lg bg-white/10" />
+              <div className="h-5 rounded-lg bg-white/10" />
+              <div className="h-5 rounded-lg bg-white/10" />
+              <div className="h-7 rounded-full bg-white/10" />
+              <div className="mx-auto h-9 w-9 rounded-xl bg-white/10" />
             </div>
 
             <div className="lg:hidden">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-slate-100" />
+                <div className="h-10 w-10 rounded-xl bg-white/10" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-40 rounded bg-slate-100" />
-                  <div className="h-3 w-20 rounded bg-slate-100" />
+                  <div className="h-4 w-40 rounded bg-white/10" />
+                  <div className="h-3 w-20 rounded bg-white/10" />
                 </div>
               </div>
 
-              <div className="mt-5 h-12 rounded-xl bg-slate-100" />
+              <div className="mt-5 h-12 rounded-xl bg-white/10" />
             </div>
           </div>
         )
@@ -604,7 +605,7 @@ function ErrorState({
         <ShieldAlert size={28} />
       </div>
 
-      <h3 className="mt-5 text-lg font-black text-slate-950">
+      <h3 className="mt-5 text-lg font-black text-white">
         Unable to load audit logs
       </h3>
 
@@ -664,14 +665,14 @@ function EmptyState({
           items-center
           justify-center
           rounded-3xl
-          bg-slate-100
+          bg-white/10
           text-slate-400
         "
       >
         <Search size={28} />
       </div>
 
-      <h3 className="mt-5 text-lg font-black text-slate-950">
+      <h3 className="mt-5 text-lg font-black text-white">
         No audit events found
       </h3>
 
@@ -780,8 +781,9 @@ function AuditDetailsModal({
           overflow-y-auto
           rounded-[2rem]
           border
-          border-white/20
-          bg-white
+          border-white/10
+          bg-[#1F314A]
+          backdrop-blur-xl
           shadow-[0_30px_100px_rgba(0,0,0,0.30)]
         "
       >
@@ -862,7 +864,7 @@ function AuditDetailsModal({
               severity={log.severity}
             />
 
-            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500">
+            <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-400">
               Event ID #{log.id}
             </span>
           </div>
@@ -872,48 +874,48 @@ function AuditDetailsModal({
               Action
             </p>
 
-            <p className="mt-2 text-xl font-black leading-8 text-slate-950">
+            <p className="mt-2 text-xl font-black leading-8 text-white">
               {log.action}
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-blue-500">
+            <div className="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4">
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-blue-300">
                 User
               </p>
 
-              <p className="mt-2 font-bold text-slate-800">
+              <p className="mt-2 font-bold text-white">
                 {log.user}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50 to-purple-50 p-4">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-violet-500">
+            <div className="rounded-2xl border border-violet-500/20 bg-violet-500/10 p-4">
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-violet-300">
                 Category
               </p>
 
-              <p className="mt-2 font-bold text-slate-800">
+              <p className="mt-2 font-bold text-white">
                 {log.category}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-cyan-100 bg-gradient-to-br from-cyan-50 to-sky-50 p-4">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-cyan-600">
+            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-4">
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-cyan-300">
                 IP Address
               </p>
 
-              <p className="mt-2 break-all font-mono text-sm font-bold text-slate-800">
+              <p className="mt-2 break-all font-mono text-sm font-bold text-white">
                 {log.ip}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-yellow-50 p-4">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-600">
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">
                 Timestamp
               </p>
 
-              <p className="mt-2 text-sm font-bold text-slate-800">
+              <p className="mt-2 text-sm font-bold text-white">
                 {formatTimestamp(
                   log.timestamp
                 )}
@@ -922,19 +924,19 @@ function AuditDetailsModal({
           </div>
 
           {log.details && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
                 Description
               </p>
 
-              <p className="mt-3 leading-7 text-slate-600">
+              <p className="mt-3 leading-7 text-slate-300">
                 {log.details}
               </p>
             </div>
           )}
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50 px-6 py-4">
+        <div className="border-t border-white/10 bg-white/5 px-6 py-4">
           <button
             type="button"
             onClick={onClose}
@@ -1303,10 +1305,6 @@ export default function AuditLogsPage() {
     <div
       className="
         min-h-screen
-        bg-gradient-to-br
-        from-slate-50
-        via-white
-        to-blue-50/70
       "
     >
       <div
@@ -1366,7 +1364,7 @@ export default function AuditLogsPage() {
                     font-extrabold
                     uppercase
                     tracking-[0.18em]
-                    text-blue-600
+                    text-blue-300
                   "
                 >
                   Security & Compliance
@@ -1383,7 +1381,7 @@ export default function AuditLogsPage() {
                 text-3xl
                 font-black
                 tracking-tight
-                text-slate-950
+                text-white
                 sm:text-4xl
                 xl:text-5xl
               "
@@ -1397,7 +1395,7 @@ export default function AuditLogsPage() {
                 max-w-3xl
                 text-sm
                 leading-7
-                text-slate-600
+                text-slate-400
                 sm:text-base
               "
             >
@@ -1419,7 +1417,7 @@ export default function AuditLogsPage() {
                 {refreshing && (
                   <>
                     <span>•</span>
-                    <span className="font-semibold text-blue-600">
+                    <span className="font-semibold text-blue-300">
                       Refreshing...
                     </span>
                   </>
@@ -1442,18 +1440,18 @@ export default function AuditLogsPage() {
                 gap-2
                 rounded-2xl
                 border
-                border-slate-200
-                bg-white
+                border-white/15
+                bg-white/5
                 px-5
                 py-3.5
                 font-bold
-                text-slate-700
+                text-slate-300
                 shadow-sm
                 transition-all
                 hover:-translate-y-0.5
-                hover:border-blue-200
-                hover:bg-blue-50
-                hover:text-blue-700
+                hover:border-blue-500/30
+                hover:bg-blue-500/10
+                hover:text-blue-300
                 disabled:cursor-not-allowed
                 disabled:opacity-60
                 focus:outline-none
@@ -1536,8 +1534,8 @@ export default function AuditLogsPage() {
               stats.eventsToday
             )}
             icon={Activity}
-            iconClassName="text-blue-700"
-            iconBackground="bg-gradient-to-br from-blue-50 to-cyan-100"
+            iconClassName="text-blue-300"
+            iconBackground="bg-gradient-to-br from-blue-500/15 to-cyan-500/10"
             description="Platform activity"
             trend="Live"
           />
@@ -1548,8 +1546,8 @@ export default function AuditLogsPage() {
               stats.adminActions
             )}
             icon={ShieldCheck}
-            iconClassName="text-violet-700"
-            iconBackground="bg-gradient-to-br from-violet-50 to-purple-100"
+            iconClassName="text-violet-300"
+            iconBackground="bg-gradient-to-br from-violet-500/15 to-purple-500/10"
             description="Administrative events"
           />
 
@@ -1559,8 +1557,8 @@ export default function AuditLogsPage() {
               stats.securityEvents
             )}
             icon={LockKeyhole}
-            iconClassName="text-rose-700"
-            iconBackground="bg-gradient-to-br from-rose-50 to-pink-100"
+            iconClassName="text-rose-300"
+            iconBackground="bg-gradient-to-br from-rose-500/15 to-pink-500/10"
             description="Events requiring monitoring"
           />
 
@@ -1570,8 +1568,8 @@ export default function AuditLogsPage() {
               stats.activeUsers
             )}
             icon={Users}
-            iconClassName="text-emerald-700"
-            iconBackground="bg-gradient-to-br from-emerald-50 to-teal-100"
+            iconClassName="text-emerald-300"
+            iconBackground="bg-gradient-to-br from-emerald-500/15 to-teal-500/10"
             description="Currently active accounts"
           />
         </section>
@@ -1585,8 +1583,9 @@ export default function AuditLogsPage() {
             mt-8
             rounded-[1.75rem]
             border
-            border-slate-200/80
-            bg-white
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             p-4
             shadow-[0_10px_40px_rgba(15,23,42,0.05)]
             sm:p-5
@@ -1620,19 +1619,19 @@ export default function AuditLogsPage() {
                   w-full
                   rounded-2xl
                   border
-                  border-slate-200
-                  bg-slate-50
+                  border-white/15
+                  bg-white/5
                   py-3.5
                   pl-12
                   pr-4
                   text-sm
                   font-medium
-                  text-slate-800
+                  text-white
                   outline-none
                   transition
-                  placeholder:text-slate-400
-                  focus:border-blue-300
-                  focus:bg-white
+                  placeholder:text-slate-500
+                  focus:border-blue-400
+                  focus:bg-white/10
                   focus:ring-4
                   focus:ring-blue-500/10
                 "
@@ -1654,8 +1653,8 @@ export default function AuditLogsPage() {
                     p-1.5
                     text-slate-400
                     transition
-                    hover:bg-slate-200
-                    hover:text-slate-700
+                    hover:bg-white/10
+                    hover:text-slate-200
                   "
                 >
                   <X size={16} />
@@ -1680,16 +1679,16 @@ export default function AuditLogsPage() {
                 gap-2
                 rounded-2xl
                 border
-                border-slate-200
-                bg-white
+                border-white/15
+                bg-white/5
                 px-5
                 py-3
                 font-bold
-                text-slate-700
+                text-slate-300
                 transition
-                hover:border-blue-200
-                hover:bg-blue-50
-                hover:text-blue-700
+                hover:border-blue-500/30
+                hover:bg-blue-500/10
+                hover:text-blue-300
                 focus:outline-none
                 focus:ring-2
                 focus:ring-amber-400
@@ -1752,7 +1751,7 @@ export default function AuditLogsPage() {
                 grid
                 gap-4
                 border-t
-                border-slate-100
+                border-white/10
                 pt-5
                 sm:grid-cols-2
                 lg:grid-cols-3
@@ -1791,16 +1790,16 @@ export default function AuditLogsPage() {
                     w-full
                     rounded-2xl
                     border
-                    border-slate-200
-                    bg-white
+                    border-white/15
+                    bg-white/5
                     px-4
                     py-3
                     text-sm
                     font-semibold
-                    text-slate-700
+                    text-slate-300
                     outline-none
                     transition
-                    focus:border-blue-300
+                    focus:border-blue-400
                     focus:ring-4
                     focus:ring-blue-500/10
                   "
@@ -1853,16 +1852,16 @@ export default function AuditLogsPage() {
                     w-full
                     rounded-2xl
                     border
-                    border-slate-200
-                    bg-white
+                    border-white/15
+                    bg-white/5
                     px-4
                     py-3
                     text-sm
                     font-semibold
-                    text-slate-700
+                    text-slate-300
                     outline-none
                     transition
-                    focus:border-blue-300
+                    focus:border-blue-400
                     focus:ring-4
                     focus:ring-blue-500/10
                   "
@@ -1897,16 +1896,16 @@ export default function AuditLogsPage() {
                     w-full
                     rounded-2xl
                     border
-                    border-slate-200
+                    border-white/15
                     px-4
                     py-3
                     text-sm
                     font-bold
-                    text-slate-700
+                    text-slate-300
                     transition
-                    hover:border-rose-200
-                    hover:bg-rose-50
-                    hover:text-rose-700
+                    hover:border-rose-500/30
+                    hover:bg-rose-500/10
+                    hover:text-rose-300
                     disabled:cursor-not-allowed
                     disabled:opacity-40
                   "
@@ -1930,11 +1929,11 @@ export default function AuditLogsPage() {
           >
             <p className="text-slate-500">
               Showing{" "}
-              <span className="font-black text-slate-900">
+              <span className="font-black text-white">
                 {filteredLogs.length}
               </span>{" "}
               of{" "}
-              <span className="font-black text-slate-900">
+              <span className="font-black text-white">
                 {auditLogs.length}
               </span>{" "}
               audit events
@@ -1948,9 +1947,9 @@ export default function AuditLogsPage() {
                 }
                 className="
                   font-bold
-                  text-blue-700
+                  text-blue-300
                   transition
-                  hover:text-slate-950
+                  hover:text-white
                 "
               >
                 Clear all filters
@@ -1969,8 +1968,9 @@ export default function AuditLogsPage() {
             overflow-hidden
             rounded-[1.75rem]
             border
-            border-slate-200/80
-            bg-white
+            border-white/10
+            bg-white/5
+            backdrop-blur-xl
             shadow-[0_10px_40px_rgba(15,23,42,0.05)]
           "
           aria-label="Audit events"
@@ -2027,7 +2027,7 @@ export default function AuditLogsPage() {
               }
             />
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-white/10">
               {filteredLogs.map(
                 (log) => (
                   <article
@@ -2035,7 +2035,7 @@ export default function AuditLogsPage() {
                     className="
                       group
                       transition-colors
-                      hover:bg-blue-50/40
+                      hover:bg-blue-500/10
                     "
                   >
                     {/* DESKTOP */}
@@ -2062,11 +2062,11 @@ export default function AuditLogsPage() {
                             justify-center
                             rounded-xl
                             bg-gradient-to-br
-                            from-amber-50
-                            to-yellow-100
-                            text-amber-700
+                            from-[#C6A15B]/15
+                            to-[#C6A15B]/5
+                            text-[#C6A15B]
                             ring-1
-                            ring-amber-200/70
+                            ring-[#C6A15B]/30
                           "
                         >
                           <UserCheck
@@ -2079,7 +2079,7 @@ export default function AuditLogsPage() {
                             truncate
                             text-sm
                             font-bold
-                            text-slate-800
+                            text-slate-200
                           "
                           title={log.user}
                         >
@@ -2094,7 +2094,7 @@ export default function AuditLogsPage() {
                             text-sm
                             font-semibold
                             leading-6
-                            text-slate-700
+                            text-slate-300
                           "
                           title={log.action}
                         >
@@ -2109,12 +2109,12 @@ export default function AuditLogsPage() {
                             max-w-full
                             items-center
                             rounded-lg
-                            bg-slate-100
+                            bg-white/10
                             px-2.5
                             py-1.5
                             text-xs
                             font-bold
-                            text-slate-600
+                            text-slate-400
                           "
                         >
                           {log.category}
@@ -2160,8 +2160,8 @@ export default function AuditLogsPage() {
                             p-2.5
                             text-slate-400
                             transition
-                            hover:bg-blue-100
-                            hover:text-blue-700
+                            hover:bg-blue-500/15
+                            hover:text-blue-300
                             focus:outline-none
                             focus:ring-2
                             focus:ring-amber-400
@@ -2187,11 +2187,11 @@ export default function AuditLogsPage() {
                               justify-center
                               rounded-xl
                               bg-gradient-to-br
-                              from-amber-50
-                              to-yellow-100
-                              text-amber-700
+                              from-[#C6A15B]/15
+                              to-[#C6A15B]/5
+                              text-[#C6A15B]
                               ring-1
-                              ring-amber-200/70
+                              ring-[#C6A15B]/30
                             "
                           >
                             <UserCheck
@@ -2200,7 +2200,7 @@ export default function AuditLogsPage() {
                           </div>
 
                           <div className="min-w-0">
-                            <p className="truncate font-black text-slate-800">
+                            <p className="truncate font-black text-slate-200">
                               {log.user}
                             </p>
 
@@ -2217,8 +2217,8 @@ export default function AuditLogsPage() {
                         />
                       </div>
 
-                      <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-                        <p className="text-sm font-bold leading-6 text-slate-800">
+                      <div className="mt-5 rounded-2xl bg-white/5 p-4">
+                        <p className="text-sm font-bold leading-6 text-slate-200">
                           {log.action}
                         </p>
                       </div>
@@ -2229,7 +2229,7 @@ export default function AuditLogsPage() {
                             Category
                           </p>
 
-                          <p className="mt-1 text-sm font-semibold text-slate-600">
+                          <p className="mt-1 text-sm font-semibold text-slate-400">
                             {log.category}
                           </p>
                         </div>
@@ -2239,7 +2239,7 @@ export default function AuditLogsPage() {
                             IP Address
                           </p>
 
-                          <p className="mt-1 break-all font-mono text-xs font-semibold text-slate-600">
+                          <p className="mt-1 break-all font-mono text-xs font-semibold text-slate-400">
                             {log.ip}
                           </p>
                         </div>
@@ -2257,14 +2257,14 @@ export default function AuditLogsPage() {
                               items-center
                               gap-2
                               rounded-xl
-                              bg-blue-50
+                              bg-blue-500/10
                               px-4
                               py-2.5
                               text-sm
                               font-bold
-                              text-blue-700
+                              text-blue-300
                               transition
-                              hover:bg-blue-100
+                              hover:bg-blue-500/20
                               focus:outline-none
                               focus:ring-2
                               focus:ring-amber-400
@@ -2303,11 +2303,11 @@ export default function AuditLogsPage() {
               overflow-hidden
               rounded-[1.75rem]
               border
-              border-blue-100
+              border-blue-500/20
               bg-gradient-to-br
-              from-white
-              via-blue-50/50
-              to-cyan-50
+              from-white/5
+              via-blue-500/10
+              to-cyan-500/10
               p-6
               shadow-sm
               transition
@@ -2324,19 +2324,19 @@ export default function AuditLogsPage() {
                 justify-center
                 rounded-2xl
                 bg-gradient-to-br
-                from-blue-100
-                to-cyan-100
-                text-blue-700
+                from-blue-500/20
+                to-cyan-500/20
+                text-blue-300
               "
             >
               <Globe2 size={25} />
             </div>
 
-            <h3 className="mt-5 text-lg font-black text-slate-950">
+            <h3 className="mt-5 text-lg font-black text-white">
               Compliance Monitoring
             </h3>
 
-            <p className="mt-2 text-sm leading-7 text-slate-600">
+            <p className="mt-2 text-sm leading-7 text-slate-400">
               Platform activity is recorded to support
               security reviews, accountability,
               investigations and audit requirements.
@@ -2349,11 +2349,11 @@ export default function AuditLogsPage() {
               overflow-hidden
               rounded-[1.75rem]
               border
-              border-violet-100
+              border-violet-500/20
               bg-gradient-to-br
-              from-white
-              via-violet-50/50
-              to-purple-50
+              from-white/5
+              via-violet-500/10
+              to-purple-500/10
               p-6
               shadow-sm
               transition
@@ -2370,19 +2370,19 @@ export default function AuditLogsPage() {
                 justify-center
                 rounded-2xl
                 bg-gradient-to-br
-                from-violet-100
-                to-purple-100
-                text-violet-700
+                from-violet-500/20
+                to-purple-500/20
+                text-violet-300
               "
             >
               <FileText size={25} />
             </div>
 
-            <h3 className="mt-5 text-lg font-black text-slate-950">
+            <h3 className="mt-5 text-lg font-black text-white">
               Document Tracking
             </h3>
 
-            <p className="mt-2 text-sm leading-7 text-slate-600">
+            <p className="mt-2 text-sm leading-7 text-slate-400">
               Document uploads, access events, processing
               activities and AI analysis events can be
               monitored through the audit trail.
@@ -2395,11 +2395,11 @@ export default function AuditLogsPage() {
               overflow-hidden
               rounded-[1.75rem]
               border
-              border-emerald-100
+              border-emerald-500/20
               bg-gradient-to-br
-              from-white
-              via-emerald-50/50
-              to-teal-50
+              from-white/5
+              via-emerald-500/10
+              to-teal-500/10
               p-6
               shadow-sm
               transition
@@ -2416,9 +2416,9 @@ export default function AuditLogsPage() {
                 justify-center
                 rounded-2xl
                 bg-gradient-to-br
-                from-emerald-100
-                to-teal-100
-                text-emerald-700
+                from-emerald-500/20
+                to-teal-500/20
+                text-emerald-300
               "
             >
               <CheckCircle2
@@ -2426,7 +2426,7 @@ export default function AuditLogsPage() {
               />
             </div>
 
-            <h3 className="mt-5 text-lg font-black text-slate-950">
+            <h3 className="mt-5 text-lg font-black text-white">
               Audit Infrastructure
             </h3>
 
@@ -2457,12 +2457,12 @@ export default function AuditLogsPage() {
                 />
               </span>
 
-              <p className="text-sm font-black text-emerald-700">
+              <p className="text-sm font-black text-emerald-300">
                 Monitoring active
               </p>
             </div>
 
-            <p className="mt-2 text-sm leading-7 text-slate-600">
+            <p className="mt-2 text-sm leading-7 text-slate-400">
               Audit monitoring is connected to the
               platform backend and automatically refreshes
               to display current activity.
@@ -2479,7 +2479,7 @@ export default function AuditLogsPage() {
             mt-8
             rounded-[1.75rem]
             border
-            border-slate-200
+            border-white/10
             bg-gradient-to-r
             from-slate-950
             via-blue-950

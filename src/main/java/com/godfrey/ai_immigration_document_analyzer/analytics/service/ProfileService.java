@@ -5,6 +5,7 @@ import com.godfrey.ai_immigration_document_analyzer.dto.profile.ProfileUsageResp
 import com.godfrey.ai_immigration_document_analyzer.dto.profile.UpdateProfileRequest;
 import com.godfrey.ai_immigration_document_analyzer.entity.User;
 import com.godfrey.ai_immigration_document_analyzer.repository.UserRepository;
+import com.godfrey.ai_immigration_document_analyzer.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +83,8 @@ public class ProfileService {
     */
 
     private final UserRepository userRepository;
+
+    private final NotificationService notificationService;
 
 
     /*
@@ -403,9 +406,47 @@ public class ProfileService {
         );
 
 
+        notifyAdminsOfProfileUpdate(
+                savedUser
+        );
+
+
         return toProfileResponse(
                 savedUser
         );
+    }
+
+
+    /**
+     * Notifies every administrator that a user updated their own profile.
+     *
+     * Best-effort: the profile change has already been committed, so a
+     * notification failure must never fail the update itself.
+     */
+    private void notifyAdminsOfProfileUpdate(
+            User user
+    ) {
+
+        try {
+
+            notificationService.notifyAdmins(
+                    "PROFILE_UPDATED",
+                    "User Updated Their Profile",
+                    resolveName(user)
+                            + " ("
+                            + user.getEmail()
+                            + ") updated their profile details.",
+                    "/admin/users"
+            );
+
+        } catch (RuntimeException ex) {
+
+            log.error(
+                    "Profile updated but admin notification failed | userId={}",
+                    user.getId(),
+                    ex
+            );
+        }
     }
 
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import {
   AlertTriangle,
   BadgeCheck,
+  CheckCircle2,
+  RefreshCw,
   ShieldQuestion,
   Sparkles,
   Waypoints,
@@ -38,6 +40,18 @@ import ErrorAlert from "../common/ErrorAlert";
  * Deep provenance exploration is deliberately NOT duplicated here - it links
  * out to the existing, unmodified Evidence Graph page instead of embedding a
  * second graph renderer inside this narrow panel.
+ *
+ * PHASE 5.1 PRODUCTION HARDENING - GRACEFUL AI DEGRADATION:
+ * The deterministic requirement result (`result`) is ALWAYS present on a
+ * successful response, whether or not the AI explanation was produced - see
+ * `result.aiExplanationStatus`. This panel never conflates "the LLM could
+ * not explain this" with "the requirement assessment failed": the status/
+ * facts/evidence-gaps/conflicts/provenance/human-review sections below
+ * render identically in both cases; only the Explanation section and a
+ * small status strip change. "Retry AI Explanation" re-invokes ONLY the
+ * agent (a new, lightweight POST against the same already-computed
+ * requirement result) - it never re-uploads documents, alters facts, or
+ * changes the requirement's status.
  * ============================================================================
  */
 export default function ExplainRequirementPanel({
@@ -52,44 +66,36 @@ export default function ExplainRequirementPanel({
 
   const [run, setRun] = useState<AgentRunResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(async (isRetry: boolean) => {
 
-    let cancelled = false;
+    try {
+      isRetry ? setRetrying(true) : setLoading(true);
+      setError(null);
 
-    async function load() {
-      try {
-        setLoading(true);
-        setError(null);
+      const result = await explainRequirementApi({ pathwayAssessmentId, requirementId });
 
-        const result = await explainRequirementApi({ pathwayAssessmentId, requirementId });
+      setRun(result);
 
-        if (!cancelled) {
-          setRun(result);
-        }
-
-      } catch (err) {
-        if (!cancelled) {
-          setError(errorService.getMessage(err));
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
+    } catch (err) {
+      setError(errorService.getMessage(err));
+    } finally {
+      isRetry ? setRetrying(false) : setLoading(false);
     }
+  }, [pathwayAssessmentId, requirementId]);
 
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
+  useEffect(() => {
+    void load(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathwayAssessmentId, requirementId]);
 
   const result = run?.result ?? null;
   const outcomeDisplay = result ? getOutcomeDisplay(result.currentStatus) : null;
   const firstFactId = result?.factsConsidered[0]?.factId;
+  const aiStatus = result?.aiExplanationStatus;
+  const aiDegraded = aiStatus === "UNAVAILABLE" || aiStatus === "FAILED";
 
   return (
     <motion.aside
@@ -135,13 +141,54 @@ export default function ExplainRequirementPanel({
             {result.requirementTitle} <span className="text-slate-600">({result.requirementKey})</span>
           </p>
 
+          {/* Requirement assessment vs. AI explanation are two distinct,
+              independently-reported states - never conflated (Phase 5.1
+              Production Hardening, "never show 'assessment failed' when
+              only the AI explanation failed"). */}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="flex items-center gap-1.5 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-300">
+              <CheckCircle2 size={13} />
+              Requirement assessment - Completed
+            </div>
+            <div
+              className={
+                aiStatus === "GENERATED"
+                  ? "flex items-center gap-1.5 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-300"
+                  : "flex items-center gap-1.5 rounded-lg border border-amber-400/20 bg-amber-400/10 px-2.5 py-1.5 text-xs font-semibold text-amber-300"
+              }
+            >
+              {aiStatus === "GENERATED" ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />}
+              AI explanation - {aiStatus === "GENERATED" ? "Generated" : "Temporarily unavailable"}
+            </div>
+          </div>
+
           <section>
             <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
               Explanation
             </h4>
-            <p className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-relaxed text-slate-300">
-              {result.explanation}
-            </p>
+
+            {aiDegraded ? (
+              <div className="space-y-2 rounded-lg border border-amber-400/20 bg-amber-400/10 p-3 text-xs leading-relaxed text-amber-200">
+                <p className="font-semibold">AI explanation is temporarily unavailable.</p>
+                <p>
+                  The requirement assessment is still available. The AI explanation service is currently
+                  unavailable, but your requirement status and supporting evidence remain available below.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void load(true)}
+                  disabled={retrying}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-200 transition hover:bg-amber-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <RefreshCw size={12} className={retrying ? "animate-spin" : undefined} />
+                  {retrying ? "Retrying..." : "Retry AI Explanation"}
+                </button>
+              </div>
+            ) : (
+              <p className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-relaxed text-slate-300">
+                {result.explanation}
+              </p>
+            )}
           </section>
 
           {result.factsConsidered.length > 0 && (

@@ -24,7 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 
@@ -32,6 +34,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.util.List;
 
 
 
@@ -222,6 +228,150 @@ public class UserController {
 
 
         return ResponseEntity.ok(statistics);
+
+    }
+
+
+
+
+    /**
+     * ============================================================
+     * EXPORT USERS
+     * ============================================================
+     *
+     * GET /api/admin/users/export
+     *
+     * Returns every registered user as a downloadable CSV file.
+     */
+    @GetMapping(
+            value = "/export",
+            produces = "text/csv"
+    )
+    public ResponseEntity<byte[]> exportUsers() {
+
+
+        log.info(
+                "Exporting all users to CSV"
+        );
+
+
+        List<UserManagementResponse> users =
+                userService.getAllUsersForExport();
+
+
+        byte[] csv =
+                buildUsersCsv(users)
+                        .getBytes(StandardCharsets.UTF_8);
+
+
+        String filename =
+                "users-export-" + LocalDate.now() + ".csv";
+
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\""
+                )
+                .contentType(
+                        MediaType.parseMediaType("text/csv")
+                )
+                .body(csv);
+
+    }
+
+
+
+
+    /**
+     * Builds a CSV document from the given users.
+     *
+     * Values are escaped per RFC 4180 (quoting fields that contain a
+     * comma, quote, or newline, and doubling embedded quotes).
+     */
+    private String buildUsersCsv(
+            List<UserManagementResponse> users
+    ) {
+
+
+        StringBuilder csv =
+                new StringBuilder(
+                        "ID,Name,Email,Phone,Country,Role,Status,Applications,Joined\n"
+                );
+
+
+        for (UserManagementResponse user : users) {
+
+            csv.append(csvField(String.valueOf(user.getId())))
+                    .append(',')
+                    .append(csvField(user.getName()))
+                    .append(',')
+                    .append(csvField(user.getEmail()))
+                    .append(',')
+                    .append(csvField(user.getPhone()))
+                    .append(',')
+                    .append(csvField(user.getCountry()))
+                    .append(',')
+                    .append(csvField(
+                            user.getRole() != null
+                                    ? user.getRole().name()
+                                    : ""
+                    ))
+                    .append(',')
+                    .append(csvField(
+                            user.getStatus() != null
+                                    ? user.getStatus().name()
+                                    : ""
+                    ))
+                    .append(',')
+                    .append(user.getApplications())
+                    .append(',')
+                    .append(csvField(
+                            user.getJoined() != null
+                                    ? user.getJoined().toString()
+                                    : ""
+                    ))
+                    .append('\n');
+
+        }
+
+
+        return csv.toString();
+
+    }
+
+
+
+
+    /**
+     * Escapes a single CSV field.
+     */
+    private String csvField(
+            String value
+    ) {
+
+
+        if (value == null) {
+
+            return "";
+        }
+
+
+        String escaped =
+                value.replace("\"", "\"\"");
+
+
+        if (
+                escaped.contains(",")
+                        || escaped.contains("\"")
+                        || escaped.contains("\n")
+        ) {
+
+            return "\"" + escaped + "\"";
+        }
+
+
+        return escaped;
 
     }
 

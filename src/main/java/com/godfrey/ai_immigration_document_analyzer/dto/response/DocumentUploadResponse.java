@@ -7,9 +7,17 @@ import java.time.LocalDateTime;
  * DOCUMENT UPLOAD RESPONSE
  * ============================================================================
  *
- * Immutable API response.
+ * Immutable response returned after a document upload has been successfully
+ * completed.
  *
- * Sensitive raw OCR content is intentionally not returned by default.
+ * SECURITY
+ * ----------------------------------------------------------------------------
+ * Raw OCR/extracted document content is deliberately excluded.
+ *
+ * Storage implementation details such as S3 keys, bucket names, internal
+ * filesystem paths, and processing metadata should never be returned here.
+ *
+ * ============================================================================
  */
 public record DocumentUploadResponse(
 
@@ -33,6 +41,12 @@ public record DocumentUploadResponse(
 
 ) {
 
+    /**
+     * Creates a successful upload response.
+     *
+     * The upload status is deliberately fixed to COMPLETED rather than being
+     * accepted from the client.
+     */
     public static DocumentUploadResponse success(
             Long documentId,
             Long userId,
@@ -57,3 +71,4 @@ public record DocumentUploadResponse(
         );
     }
 }
+

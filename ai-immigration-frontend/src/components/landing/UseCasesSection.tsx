@@ -39,7 +39,6 @@ export default function UseCasesSection() {
     <section
       className="
         py-24
-        bg-white
       "
     >
 
@@ -64,7 +63,7 @@ export default function UseCasesSection() {
               text-4xl
               md:text-5xl
               font-bold
-              text-[#0B1736]
+              text-white
             "
           >
             Built for everyone involved in immigration
@@ -75,7 +74,7 @@ export default function UseCasesSection() {
             className="
               mt-5
               text-lg
-              text-[#7D8CA3]
+              text-slate-300
             "
           >
             MukondoGTech AI helps individuals and
@@ -108,8 +107,9 @@ export default function UseCasesSection() {
                 className="
                   rounded-3xl
                   border
-                  border-[#E5DED1]
-                  bg-[#F8F6F1]
+                  border-white/10
+                  bg-white/5
+                  backdrop-blur-xl
                   p-7
                   hover:shadow-lg
                   transition
@@ -121,7 +121,7 @@ export default function UseCasesSection() {
                     w-12
                     h-12
                     rounded-xl
-                    bg-[#071330]
+                    bg-[#C6A15B]/15
                     flex
                     items-center
                     justify-center
@@ -129,7 +129,7 @@ export default function UseCasesSection() {
                 >
                   <Icon
                     size={22}
-                    className="text-[#F4B81A]"
+                    className="text-[#C6A15B]"
                   />
                 </div>
 
@@ -139,7 +139,7 @@ export default function UseCasesSection() {
                     mt-6
                     text-xl
                     font-semibold
-                    text-[#0B1736]
+                    text-white
                   "
                 >
                   {item.title}
@@ -149,7 +149,7 @@ export default function UseCasesSection() {
                 <p
                   className="
                     mt-3
-                    text-[#7D8CA3]
+                    text-slate-300
                     leading-relaxed
                   "
                 >
@@ -160,7 +160,7 @@ export default function UseCasesSection() {
                 <ArrowRight
                   className="
                     mt-5
-                    text-[#F4B81A]
+                    text-[#C6A15B]
                   "
                   size={20}
                 />
